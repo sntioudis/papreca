@@ -7,7 +7,7 @@ to enable parallel hybrid off-lattice kMC/MD or pure off-lattice kMC studies rel
 
 Documentation
 -------------
-For additional information (installation, dependencies, theory, algorithms, examples, and more) related to the PAPRECA software please visit our documentation page.
+For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](addlinkplease).
 
 Citing PAPRECA
 ---------------
