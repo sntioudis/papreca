@@ -38,6 +38,6 @@ Test reference [@Ntioudis2023Oct]
 S.N. thanks Shell and the Engineering and Physical Sciences Research Council, United Kingdom (EPSRC) for PhD funding via the InFUSE Prosperity Partnership (EP/V038044/1).
 J.P.E. acknowledges the support of the Royal Academy of Engineering (RAEng) for support through their Research Fellowship scheme. 
 D.D. acknowledges a Shell/RAEng Research Chair in Complex Engineering Interfaces.
-We acknowledge computational resources and support provided by the Imperial College Research Computing Service (http://doi.org/10.14469/hpc/2232).
+We acknowledge computational resources and support provided by the [Imperial College Research Computing Service](http://doi.org/10.14469/hpc/2232).
 
 # References
