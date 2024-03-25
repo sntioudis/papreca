@@ -1,5 +1,5 @@
 ---
-title: 'PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator
+title: "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator"
 tags:
   - C++
   - Message Passing Interface (MPI)
