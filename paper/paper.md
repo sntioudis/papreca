@@ -31,7 +31,7 @@ bibliography: paper.bib
 
 # Summary
 
-Test reference [Ntioudis2023Oct]
+Test reference [@Ntioudis2023Oct]
 
 # Acknowledgements
 
