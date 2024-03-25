@@ -12,7 +12,8 @@ For additional information (installation, dependencies, theory, algorithms, exam
 Citing PAPRECA
 ---------------
 
-If you use PAPRECA for your research, kindly give credits to the PAPRECA as well as LAMMPS project authors by citing the following:
+If you use PAPRECA for your research, kindly give credits to the PAPRECA as well as LAMMPS project authors by citing the following [1], [2]:
 
-- Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
--Thompson, A.P. et al. "LAMMPS \- a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Communications, vol. 272 2022
+[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+
+[2] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Communications, vol. 272 2022
