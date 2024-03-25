@@ -2,9 +2,8 @@ PAPRECA
 ========
 PAPRECA off-lattice kMC stands for Parallel Predefined Catalog off-lattice kinetic Monte Carlo.
 
-PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) software built around 'LAMMPS. PAPRECA uses the Message Passaging Interface (MPI) protocol
+PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) software built around [LAMMPS](https://github.com/lammps/lammps). PAPRECA uses the Message Passaging Interface (MPI) protocol
 to enable parallel hybrid off-lattice kMC/MD or pure off-lattice kMC studies related to a variety of systems in Materials Science and Engineering (e.g., thin films, catalysts).
-<https://github.com/lammps/lammps>'_.
 
 Documentation
 -------------
