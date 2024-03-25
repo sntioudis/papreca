@@ -1,3 +1,6 @@
+- name: Open Journals PDF Generator
+  uses: openjournals/openjournals-draft-action@v.1.0
+            
 ---
 title: 'PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator
 tags:
