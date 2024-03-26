@@ -13,6 +13,8 @@ In the spirit of open source, please let us know (e.g., by using pull requests o
 
 Additionally, enquiries can be directed to the main developer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
 
+In any case, kindly review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in our community.
+
 Documentation
 -------------
 For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](addlinkplease).
