@@ -5,6 +5,14 @@ PAPRECA off-lattice kMC stands for Parallel Predefined Catalog off-lattice kinet
 PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) software built around [LAMMPS](https://github.com/lammps/lammps). PAPRECA uses the [Message Passaging Interface (MPI) protocol](https://en.wikipedia.org/wiki/Message_Passing_Interface)
 to enable parallel hybrid off-lattice kMC/MD or pure off-lattice kMC studies related to a variety of systems in Materials Science and Engineering (e.g., thin films, catalysts).
 
+Open-source and community guidelines
+-------------
+PAPRECA is an open-source software that is distributed under the terms of the [GNU General Public License, version 2](https://en.wikipedia.org/wiki/GNU_General_Public_License). PAPRECA is designed as an easy-to-modify and easy-to-extend software. For example, new predefined event templates can be added to the original code.
+
+In the spirit of open source, please let us know (e.g., by using pull requests or issues) if you have any ideas about new features or if you can contribute to the code in any other way (e.g., bug fixes, code optimization, new examples, corrections to documentation).
+
+Additionally, enquiries can be directed to the main developer of this software: Stavros Ntioudis ([stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk))
+
 Documentation
 -------------
 For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](addlinkplease).
