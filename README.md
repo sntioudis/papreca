@@ -11,7 +11,7 @@ PAPRECA is an open-source software that is distributed under the terms of the [G
 
 In the spirit of open source, please let us know (e.g., by using pull requests or issues) if you have any ideas about new features or if you can contribute to the code in any other way (e.g., bug fixes, code optimization, new examples, corrections to documentation).
 
-Additionally, enquiries can be directed to the main developer of this software: Stavros Ntioudis ([stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk))
+Additionally, enquiries can be directed to the main developer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
 
 Documentation
 -------------
