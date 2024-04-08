@@ -1,0 +1,48 @@
+# Makefile for PAPRECA kMC library
+
+SHELL = /bin/sh
+
+
+#Include MakeFile config file with all neccesary paths for installation
+include ../../../Installation/Traditional\ Make/MakeConfig
+
+#-O3 flag enables higher level optimization. You can also use -O
+#optimization flags for target architecture: x86 systems: -march=native -mtune=native, ARM64 systems: -mcpu=native
+#Please use lscpu before compilation to determine architecture and enable better optimization/performance for your system
+
+CC =		mpicxx
+CCFLAGS =	-g -O3 -I${LAMMPS}/src
+DEPFLAGS =	-M
+LINK =		mpicxx
+LINKFLAGS =	-g -O3
+ARCHIVE =	ar
+ARFLAGS =	-rc
+SIZE =		size
+
+# Files
+
+LIB = 	libPAPRECA.a
+SRC =	$(wildcard *.cpp)
+INC =	$(wildcard *.h)
+OBJ = 	$(SRC:.cpp=.o)
+
+# Targets
+
+lib:	$(OBJ)
+	$(ARCHIVE) $(ARFLAGS) $(LIB) $(OBJ)
+
+clean:
+	rm $(LIB) *.o *.d
+
+# Compilation rules
+
+%.o:%.cpp
+	$(CC) $(CCFLAGS) -c $<
+
+%.d:%.cpp
+	$(CC) $(CCFLAGS) $(DEPFLAGS) $< > $@
+
+# Individual dependencies
+
+DEPENDS = $(OBJ:.o=.d)
+include $(DEPENDS)

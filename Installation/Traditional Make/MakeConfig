@@ -1,0 +1,10 @@
+#Configuration file for APRECAT installation (Traditional Make).
+
+#No need to change those directories at all. You can change the BUILDDIR if you want to build the executable in another directory
+BUILDDIR = ../../TraditionalMakeBuild
+SRCDIR = ../../source
+PAPRECA =	../../source/libraries/PAPRECA
+
+#ADD YOUR LAMMPS path! Adding a FFTW2 might not be neccesary. All we need is that the compiler can find the fftw library (-lfftw) (THE SAME FFTW LIBRARY AS THE ONE YOU USED TO COMPILE LAMMPS).
+LAMMPS = /home/sn120/Desktop/LAMMPS/lammps_stable_29Feb2024/
+FFTW2 = /home/sn120/Desktop/FFTW/FFTW2/fftw-2.1.5/fftw/.libs/

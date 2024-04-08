@@ -1,0 +1,52 @@
+# Makefile for PAPRECA kMC
+
+SHELL = /bin/sh
+
+#Includes for directories
+include MakeConfig
+
+# Files
+EXE = 	$(BUILDDIR)/papreca
+SRC =	$(wildcard $(SRCDIR)/*.cpp)
+INC =	$(wildcard $(SRCDIR)/*.h)
+OBJ = $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRC))
+DEP = $(OBJ:.o=.d)
+
+
+#Compiler Settings
+
+#-O3 flag enables higher level optimization. You can also use -O
+#optimization flags for target architecture: x86 systems: -march=native -mtune=native, ARM64 systems: -mcpu=native
+#Please use lscpu before compilation to determine architecture and enable better optimization/performance for your system
+
+CC =		mpicxx
+CCFLAGS = -g -O3 -I${PAPRECA} -I${LAMMPS}/src -I${MPI} -I${FFTW2}
+DEPFLAGS =	-M
+LINK =		mpicxx
+LINKFLAGS =	-g -O3 -L${PAPRECA} -L${LAMMPS}/src -L${LAMMPS}/build -L${FFTW2}
+USRLIB =	-lPAPRECA -llammps 
+SYSLIB =	-lfftw -lpthread -ljpeg -fopenmp
+ARCHIVE =	ar
+ARFLAGS =	-rc
+SIZE =		size
+
+# Targets
+
+offKMC:	$(EXE)
+	
+$(EXE): $(OBJ)
+	$(LINK) $(LINKFLAGS) $^ $(USRLIB) $(SYSLIB) -o $@
+	$(SIZE) $@
+
+clean:
+	rm $(EXE) $(OBJ) $(DEP)
+
+# Compilation rules
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CC) $(CCFLAGS) -c $< -o $@
+
+%.d:%.cpp
+	$(CC) $(CCFLAGS) $(DEPFLAGS) $< > $@
+
+#Dependencies	
+-include $(DEP)
