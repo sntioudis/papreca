@@ -1,19 +1,27 @@
-name: Doxygen GitHub Pages Deploy Action
+name: Build and Deploy Documentation
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: DenverCoder1/doxygen-github-pages-action@v1.3.0
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen -y
+
+      - name: Generate Documentation
+        run: |
+          doxygen ./documentation/Doxyfile
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: documentation/
-          config_file: ./Doxyfile
-          target_folder: ./
+          publish_dir: ./documentation/html
