@@ -17,7 +17,7 @@ In any case, kindly review our [Code of Conduct](CODE_OF_CONDUCT.md) before part
 
 Documentation
 -------------
-For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](addlinkplease).
+For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](https://sntioudis.github.io/papreca/).
 
 Citing PAPRECA
 ---------------
