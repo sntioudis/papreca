@@ -1,0 +1,21 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main  # adjust as needed
+
+jobs:
+  build-and-deploy:
+    if: github.actor == 'sntioudis'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Doxygen Action #Generate documentation from Doxygen
+        uses: mattnotmitt/doxygen-action@1.9.8
+        with:
+          working-directory: ./documentation
+          doxyfile-path: ./Doxyfile
