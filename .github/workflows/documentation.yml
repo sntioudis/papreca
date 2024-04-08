@@ -1,19 +1,21 @@
-name: Doxygen GitHub Pages Deploy Action
+name: Build and Deploy Documentation
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # adjust as needed
 
 jobs:
-  deploy:
+  build-and-deploy:
+    if: github.actor == 'sntioudis'
     runs-on: ubuntu-latest
+
     steps:
-      - uses: DenverCoder1/doxygen-github-pages-action@v1.3.0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Doxygen Action #Generate documentation from Doxygen
+        uses: mattnotmitt/doxygen-action@1.9.8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: ./documentation/html
-          config_file: ./documentation/Doxyfile
-          target_folder: ./documentation/html
+          working-directory: ./documentation
+          doxyfile-path: ./Doxyfile
