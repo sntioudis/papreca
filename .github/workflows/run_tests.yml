@@ -33,7 +33,6 @@ jobs:
           cd build
           cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building 
           cmake --build .
-
     - name: Build PAPRECA
       run: |
           cd $HOME
