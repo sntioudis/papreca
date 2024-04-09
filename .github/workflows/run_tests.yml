@@ -28,7 +28,7 @@ jobs:
       
      - name: Build LAMMPS with required packages
        run: |
-          cd mylammps
+          cd $HOME/mylammps
           git checkout release
           git pull
           mkdir build
