@@ -9,7 +9,7 @@
 %PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) code. It can be used to capture the long-timescale dynamics
 of systems with atomic-level resolution by performing a series of elementary processes (e.g., depositions/desorptions, reactions, diffusion steps).
 %PAPRECA can be relevant to scientists conducting research in the broad field of Materials Science and Engineering.
-Example applications of %PAPRECA include but are not limited to: catalysts, amorphous thin-films (e.g., phosphate films, solid electrolyte interphases, oxide layers), modeling self-diffusion of gases.
+Example applications of %PAPRECA include but are not limited to catalysts, amorphous thin films (e.g., phosphate films, solid electrolyte interphases, oxide layers), modeling self-diffusion of gases.
 
 A typical %PAPRECA step comprises two distinct parts: a kMC stage and an MD stage [1].
 During the kMC stage, system sites are scanned to detect atomistic events. Then, a single event is stochastically selected (based on a rejection-free kMC scheme), executed, and finally, the simulation clock is advanced [2].
