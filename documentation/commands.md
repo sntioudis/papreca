@@ -2,7 +2,7 @@
 
 \anchor commands
 
-This page contains information regarding %PAPRECA commands. For details related to LAMMPS comands please visit this [documentation page](https://docs.lammps.org/commands_list.html#).
+This page contains information regarding %PAPRECA commands. For details related to LAMMPS commands please visit this [documentation page](https://docs.lammps.org/commands_list.html#).
 
 > **Important note::**
 > %PAPRECA will always ignore text to the right of a "#" character. You can use "#" characters to add comments to your input files.
@@ -142,7 +142,7 @@ Nonetheless, the efficiency of the MD stage can be possibly lowered due to opera
 
 If you are unsure about the name of a neighbor list or whether the list is half or full, you can run a small MD (LAMMPS) trajectory (after you set up your LAMMPS input file).
 By doing so, you will force LAMMPS to output (on the screen or in the lammps.log file) detailed information related to the neighbor lists in your simulation.
-The snippet below demostrates the information printed in the first few lines of the lammps.log file generated when running the example located in ./Examples/Phosphate Film Growth from TCP on Fe110/ :
+The snippet below demonstrates the information printed in the first few lines of the lammps.log file generated when running the example located in ./Examples/Phosphate Film Growth from TCP on Fe110/ :
 
 ```bash
 Neighbor list info ...
@@ -172,11 +172,11 @@ Neighbor list info ...
 Where you observe that the lj/cut/cout/cut is a half list (see attributes) and that the zero pair_style is associated with a full list.
 
 In future %PAPRECA versions and to reduce the complexity associated with the neighbor lists, we plan to remove the neiblists command. Instead, a fix %PAPRECA
-LAMMPS command will be used (in the LAMMPS input file) to initialize two neighbor lists (i.e., one half and one full) to be utilized for the discover of kMC events.
+LAMMPS command will be used (in the LAMMPS input file) to initialize two neighbor lists (i.e., one half and one full) to be utilized to discover of kMC events.
 
 
 > **Note 1:**
-> This is a mandatory command. The %PAPRECA simulation will not start unless both the half and full neighbor list names have been declared. if the user provides incorrect neighbor list names, the %PAPRECA run will abort prematurely, as soon as it tries to retrieve an access an atom from the (non-existing) neighbor list.
+> This is a mandatory command. The %PAPRECA simulation will not start unless both the half and full neighbor list names have been declared. if the user provides incorrect neighbor list names, the %PAPRECA run will abort prematurely, as soon as it tries to retrieve an atom from the (non-existing) neighbor list.
 
 > **Note 2:**
 > When using the pair_style hybrid/overlay command you need to define the coefficients of both the pair_style of your choice and the zero potential. When it comes to the zero potential, please use the following command in your LAMMPS input file: "pair_coeff * *" to initialize all the coefficients.
@@ -188,7 +188,7 @@ LAMMPS command will be used (in the LAMMPS input file) to initialize two neighbo
 > If you plan to use [special_bonds](https://docs.lammps.org/special_bonds.html) in your simulation refrain from setting **ANY** of the special_bonds to zero. Setting a special_bond to zero eliminates the (1-2,1-3, or 1-4) neighbors from the neighbor lists. Please use a double number beyond the accuracy limits of a C++ double instead of zero (e.g., use "special_bonds lj 1e-100 1.0 1.0 coul 1e-100 1.0 1.0" in your input file instead of "special_bonds lj 0.0 1.0 1.0 coul 0.0 1.0 1.0" to include the 1-2 neighbors). Once again, this does not affect the computational efficiency of the MD stage but includes additional neighbor pairs in the neighbor list.
 
 > **Note 5:**
-> Consider using [neigh_modify](https://docs.lammps.org/neigh_modify.html) command with the "every 1", "delay 0", and "check yes" options in your LAMMPS input file (where applicable). This force LAMMPS to update the neighbors lists on every timestep and increases the accuracy of your %PAPRECA run (in the expense of computational efficiency).
+> Consider using [neigh_modify](https://docs.lammps.org/neigh_modify.html) command with the "every 1", "delay 0", and "check yes" options in your LAMMPS input file (where applicable). This forces LAMMPS to update the neighbors lists on every timestep and increases the accuracy of your %PAPRECA run (in the expense of computational efficiency).
 
 
 <hr>
@@ -222,15 +222,15 @@ sigmas_options manual mix arithm
 Defines the options related to the initialization of "sigma" (as in the Lennard-Jones potential, see [here](https://en.wikipedia.org/wiki/Lennard-Jones_potential) ) values for the %PAPRECA simulation. Note that, for events requiring collision tests (e.g., deposition events)
 the sigma value defines the maximum acceptable distance between two species (i.e., if d &le; sigma %PAPRECA assumes that an interference exists and that atom collides) [1].
 
-For style manual, the sigma values have to be manually declared in the %PAPRECA input file (using sequencial \ref insigma commands) for all types.
+For style manual, the sigma values have to be manually declared in the %PAPRECA input file (using sequential \ref insigma) for all types.
 
-For style LAMMPS, the sigma values are retrieved from LAMMPS. Note that, it is neccesary that your [pair_style](https://docs.lammps.org/pair_style.html) of choice uses sigma values (e.g., [lj/cut/](https://docs.lammps.org/pair_lj.html) and that all sigma values are properly set in the LAMMPS input file.
+For style LAMMPS, the sigma values are retrieved from LAMMPS. Note that, it is necessary that your [pair_style](https://docs.lammps.org/pair_style.html) of choice uses sigma values (e.g., [lj/cut/](https://docs.lammps.org/pair_lj.html) and that all sigma values are properly set in the LAMMPS input file.
 
-The mix keyword performs geometric or arithmetic mixing on already defined sigma values. The mixing is performed after the last \ref insigma command line in the %PAPRECA input (or right before the start of the %PAPRECA run if no \ref insigma command have been used). Hence, it can be very useful if you wish to solely
+The mix keyword performs geometric or arithmetic mixing on already defined sigma values. The mixing is performed after the last \ref insigma line in the %PAPRECA input (or right before the start of the %PAPRECA run if the \ref insigma has not been used). Hence, it can be very useful if you wish to solely
 define the diagonal sigma terms. See this [LAMMPS documentation](https://docs.lammps.org/pair_modify.html) page for more information regarding the mixing styles.
 
 > **Note:**
-> The sigma values for all pairs of atom types (diagonal and cross-terms) have to be defined before the start of a %PAPRECA run.  The %PAPRECA run will start normally even if the sigmas of all pairs of atom types have not been defined. However, the %PAPRECA run will abort as soon as a interference check is performed for pairs of atom types of unknown sigma values.
+> The sigma values for all pairs of atom types (diagonal and cross-terms) have to be defined before the start of a %PAPRECA run.  The %PAPRECA run will start normally even if the sigmas of all pairs of atom types have not been defined. However, the %PAPRECA run will abort as soon as an interference check is performed for pairs of atom types of unknown sigma values.
 
 \subsection sigoptions_bibliography Bibliography
 
@@ -263,16 +263,16 @@ Defines a "sigma" value (as in the Lennard-Jones potential, see [here](https://e
 the sigma value defines the maximum acceptable distance between two species (i.e., if d &le sigma %PAPRECA assumes that an interference exists and that atom collides) [1].
 
 > **Note 1:**
-> The sigma values for all pairs of atom types (diagonal and cross-terms) have to be defined before the start of a %PAPRECA run.  The %PAPRECA run will start normally even if the sigmas of all pairs of atom types have not been defined. However, the %PAPRECA run will abort as soon as a interference check is performed for pairs of atom types of unknown sigma values.
+> The sigma values for all pairs of atom types (diagonal and cross-terms) have to be defined before the start of a %PAPRECA run.  The %PAPRECA run will start normally even if the sigmas of all pairs of atom types have not been defined. However, the %PAPRECA run will abort as soon as an interference check is performed for pairs of atom types of unknown sigma values.
 
 > **Note 2:**
-> A \ref sigoptions command has to be present in your %PAPRECA input file before you use this command.
+> A \ref sigoptions has to be present in your %PAPRECA input file before you use this command.
 
 > **Note 3:**
 > This command can be used as many times as necessary in order to define all the sigmas for the %PAPRECA simulation. When used multiple times, previously defined sigma values will be overwritten.
 
 > **Note 4:**
-> %PAPRECA will not check if the defined sigma corresponds to atom types that exist in the simulation (i.e., define in the LAMMPS input file).
+> %PAPRECA will not check if the defined sigma corresponds to atom types that exist in the simulation (i.e., defined in the LAMMPS input file).
 
 \subsection insigma_bibliography Bibliography
 
@@ -369,7 +369,7 @@ time_end 10
 \subsection time_end_description Description
 
 Sets a desired ending time for the %PAPRECA run, i.e., the %PAPRECA run will stop when the simulation time is equal to or greater than time_end.
-This command does not replace \ref KMC_steps command. It simply places an a time limit on top of \ref KMC_steps.
+This command does not replace \ref KMC_steps. It simply places a time limit on top of \ref KMC_steps.
 
 \subsection time_end_default Default
 
@@ -408,7 +408,7 @@ height_calculation mass_bins 0.8 1.0
 Sets up a height calculation for the %PAPRECA simulation. If this command is used, the height **across the z-coordinate** is calculated before every kMC stage. This command was designed to dynamically capture the height of thin films.
 
 For style mass_bins the height calculation is performed as follows: firstly, the whole simulation box is divided into x-y segments. The x-y segments span from on side to another in the x- and y- directions
-and have a thickness (in the z-direction) of bin_width. Secondly, the total mass of each x-y segment is calculated. Finally, a running sum of bin masses is calculated (starting from the lower most x-y segment) and the film height is defined as the height of the first mass bin for which the running mass sum is greater or equal than M &times; cutoff (where M is the total mass of the system at the current %PAPRECA step).
+and have a thickness (in the z-direction) of bin_width. Secondly, the total mass of each x-y segment is calculated. Finally, a running sum of bin masses is calculated (starting from the lowermost x-y segment) and the film height is defined as the height of the first mass bin for which the running mass sum is greater that or equal to M &times; cutoff (where M is the total mass of the system at the current %PAPRECA step).
 
 \subsection height_calculation_default Default
 
@@ -456,11 +456,11 @@ for more information about these 2 different approaches: deleteDesorbedAtoms(). 
 and bonded to another atom whose z-coordinate is 29, then, both atoms will be deleted. Bonded atoms are deleted to prevent "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html))
 within the MD stage of %PAPRECA run. If the "max" keyword is used, then the maximum number of atoms that can be deleted at once becomes "N".
 
-For style "LAMMPS_region" a wrapper (see deleteAtomsInBoxRegion()) around the [region](https://docs.lammps.org/region.html) and [delete_atoms](https://docs.lammps.org/delete_atoms.html) commands is used to delete atoms above the deletion height. Note that, unlike the "gather_all" and "gather_local" styles, the "LAMMPS_region" style will simply delete
-all bonded interactions (i.e., bond, angles, dihedrals, and impropers) associated with the deleted atoms, but not the bonded atoms to deleted atoms. Consider This as it may lead to instabilities to do sudden energy change.
+For style "LAMMPS_region" a wrapper (see deleteAtomsInBoxRegion()) around the [region](https://docs.lammps.org/region.html) and [delete_atoms](https://docs.lammps.org/delete_atoms.html) commands are used to delete atoms above the deletion height. Note that, unlike the "gather_all" and "gather_local" styles, the "LAMMPS_region" style will simply delete
+all bonded interactions (i.e., bond, angles, dihedrals, and impropers) associated with the deleted atoms, but not the bonded atoms to deleted atoms. Consider This as it may lead to instabilities to do sudden system energy change.
 
 > **Note:**
-> Prior to using this command you must set up a height calculation for your %PAPRECA simulation (i.e., a \ref height_calculation command must be present in your %PAPRECA above the current command line).
+> Prior to using this command you must set up a height calculation for your %PAPRECA simulation (i.e., a \ref height_calculation must be present in your %PAPRECA above the current command line).
 
 \subsection desorb_default Default
 
@@ -496,7 +496,7 @@ minimize_prior no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and before simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will note check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -540,7 +540,7 @@ minimize_after no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and right after simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will note check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -634,7 +634,7 @@ You can provide the bond-breaking rate manually or input the activation energy, 
 
 When the catalyzed keyword is used, the bond-breaking event can be selected and executed (within the kMC stage of the %PAPRECA run) only if at least one atom of the specified atom type is present
 in the full neighbor list of the parent atom (i.e., the atom on which the bond-breaking was discovered). Note that, %PAPRECA will not check if the provided catalyzing atom type is valid (i.e., exists in your simulation and has been defined in the LAMMPS input file).
-Also, note that, the bond-breaking probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
+Also, note that the bond-breaking probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer "catalyzing" types will be in the neighborhood of the parent atom.
 
 > **Note 1:**
@@ -684,7 +684,7 @@ create_BondForm 5 6 9 3.7588562 no no no rate_arrhenius 13.0 1.0e13 500
 
 Create a predefined bond-formation template (see PAPRECA::PredefinedBondForm and PAPRECA::BondForm) for the kMC stage of the %PAPRECA run. 
 Note that, for the kMC event to function properly, you have to explicitly declare the [bond_style](https://docs.lammps.org/bond_style.html) (typically harmonic) along with the relevant [bond_coeff](https://docs.lammps.org/bond_coeff.html) in your LAMMPS input file.
-%PAPRECA does not permit the formation of two bond between exactly the same atoms. If you wish to create a "double" bond consider defining an additional bond type whose coefficients are representative of a "double" bond.
+%PAPRECA does not permit the formation of two bonds between exactly the same atoms. If you wish to create a "double" bond consider defining an additional bond type whose coefficients are representative of a "double" bond.
 
 On every kMC stage, %PAPRECA will attempt to create the bond (as defined in the template) with a given probability (based on the chosen rate).
 Bonds are created by calling PAPRECA::formBond() LAMMPS wrapper function and the executeBondForm() function of the papreca.cpp driver code.
@@ -807,7 +807,7 @@ coincide with the geometric center of the molecule (as defined in the LAMMPS inp
 
 For sticking_coeff = constant the user must select a constant sticking coefficient value. The sticking coefficient value will remain unchanged (as set) throughout the simulation.
 Conversely, if sticking_coeff = variable, then the sticking coefficient is dynamically calculated by dividing the number of available (collision-free) deposition sites by the total number of sites (occupied and collision-free) [1].
-Note that, if you have defined multiple deposition events with the same adsorbate_name (e.g., mmmTCP), then %PAPRECA will assume that the adsorption sites of all such events are identical will assign/calculate an identical sticking coefficient.
+Note that, if you have defined multiple deposition events with the same adsorbate_name (e.g., mmmTCP), then %PAPRECA will assume that the adsorption sites of all such events are identical and will assign/calculate an identical sticking coefficient.
 
 You can provide the deposition rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 For predefined deposition events the rate can also be calculated from the kinetic theory of gases (Hertz-Knudsen equation). Please see 
@@ -851,7 +851,7 @@ random_depovecs yes
 \subsection depovevecs_description Description
 
 When random_depovecs are not activated (i.e., random_depovecs = no) the center of mass (COM) of any deposited molecule
-is located directly above the parent atom (i.e., the atom on which searches for kMC events are performed) and at a distance of depo_offset (see \ref createDepo command).
+is located directly above the parent atom (i.e., the atom on which searches for kMC events are performed) and at a distance of depo_offset (see \ref createDepo).
 
 When random_depovecs are activated (i.e., random_depovecs = yes) the COM of any deposited molecule is located on the surface of the upper hemisphere (i.e., along the +z-direction)
 of a sphere centered on the parent atom. The exact position of the COM is determined randomly (by drawing a random number, see getDepoPointCandidateCoords() for more information).
@@ -889,7 +889,7 @@ Specifically, $PAPRECA scans for deposition events between film_height - height_
 
 
 > **Note:**
-> Prior to using this command you must set up a height calculation for your %PAPRECA simulation (i.e., a \ref height_calculation command must be present in your %PAPRECA above the current command line).
+> Prior to using this command you must set up a height calculation for your %PAPRECA simulation (i.e., a \ref height_calculation must be present in your %PAPRECA above the current command line).
 
 \subsection depoheights_default Default
 
@@ -907,7 +907,7 @@ create_DiffusionHop parent_type diff_vel diff_dist displacive diffused_type arg 
 
 - parent_type = atom type of parent atom (i.e., atom on which the event is detected).
 - diff_vel = double number denoting the velocity (in velocity units as in LAMMPS) of the diffused atom.
-- diff_dist = double number denoting the distance (in length units as in LAMMPS) between the parent atom and the vacant site (i.e., position towards which the atom migrates).
+- diff_dist = double number denoting the Eucledian distance (in length units as in LAMMPS) between the parent atom and the vacant site.
 - displacive = **yes** (if the parent atom is displaced) or **no** if the parent atom remains intact and a new atom is placed on the vacant site.
 - diffused_type = atom type of diffused atom.
 
@@ -928,7 +928,7 @@ rate_arrhenius values = energy frequency temperature
 custom values = Fe_4PO4neib
 	Fe_4PO4neib values = N Ptype
 		N = has to be equal to 1
-		Ptype = atom type number of the Phoshorus type in the simulation.
+		Ptype = atom type number of the Phosphorus type in the simulation.
 ```
 
 \subsection createDiff_examples Example(s)
@@ -949,10 +949,10 @@ On every kMC stage, %PAPRECA will attempt to move ("displacive" templates) or in
 Atoms are diffused in the system by calling the PAPRECA::diffuseAtom() LAMMPS wrapper function and the executeDiffusion() function of the papreca.cpp driver code.
 
 If the custom template "Fe_4PO4neib" is used (see example above for syntax), then diffusion events require at least four PO4 structures in their neighborhood to be valid.
-A PO4 structure consists of Phosphorus atom which is bonded (with an explicit bonded-interaction) to four Oxygen atoms.
-The "Fe_4PO4neib" custom template performs searches on the neighbor list of the parent atom. Also, note that, the diffusion probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
+A PO4 structure consists of Phosphorus atom which is bonded (with an explicit bonded interaction) to four Oxygen atoms.
+The "Fe_4PO4neib" custom template performs searches on the neighbor list of the parent atom. Also, note that the diffusion probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer PO4 structures will be in the neighborhood of the parent atom. The "Fe_4PO4neib" custom template was created to cover the needs of a very specific application related
-to the formation and growth of thin-film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1].
+to the formation and growth of thin film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1].
 
 You can provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
@@ -997,7 +997,7 @@ only be located above the parent atom (i.e., the atom on which searches for kMC 
 When the "3D" option is used diffusion sites can be located above as well as below the parent atom.
 
 When random_diffvecs are not activated (i.e., random_diffvecs = no) diffusion sites will be directly above/below (depending on whether the "2D" or "3D" options were used)
-and at a distance of diff_dist (see \ref createDiff command).
+and at a distance of diff_dist (see \ref createDiff).
 
 When random_diffvecs are activated (i.e., random_diffvecs  = yes ) diffusion sites will be located on the surface
 of a sphere centered on the parent atom. The exact position of the COM is selected randomly (by drawing a random number, see getDiffPointCandidateCoords() for more information).
@@ -1102,8 +1102,8 @@ export_SurfaceCoverage 1000
 \subsection coverage_description Description
 
 Generates a file named "surface_coverage.log" in the current directory of the %PAPRECA run. The SurfaceCoverage file comprises 2 columns. 
-The first column lists the time (in seconds) of a %PAPRECA step. The second column lists the surface coverage , i.e., the number of occupied sites divided by the total number of sites in the system.
-Note that, the surface coverage is linked to the sticking coefficient of the deposition event (see \ref createDepo command).
+The first column lists the time (in seconds) of a %PAPRECA step. The second column lists the surface coverage, i.e., the number of occupied sites divided by the total number of sites in the system.
+Note that, the surface coverage is linked to the sticking coefficient of the deposition event (see \ref createDepo).
 
 %PAPRECA will append to the SurfaceCoverage file every N steps.
 
