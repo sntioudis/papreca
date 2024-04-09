@@ -496,7 +496,7 @@ minimize_prior no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and before simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -540,7 +540,7 @@ minimize_after no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and right after simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -577,7 +577,7 @@ trajectory_duration 0
 
 \subsection trajdur_description Description
 
-Sets the duration of the MD stage of the %PAPRECA run. This is effectively, how many MD timesteps LAMMPS will simulate during each MD stage. The trajectory duration can be 0 (means that %PAPRECA will perform a pure off-lattice kMC run).
+Sets the duration of the MD stage of the %PAPRECA run. This represents how many MD timesteps will be simulated by LAMMPS during each MD stage. The trajectory duration can be 0 (means that %PAPRECA will perform a pure off-lattice kMC run).
 
 \subsection trajdur_default Default
 
