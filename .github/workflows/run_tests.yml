@@ -14,18 +14,18 @@ jobs:
     
     - name: Checkout repository
       uses: actions/checkout@v4
-
+      
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
-
-      - name: Clone LAMMPS repository
-        run: git clone -b release https://github.com/lammps/lammps.git mylammps
-
-      - name: Build LAMMPS with required packages
-        run: |
+        
+    - name: Clone LAMMPS repository
+      run: git clone -b release https://github.com/lammps/lammps.git mylammps
+      
+    - name: Build LAMMPS with required packages
+      run: |
           cd mylammps
           git checkout release
           git pull
@@ -34,8 +34,8 @@ jobs:
           cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building 
           cmake --build .
 
-      - name: Build PAPRECA
-        run: |
+    - name: Build PAPRECA
+      run: |
           cd $HOME
           mkdir mypapreca
           cd ./mypapreca
