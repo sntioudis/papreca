@@ -160,7 +160,7 @@ int main( int narg , char **arg ){
 		papreca_config.calcHybridAndKMCTimes4ExecTimeFile( nprocs , i );
 		papreca_config.appendExportFiles( lmp , proc_id , time , event_type , film_height , i );
 		
-		//Test if target ending time is exceeded to exit prematurely. Ensure that 
+		//Test if target ending time is exceeded to exit prematurely. 
 		if( time >= papreca_config.getTimeEnd( ) ){ break; }
 		
 	}
