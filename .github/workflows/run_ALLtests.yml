@@ -1,12 +1,9 @@
 name: Run ALL tests
 
-# Controls when the action will run. Triggers the workflow on push
-# events but only for the master branch
+# Controls when the action will run.
 
 on:
- push:
-   branches:
-    - main
+  workflow_dispatch: #Only trigger manually
 
 jobs:
   runAllTests:
@@ -48,13 +45,13 @@ jobs:
        run: |
           cd $HOME
           mkdir papreca_tests; cd papreca_tests
-          cp -r $GITHUB_WORKSPACE/tests ./ #Copy the entire tests folder to the working directory
+          cp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/ #Copy the entire tests folder to the working directory
           cd ./source\ tests/
           mkdir build; cd build
           cmake ..-DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
           cmake --build .
 
-     - name: Run source tests
+     - name: Run source testscp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/ 
        run: |
         cd $HOME/papreca_tests/source\ tests/
         bash ./run_tests.sh
