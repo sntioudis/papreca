@@ -19,6 +19,11 @@ jobs:
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
         
+     - name: Setup python
+       uses: actions/setup-python@v5
+       with:
+           python-version: '3.10'
+        
      - name: Clone LAMMPS repository
        run: |
         cd $HOME
@@ -59,15 +64,15 @@ jobs:
        run: |
         cd $HOME/tests/event\ tests/
         echo -e "Starting test number 1"
-        bash test_all_events.sh 52748145 $HOME/mypapreca/build python3
+        bash test_all_events.sh 52748145 $HOME/mypapreca/build python
         echo -e "Starting test number 2"
-        bash test_all_events.sh 27149655 $HOME/mypapreca/build python3
+        bash test_all_events.sh 27149655 $HOME/mypapreca/build python
         echo -e "Starting test number 3"
-        bash test_all_events.sh 45334679 $HOME/mypapreca/build python3
+        bash test_all_events.sh 45334679 $HOME/mypapreca/build python
         echo -e "Starting test number 4"
-        bash test_all_events.sh 217676174 $HOME/mypapreca/build python3
+        bash test_all_events.sh 217676174 $HOME/mypapreca/build python
         echo -e "Starting test number 5"
-        bash test_all_events.sh 161081677 $HOME/mypapreca/build python3
+        bash test_all_events.sh 161081677 $HOME/mypapreca/build python
         
         
 
