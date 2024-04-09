@@ -15,7 +15,7 @@ Brownian particles confined in a box [1], [2].
 
 \subsection brownian_INPUT LAMMPS and PAPRECA input files
 
-As far as the LAMMPS input file file (i.e., in_kmc.lmp)  is concerned, note that:
+As far as the LAMMPS input file (i.e., in_kmc.lmp)  is concerned, note that:
 
 - The create_atoms command is deployed to create a cluster of atoms of type 1 in the middle of the simulation box.
 - This simulation is a pure kMC simulation. The choice of pair_style does not make any difference at all. We simply use a hybrid/overlay of
@@ -39,19 +39,19 @@ When it comes to the %PAPRECA input file (i.e., in_kmc.ppc), note that:
 Execute the following command in the ./Examples/Brownian Self Diffusion/ folder to run the Brownian motion example:
 
 ```bash
-mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if neccesary
+mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
 ```
 
 or
 
 ```bash
-mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if neccesary
+mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
 ```
 
 Of course, running the example requires that you have previously installed %PAPRECA (see \ref installation).
 
 To run the Brownian motion example as an automated test use "test_brownian.sh" bash script in the example folder directory. Note that,
-you will have to modify the "papreca_dir" variable in your "test_brownian.sh" script so it points to the path of your %PAPRECA executable. If you wish to use "python" instead of "python3" you will also have to modify "test_brownian.sh".
+you will have to modify the "papreca_dir" variable in your "test_brownian.sh" script so it points to the path of your %PAPRECA executable. If you wish to use "python" instead of "python3" you will also have to modify "test_brownian.sh". In any case, the Brownian test can be executed through the following command:
 
 ```bash
 bash test_brownian.sh
@@ -89,7 +89,7 @@ Where it can be observed that the distribution can be described by a bell-shaped
 The Monoatomic adsorption and desorption example an be found in the ./Examples/Simple Adsorption/ folder.
 
 Once again, this is a pure kMC example (see another pure kMC example here: \ref brownian). The system comprises an FFC substrate of atoms of type 1.
-Atoms of type 2 can adsorb, or desorb on the surface with a given probability. The adsorption sites are directly above the parent atoms, at a distance of depo_offset (see \ref createDepo). The ultimately goal of this test is to accurately capture the surface coverage as a function of time. The analytic solution for the surface coverage
+Atoms of type 2 can adsorb, or desorb on the surface with a given probability. The adsorption sites are directly above the parent atoms, at a distance of depo_offset (see \ref createDepo). The ultimate goal of this test is to accurately capture the surface coverage as a function of time. The analytic solution for the surface coverage
 is [1], [2]:
 
 \image html ./images/ads_analytic.png width=30%
@@ -144,7 +144,7 @@ is observed for all other tested adsorption/desorption rate ratios (see ./result
 
 \section phosphates Film growth from the thermal decomposition of tricresyl phosphate (TCP) molecules on a Fe110 surface.
 
-The files associated with this example an be found in the ./Examples/Phosphate Film Growth from TCP on Fe110/
+The files associated with this example can be found in the ./Examples/Phosphate Film Growth from TCP on Fe110/
 
 This example demonstrates the full capabilities of the software. The example is hybrid (i.e., MD/kMC) and involves bond-formation (see \ref createForm),
 bond-breaking (see \ref createBreak), deposition (see \ref createDepo), and diffusion (see \ref createDiff) events. For a detailed discussion
@@ -154,7 +154,7 @@ model can be reproduced in %PAPRECA by using the %PAPRECA and LAMMPS inputs file
 Note that, the following changes/improvements were made to the old phosphates model [1]:
 
 - In the newest model, Carbon and Hydrogen species are not deleted from the system following C-O bond breaks.
-- The reflective walls on the x-y plane above the growing film were removed. Instead, the latest model periodically removes atoms located 25 Angstroms above the film (using the \ref desorb in the %PAPRECA input file).
+- The reflective walls on the x-y plane above the growing film were removed. Instead, the latest model periodically removes atoms located 20 Angstroms above the film (using the \ref desorb in the %PAPRECA input file).
 
 \subsection phosphates_INPUT LAMMPS and PAPRECA input files
 
