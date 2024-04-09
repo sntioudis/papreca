@@ -47,7 +47,7 @@ jobs:
           cp -r $GITHUB_WORKSPACE/tests/ ./
           cd ./tests/source\ tests/
           mkdir build; cd build
-          cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
+          cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
           cmake --build .
 
      - name: Run source tests
