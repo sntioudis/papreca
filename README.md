@@ -22,7 +22,7 @@ For additional information (installation, dependencies, theory, algorithms, exam
 Citing PAPRECA
 ---------------
 
-If you use PAPRECA for your research, kindly give credits to the PAPRECA [1] as well as LAMMPS [2] by citing the following:
+If you use PAPRECA for your research, kindly give credit to the PAPRECA [1] and LAMMPS [2] developers by citing the following papers:
 
 [1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
