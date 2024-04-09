@@ -9,9 +9,9 @@ Open-source and community guidelines
 -------------
 PAPRECA is an open-source software that is distributed under the terms of the [GNU General Public License, version 2](https://en.wikipedia.org/wiki/GNU_General_Public_License). PAPRECA is designed as an easy-to-modify and easy-to-extend software. For example, new predefined event templates can be added to the original code.
 
-In the spirit of open source, please let us know (e.g., by using pull requests or issues) if you have any ideas about new features or if you can contribute to the code in any other way (e.g., bug fixes, code optimization, new examples, corrections to documentation).
+In the spirit of open source, we encourage contributions from other Authors! Kindly use pull requests to contribute to the code. Furthermore, you can use GitHub issues for other forms of contribution (e.g., bug fixes, code optimization, new examples, corrections to documentation).
 
-Additionally, enquiries can be directed to the main developer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
+Additionally, enquiries can be directed to the original developer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
 
 In any case, kindly review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in our community.
 
