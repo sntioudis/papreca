@@ -1,0 +1,27 @@
+#APRECAT input file
+
+#Basic settings
+KMC_steps 5
+KMC_per_MD 1
+random_seed 49123
+fluid_atomtypes 1 1
+
+#setup height calculation
+height_calculation mass_bins 0.95 1.0
+
+#Sigmas for types
+sigmas_options manual mix geom
+init_sigma 1 1 4.04468
+
+#Equilibration
+trajectory_duration 1
+
+#NeibLists
+neiblists lj/cut/coul/cut zero
+
+#Predefined events
+
+#!Depositions
+create_MonoatomicDesorption 1 rate_manual 1.0e13
+
+

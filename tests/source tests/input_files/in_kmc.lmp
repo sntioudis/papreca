@@ -1,0 +1,290 @@
+#---------------------------Simulation parameters---------------------------
+dimension 3
+units           real
+atom_style      full
+pair_style 		hybrid/overlay lj/cut/coul/cut 10 zero 10 full
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  harmonic
+improper_style  umbrella
+
+#---------------------------Processors----------------------------------------
+processors * * 1 # Use a NxNx1 domain decomposition to speed simulations up.
+#---------------------------Define boundaries-----------------------------------
+boundary p p mm
+
+#--------------------------Create simulation--------------------------------
+region simulation_box block -29.372 29.372 -29.66 29.66 0 60
+create_box 8 simulation_box bond/types 12 angle/types 4 dihedral/types 22 improper/types 3 extra/bond/per/atom 6 extra/angle/per/atom 6 extra/dihedral/per/atom 14 extra/improper/per/atom 2 extra/special/per/atom 7
+
+#--------------------------Create surface atoms------------
+lattice fcc 2.866 origin 0.0 0.0 0.0 orient x 1 -1 0 orient y 0 0 -2 orient z 1 1 0 #Miller indices set so that the z-axis is collinear to the 1 1 0 crystallographic direction (this enables growth on FCC 110)
+region substrate block -29 29 -29 29 0.0 2.02657 units box
+create_atoms 1 region substrate
+#---------------------------Atom masses-----------------------------------
+mass 1   55.8450 #Fe
+mass 2   12.0110 #C_3
+mass 3   12.0110 #C_R
+mass 4   15.9994 #O (singly-bonded)
+mass 5   30.9738 #P
+mass 6   15.9994 #O (doubly-bonded)
+mass 7    1.0079 #H
+mass 8   55.8450 #Fe
+
+#----------------------Pair coeffs -------------------------
+pair_coeff 1 1 lj/cut/coul/cut 0.055 4.04468
+ 
+pair_coeff 1 2 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 2 1 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 1 3 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 3 1 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 1 4 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 4 1 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 1 5 lj/cut/coul/cut 0.1875 3.86705
+pair_coeff 5 1 lj/cut/coul/cut 0.1875 3.86705
+ 
+pair_coeff 1 6 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 6 1 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 1 7 lj/cut/coul/cut 0.0351 3.39306
+pair_coeff 7 1 lj/cut/coul/cut 0.0351 3.39306
+ 
+pair_coeff 1 8 lj/cut/coul/cut 0.055 4.04468
+pair_coeff 8 1 lj/cut/coul/cut 0.055 4.04468
+ 
+pair_coeff 2 1 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 1 2 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 2 2 lj/cut/coul/cut 0.0951 3.47299
+ 
+pair_coeff 2 3 lj/cut/coul/cut 0.0951 3.47299
+pair_coeff 3 2 lj/cut/coul/cut 0.0951 3.47299
+ 
+pair_coeff 2 4 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 4 2 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 2 5 lj/cut/coul/cut 0.20755 3.58336
+pair_coeff 5 2 lj/cut/coul/cut 0.20755 3.58336
+ 
+pair_coeff 2 6 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 6 2 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 2 7 lj/cut/coul/cut 0.05515 3.14414
+pair_coeff 7 2 lj/cut/coul/cut 0.05515 3.14414
+ 
+pair_coeff 2 8 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 8 2 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 3 1 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 1 3 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 3 2 lj/cut/coul/cut 0.0951 3.47299
+pair_coeff 2 3 lj/cut/coul/cut 0.0951 3.47299
+ 
+pair_coeff 3 3 lj/cut/coul/cut 0.0951 3.47299
+ 
+pair_coeff 3 4 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 4 3 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 3 5 lj/cut/coul/cut 0.20755 3.58336
+pair_coeff 5 3 lj/cut/coul/cut 0.20755 3.58336
+ 
+pair_coeff 3 6 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 6 3 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 3 7 lj/cut/coul/cut 0.05515 3.14414
+pair_coeff 7 3 lj/cut/coul/cut 0.05515 3.14414
+ 
+pair_coeff 3 8 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 8 3 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 4 1 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 1 4 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 4 2 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 2 4 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 4 3 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 3 4 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 4 4 lj/cut/coul/cut 0.0957 3.03315
+ 
+pair_coeff 4 5 lj/cut/coul/cut 0.20785 3.34877
+pair_coeff 5 4 lj/cut/coul/cut 0.20785 3.34877
+ 
+pair_coeff 4 6 lj/cut/coul/cut 0.0957 3.03315
+pair_coeff 6 4 lj/cut/coul/cut 0.0957 3.03315
+ 
+pair_coeff 4 7 lj/cut/coul/cut 0.05545 2.9383
+pair_coeff 7 4 lj/cut/coul/cut 0.05545 2.9383
+ 
+pair_coeff 4 8 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 8 4 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 5 1 lj/cut/coul/cut 0.1875 3.86705
+pair_coeff 1 5 lj/cut/coul/cut 0.1875 3.86705
+ 
+pair_coeff 5 2 lj/cut/coul/cut 0.20755 3.58336
+pair_coeff 2 5 lj/cut/coul/cut 0.20755 3.58336
+ 
+pair_coeff 5 3 lj/cut/coul/cut 0.20755 3.58336
+pair_coeff 3 5 lj/cut/coul/cut 0.20755 3.58336
+ 
+pair_coeff 5 4 lj/cut/coul/cut 0.20785 3.34877
+pair_coeff 4 5 lj/cut/coul/cut 0.20785 3.34877
+ 
+pair_coeff 5 5 lj/cut/coul/cut 0.32 3.69723
+ 
+pair_coeff 5 6 lj/cut/coul/cut 0.20785 3.34877
+pair_coeff 6 5 lj/cut/coul/cut 0.20785 3.34877
+ 
+pair_coeff 5 7 lj/cut/coul/cut 0.1676 3.24405
+pair_coeff 7 5 lj/cut/coul/cut 0.1676 3.24405
+ 
+pair_coeff 5 8 lj/cut/coul/cut 0.1875 3.86705
+pair_coeff 8 5 lj/cut/coul/cut 0.1875 3.86705
+ 
+pair_coeff 6 1 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 1 6 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 6 2 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 2 6 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 6 3 lj/cut/coul/cut 0.0954 3.24563
+pair_coeff 3 6 lj/cut/coul/cut 0.0954 3.24563
+ 
+pair_coeff 6 4 lj/cut/coul/cut 0.0957 3.03315
+pair_coeff 4 6 lj/cut/coul/cut 0.0957 3.03315
+ 
+pair_coeff 6 5 lj/cut/coul/cut 0.20785 3.34877
+pair_coeff 5 6 lj/cut/coul/cut 0.20785 3.34877
+ 
+pair_coeff 6 6 lj/cut/coul/cut 0.0957 3.03315
+ 
+pair_coeff 6 7 lj/cut/coul/cut 0.05545 2.9383
+pair_coeff 7 6 lj/cut/coul/cut 0.05545 2.9383
+ 
+pair_coeff 6 8 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 8 6 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 7 1 lj/cut/coul/cut 0.0351 3.39306
+pair_coeff 1 7 lj/cut/coul/cut 0.0351 3.39306
+ 
+pair_coeff 7 2 lj/cut/coul/cut 0.05515 3.14414
+pair_coeff 2 7 lj/cut/coul/cut 0.05515 3.14414
+ 
+pair_coeff 7 3 lj/cut/coul/cut 0.05515 3.14414
+pair_coeff 3 7 lj/cut/coul/cut 0.05515 3.14414
+ 
+pair_coeff 7 4 lj/cut/coul/cut 0.05545 2.9383
+pair_coeff 4 7 lj/cut/coul/cut 0.05545 2.9383
+ 
+pair_coeff 7 5 lj/cut/coul/cut 0.1676 3.24405
+pair_coeff 5 7 lj/cut/coul/cut 0.1676 3.24405
+ 
+pair_coeff 7 6 lj/cut/coul/cut 0.05545 2.9383
+pair_coeff 6 7 lj/cut/coul/cut 0.05545 2.9383
+ 
+pair_coeff 7 7 lj/cut/coul/cut 0.0152 2.84642
+ 
+pair_coeff 7 8 lj/cut/coul/cut 0.0351 3.39306
+pair_coeff 8 7 lj/cut/coul/cut 0.0351 3.39306
+ 
+pair_coeff 8 1 lj/cut/coul/cut 0.055 4.04468
+pair_coeff 1 8 lj/cut/coul/cut 0.055 4.04468
+ 
+pair_coeff 8 2 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 2 8 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 8 3 lj/cut/coul/cut 0.07505 3.74795
+pair_coeff 3 8 lj/cut/coul/cut 0.07505 3.74795
+ 
+pair_coeff 8 4 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 4 8 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 8 5 lj/cut/coul/cut 0.1875 3.86705
+pair_coeff 5 8 lj/cut/coul/cut 0.1875 3.86705
+ 
+pair_coeff 8 6 lj/cut/coul/cut 0.07535 3.50259
+pair_coeff 6 8 lj/cut/coul/cut 0.07535 3.50259
+ 
+pair_coeff 8 7 lj/cut/coul/cut 0.0351 3.39306
+pair_coeff 7 8 lj/cut/coul/cut 0.0351 3.39306
+ 
+pair_coeff 8 8 lj/cut/coul/cut 0.055 4.04468
+
+pair_coeff * * zero
+#---------------------------Bond coeffs-----------------------------------
+bond_coeff   1    0.00000000      0.000000    #DUMMY TYPE USED FOR BOND DELETIONS
+bond_coeff   2    350.000000      1.460000    # C_3 C_R
+bond_coeff   3    350.000000      1.090000    # C_3 H_
+bond_coeff   4    525.000000      1.390000    # C_R C_R 
+bond_coeff   5    350.000000      1.020000    # C_R H_
+bond_coeff   6    350.000000      1.350000    # C_R O_3  (USED IN KMC BREAKS)
+bond_coeff   7    350.000000      1.540000    # O_3 P_3  (USED IN KMC BREAKS).
+bond_coeff   8    150.000000      1.440000    # P-O BOND (USED IN KMC FORMS).
+bond_coeff   9    350.000000      1.540000    # P=O BOND (USED IN KMC FORMS).
+bond_coeff   10   350.000000      1.935000    # substrate Fe-O/Fe=O BOND (USED IN KMC FORMS).
+bond_coeff   11   350.000000      1.935000    # film Fe-O/Fe=O BOND (USED IN KMC FORMS).
+bond_coeff   12   500.000000      1.516600    # O_2 O_2 bond (USED IN KMC FORMS). 500.000 is just a very stiff value (indicative of the stability of the O-O bond) and 1.5166 is half the LJ sigma
+#----------------------Special bonds------------------------- 
+special_bonds lj 1e-100 1.0 1.0 coul 1e-100 1.0 1.0 #1e-100 is used to force the inclusion of first order bonded neighbors in neib list (does not affect computation)
+#---------------------------Angle coeffs-----------------------------------
+angle_coeff   1     50.000000    109.471000    # X C_3 X 
+angle_coeff   2     50.000000    120.000000    # X C_R X 
+angle_coeff   3     50.000000    104.510000    # X O_3 X 
+angle_coeff   4     50.000000    93.300000    # X P_3 X 
+#---------------------------Dihedral coeffs-----------------------------------
+dihedral_coeff   1      0.166667    1   3   # X C_3 C_R X
+dihedral_coeff   2      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   3      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   4      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   5      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   6      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   7      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   8      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff   9      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  10      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  11      0.166667   -1   2   # X C_R O_3 X
+dihedral_coeff  12      0.111111    1   3   # X O_3 P_3 X
+dihedral_coeff  13      0.111111    1   3   # X O_3 P_3 X
+dihedral_coeff  14      0.111111    1   3   # X P_3 O_3 X
+dihedral_coeff  15      0.111111    1   3   # X P_3 O_3 X
+dihedral_coeff  16      0.166667   -1   2   # X O_3 C_R X
+dihedral_coeff  17      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  18      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  19      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  20      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  21      3.125000   -1   2   # X C_R C_R X
+dihedral_coeff  22      0.166667    1   3   # X C_R C_3 X
+#---------------------------Improper coeffs-----------------------------------
+improper_coeff   2    20.000000     0.000000    #  C_R X X X 
+improper_coeff   1    0.000000      0.000000    #  C_3 X X X 
+improper_coeff   3    0.000000      0.000000    #  P_3 X X X
+
+#----------------------Define Molecule Template(s)-------------------------
+molecule mmmTCP ./input_files/TCP.in
+#----------------------Define group and neib/charge interactions-------------------------
+neighbor        2 bin
+neigh_modify    every 1 delay 0 check yes
+
+group fluid type 2:8 #GROUP FLUID HAS TO BE DEFINED FOR APRECAT RUNS
+
+group frozen type 1 #GROUP FROZEN HAS TO BE DEFINED FOR APRECAT RUNS
+fix freeze_atoms frozen setforce 0.0 0.0 0.0 #Fix surface atoms
+
+#----------------------Thermostat-------------------------
+fix thermostat fluid nvt temp 528.15 528.15 50
+
+#----------------Set Timestep-------------------------------
+timestep    	0.5
+
+#----------------------Define minimization style-------------------------
+min_style cg
+
+#----------------------File exports-------------------------
+dump 1 all xyz 1 phosphates.xyz
+dump_modify 1 element Fe C C O P O H Fe2 first yes

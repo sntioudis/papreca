@@ -1,0 +1,34 @@
+#APRECAT input file
+
+#Basic settings
+KMC_steps 5
+KMC_per_MD 1
+random_seed 49123
+fluid_atomtypes 7 2 3 4 5 6 7 8
+frozen_atomtypes 1 1
+
+#setup height calculation
+height_calculation mass_bins 0.95 1.0
+
+#Sigmas for types
+sigmas_options manual mix geom
+init_sigma 1 1 4.04468
+init_sigma 2 2 3.47299
+init_sigma 3 3 3.47299
+init_sigma 4 4 3.03315
+init_sigma 5 5 3.69723
+init_sigma 6 6 3.03315
+init_sigma 7 7 2.84642
+init_sigma 8 8 4.04468
+
+
+#Equilibration
+trajectory_duration 1
+
+#NeibLists
+neiblists lj/cut/coul/cut zero
+
+#Predefined events
+
+#!Depositions
+create_Deposition 1 3.60259 0.00 mmmTCP rate_hertz 0.0001 7.640648 368.37 528.15 sticking_coeff variable #sigma_16=3.50259 Angstroms

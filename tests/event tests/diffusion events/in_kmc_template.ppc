@@ -1,0 +1,21 @@
+#PAPRECA input file
+
+#Basic settings
+KMC_steps 5
+KMC_per_MD 1
+random_seed SEEDHOLDER
+fluid_atomtypes 1 2
+frozen_atomtypes 1 1
+
+#Sigmas for types
+sigmas_options LAMMPS mix geom
+
+#Equilibration
+trajectory_duration 1
+
+#Predefined events
+create_DiffusionHop 1 0.0 20 no 2 rate_arrhenius 20 1.0e13 500
+random_diffvecs yes 3D
+
+#NeibLists
+neiblists lj/cut zero

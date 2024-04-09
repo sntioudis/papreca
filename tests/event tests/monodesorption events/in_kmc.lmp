@@ -1,0 +1,51 @@
+#---------------------------Simulation parameters---------------------------
+dimension 3
+units           real
+atom_style      full
+pair_style 		hybrid/overlay lj/cut/coul/cut 10 zero 10 full
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  harmonic
+improper_style  umbrella
+
+#---------------------------Processors----------------------------------------
+processors * * 1 # Use a NxNx1 domain decomposition to speed simulations up.
+#---------------------------Define boundaries-----------------------------------
+boundary p p mm
+
+#--------------------------Create simulation--------------------------------
+region simulation_box block -10 10 -10 10 0 60
+create_box 1 simulation_box
+
+#--------------------------Create surface atoms------------
+lattice fcc 2.866 origin 0.0 0.0 0.0 orient x 1 -1 0 orient y 0 0 -2 orient z 1 1 0 #Miller indices set so that the z-axis is collinear to the 1 1 0 crystallographic direction (this enables growth on FCC 110)
+region substrate block -5 5 -5 5 0.0 0.5 units box
+create_atoms 1 region substrate
+#---------------------------Atom masses-----------------------------------
+mass 1   55.8450 #Fe
+#----------------------Pair coeffs -------------------------
+pair_coeff 1 1 lj/cut/coul/cut 0.055 4.04468
+pair_coeff * * zero
+
+#----------------------Define group and neib/charge interactions-------------------------
+neighbor        2 bin
+neigh_modify    every 1 delay 0 check yes
+
+group fluid type 1
+
+#----------------Set Timestep-------------------------------
+timestep    	1.0e-100
+
+#----------------Screen Outputs-------------------------------
+compute fluid_temp fluid temp
+
+thermo_style custom step c_fluid_temp etotal ke pe ecoul vol press enthalpy
+thermo_modify warn always
+thermo 1
+
+#----------------------File Outputs-------------------------  
+dump 1 all custom 1 lammps_full.dat id
+dump_modify 1 sort id first no
+
+dump 2 all xyz 1 lammps_traj.xyz
+dump_modify 2 element Fe

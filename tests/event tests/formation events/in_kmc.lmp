@@ -1,0 +1,58 @@
+#---------------------------Simulation parameters---------------------------
+dimension 3
+units           real
+atom_style      full
+pair_style 		hybrid/overlay lj/cut 10 zero 10 full
+bond_style      harmonic
+
+#---------------------------Processors----------------------------------------
+processors * * 1
+#---------------------------Define boundaries-----------------------------------
+boundary p p p
+
+#--------------------------Create simulation--------------------------------
+region simulation_box block -50 50 -50 50 -50 50
+create_box 2 simulation_box bond/types 2 extra/bond/per/atom 2 extra/special/per/atom 6
+
+#---------------------------Atom masses-----------------------------------
+mass 1   15.9994
+mass 2   30.9738
+
+#--------------------------Create atoms------------
+create_atoms 1 single 0.0 0.0 0.0
+create_atoms 2 single -2.5 0.0 0.0
+create_atoms 1 single -5.0 0.0 0.0
+create_atoms 2 single 2.5 0.0 0.0
+create_atoms 1 single 5.0 0.0 0.0
+#----------------------Pair coeffs -------------------------
+pair_coeff 1 1 lj/cut 0.0957 3.03315
+ 
+pair_coeff 2 2 lj/cut 0.32 3.69723
+
+pair_coeff 1 2 lj/cut 0.20785 3.34877
+pair_coeff 2 1 lj/cut 0.20785 3.34877
+
+pair_coeff * * zero
+#---------------------------Bond coeffs-----------------------------------
+bond_coeff   1    0.00000000      0.000000    #DUMMY TYPE USED FOR BOND DELETIONS.
+bond_coeff   2    350.000000      3    # type1 - type2 bond (USED IN KMC BREAKS/FORMS).
+#----------------------Define group and neib/charge interactions-------------------------
+neighbor        2 bin
+neigh_modify    every 1 delay 0 check yes
+
+group fluid type 1 2
+#----------------Set Timestep-------------------------------
+timestep    	1.0e-100
+
+#----------------Screen Outputs-------------------------------
+compute fluid_temp fluid temp
+
+thermo_style custom step c_fluid_temp etotal ke pe ecoul vol press enthalpy
+thermo_modify warn always
+thermo 1
+#----------------------File Outputs-------------------------   
+dump 1 all xyz 1 traj.xyz
+
+compute bondsinfo all property/local btype batom1 batom2
+dump 2 all local 1 bonds_full.log index c_bondsinfo[1] c_bondsinfo[2] c_bondsinfo[3]
+

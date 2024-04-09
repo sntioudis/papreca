@@ -1,0 +1,24 @@
+#APRECAT input file
+
+#Basic settings
+KMC_steps 4
+KMC_per_MD 1
+random_seed SEEDHOLDER
+fluid_atomtypes 2 1 2
+
+#Sigmas for types
+sigmas_options LAMMPS mix geom
+
+#Species bonds max
+species_maxbonds 1 2
+species_maxbonds 2 2
+
+#Trajectory
+trajectory_duration 1
+
+#NeibLists
+neiblists lj/cut zero
+
+#Predefined events
+#!Breaks
+create_BondBreak 1 2 2 rate_arrhenius 20.0 1.0e13 500
