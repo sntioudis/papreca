@@ -86,7 +86,7 @@ Where it can be observed that the distribution can be described by a bell-shaped
 
 \section adsorption Monoatomic adsorption and desorption
 
-The Monoatomic adsorption and desorption example an be found in the ./Examples/Simple Adsorption/ folder.
+The Monoatomic adsorption and desorption example can be found in the ./Examples/Simple Adsorption/ folder.
 
 Once again, this is a pure kMC example (see another pure kMC example here: \ref brownian). The system comprises an FFC substrate of atoms of type 1.
 Atoms of type 2 can adsorb, or desorb on the surface with a given probability. The adsorption sites are directly above the parent atoms, at a distance of depo_offset (see \ref createDepo). The ultimate goal of this test is to accurately capture the surface coverage as a function of time. The analytic solution for the surface coverage
@@ -136,7 +136,7 @@ is observed for all other tested adsorption/desorption rate ratios (see ./result
 
 [1] Fichthorn, K.A. and Weinberg, W.H. "Theoretical foundations of dynamic Monte Carlo simulations." Journal of Chemical Physics, vol. 95, 1991
 
-[2] [KMC course from University of Illinois](https://courses.physics.illinois.edu/phys466/fa2016/lnotes/KMC.pdf).
+[2] [KMC course from the University of Illinois](https://courses.physics.illinois.edu/phys466/fa2016/lnotes/KMC.pdf).
 
 
 
