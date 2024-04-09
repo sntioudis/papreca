@@ -1,0 +1,49 @@
+#LAMMPS input file
+
+#---------------------------Simulation parameters---------------------------
+dimension 3
+units           real
+atom_style      full
+pair_style 	hybrid/overlay lj/cut 10 zero 10 full
+bond_style      harmonic
+
+#---------------------------Processors----------------------------------------
+processors * * 1
+#---------------------------Define boundaries-----------------------------------
+boundary p p mm
+
+#--------------------------Create simulation--------------------------------
+region simulation_box block -29.372 29.372 -29.66 29.66 0 60
+create_box 2 simulation_box
+
+#--------------------------Create surface atoms------------
+lattice fcc 4.5 origin 0.0 0.0 0.0
+region substrate block -29 29 -29 29 0.0 0.5 units box
+create_atoms 1 region substrate
+
+#---------------------------Atom masses-----------------------------------
+mass 1   55.8450
+mass 2   15.9994
+#----------------------Pair coeffs -------------------------
+pair_coeff 1 1 lj/cut 0.055 4.04468
+
+pair_coeff 1 2 lj/cut 0.07535 3.50259
+pair_coeff 2 1 lj/cut 0.07535 3.50259
+
+pair_coeff 2 2 lj/cut 0.0957 3.03315
+
+pair_coeff * * zero
+
+#----------------------Define Molecule Template(s)-------------------------
+molecule particle ./particle.in
+
+#----------------------Define group and neib/charge interactions-------------------------
+neighbor        2 bin
+neigh_modify    every 1 delay 0 check yes
+
+group fluid type 2 #GROUP FLUID HAS TO BE DEFINED FOR APRECAT RUNS
+group frozen type 1
+#----------------Set Timestep-------------------------------
+timestep    	1.0e-100
+#----------------------File Outputs-------------------------  
+dump 2 all xyz 1 langmuir.xyz

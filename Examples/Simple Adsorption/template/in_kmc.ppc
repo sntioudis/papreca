@@ -1,0 +1,33 @@
+#PAPRECA input file
+
+#Basic settings
+KMC_steps 10000
+time_end 4
+KMC_per_MD 250
+random_seed 13452234
+fluid_atomtypes 1 2
+frozen_atomtypes 1 1
+
+#Height Calculation and desorption
+height_calculation mass_bins 0.95 0.01
+desorption 10 gather_local
+
+#Sigmas for types
+sigmas_options LAMMPS mix geom
+
+#Equilibration
+trajectory_duration 1
+
+#Predefined events
+#!Depositions
+create_Deposition 1 3.503 0 particle rate_manual ADSRATEPLACEHOLDER sticking_coeff constant 1
+random_depovecs no
+
+#!MonoatomicDesorptions
+create_MonoatomicDesorption 2 rate_manual DESRATEPLACEHOLDER
+
+#NeibLists
+neiblists lj/cut zero
+
+#File Exports
+export_SurfCoverage 1

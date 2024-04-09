@@ -1,0 +1,38 @@
+#LAMMPS input file
+
+#---------------------------Simulation parameters--------------------------
+dimension 3
+units           real
+atom_style      full
+pair_style 	hybrid/overlay lj/cut 10 zero 10 full
+
+#---------------------------Processors-------------------------------------
+processors * * *
+#---------------------------Define boundaries------------------------------
+boundary p p p
+
+#--------------------------Create simulation-------------------------------
+region simulation_box block -50 50 -50 50 -50 50
+create_box 1 simulation_box
+
+#--------------------------Create atoms------------
+region origin_sphere sphere 0.0 0.0 0.0 3
+create_atoms 1 random 300 141241 origin_sphere
+#---------------------------Atom masses------------------------------------
+mass 1    1.0079
+#----------------------Pair coeffs -------------------------
+pair_coeff 1 1 lj/cut 0.0152 2.84642
+
+pair_coeff * * zero
+
+#----------------------Define group and neib/charge interactions-----------
+neighbor        2 bin
+neigh_modify    every 1 delay 0 check yes
+
+group fluid type 2
+group frozen type 1
+#----------------Set Timestep----------------------------------------------
+timestep    	1.0e-100
+#----------------------File Outputs----------------------------------------
+dump 1 all xyz 1 brownian.xyz
+dump_modify 1 element H first yes

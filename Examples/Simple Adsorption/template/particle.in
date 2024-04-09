@@ -1,0 +1,15 @@
+#Molecule (particle) template for monoatomic adsorption/diffusion			
+					
+1 atoms					
+0 bonds					
+0 angles					
+0 dihedrals					
+0 impropers					
+					
+Coords					
+					
+1	0.0	0.0	0.0		
+					
+Types					
+					
+1	2

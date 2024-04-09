@@ -1,0 +1,24 @@
+#PAPRECA input file
+
+#Basic settings
+KMC_steps 100000
+KMC_per_MD 10
+random_seed 13452234
+fluid_atomtypes 1 1
+
+#Sigmas for types
+sigmas_options LAMMPS mix geom
+
+#Equilibration
+trajectory_duration 1
+
+#Predefined events
+create_DiffusionHop 1 0.0 3 yes 1 rate_manual 1.0
+random_diffvecs yes 3D
+
+#NeibLists
+neiblists lj/cut zero
+
+#Export files
+export_ElementalDistributions 10 bin_width 10
+export_ExecutionTimes 1000
