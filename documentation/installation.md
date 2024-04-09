@@ -16,7 +16,7 @@ git pull
 
 \section beforeInstall Read before you install: Important notes and prerequisites
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version is: 7 Feb 2024 and any of the following branches is expected to work properly: release, stable, develop. Note that, older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version is: 7 Feb 2024 and any of the following branches is expected to work properly: release, stable, develop. Note that older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a library with a few optional packages:
 
@@ -33,10 +33,10 @@ cmake --build .
 ```
 
 > **Note:**
-> To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **MOLECULE** , **RIGID** , and **QEQ**.
+> To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **MOLECULE**, **RIGID**, and **QEQ**.
 
 
-&bull; The current version of %PAPRECA (1.0) runs only on LINUX-based systems. Cross-Platform Compatibility will be available in future versions. At the moment, non-LINUX users can run %PAPRECA on a virtual machine (e.g., [VirtualBox](https://www.virtualbox.org/) or Windows Subsystem for Linux).
+&bull; The current version of %PAPRECA (1.0) runs only on LINUX-based systems. Cross-platform compatibility will be available in future versions. At the moment, non-LINUX users can run %PAPRECA on a virtual machine (e.g., [VirtualBox](https://www.virtualbox.org/) or Windows Subsystem for Linux).
 
 &bull; An MPI/C++ compiler (e.g., mpicxx or mpiCC) that is at least compatible with the C++-11 standard is required to build %PAPRECA.
 
@@ -63,7 +63,7 @@ cmake --build .
 Where, you must replace the relevant paths with your source (./src LAMMPS directory) and library (typically ./build LAMMPS directory) LAMMPS . 
 
 > **Note:**
-> to build %PAPRECA with debug symbols you must also include the following flag: "-DBUILD_DEBUG=ON". If such flag is ignored, CMake will build %PAPRECA without debug symbols and with the following C++ compiler optimization flag: -O3.
+> To build %PAPRECA with debug symbols you must also include the following flag: "-DBUILD_DEBUG=ON". If such flag is ignored, CMake will build %PAPRECA without debug symbols and with the following C++ compiler optimization flag: -O3.
 
 \subsection traditionalMake Traditional Make
 
@@ -72,7 +72,7 @@ Specifically, the following paths must be updated:
 
 &bull; The "BUILDDIR" variable should point at the %PAPRECA build directory. Make sure the directory exists before you build.
 
-&bull; The "LAMMPS" variable should point at the main-parent LAMMPS directory. Note that, this is directory neither the ./src or ./build paths (i.e., your input directory is the folder containing both build and src folders).
+&bull; The "LAMMPS" variable should point at the main-parent LAMMPS directory. Note that, this directory neither the ./src or ./build paths (i.e., your input directory is the folder containing both build and src folders).
 
 After configuring the relevant paths in "MakeConfig" the "traditionalMakeCompileLIBandSRC.sh" script (included in the Installation/Traditional Make/ directory) can be executed to build the %PAPRECA libraries and the %papreca executable (in the specified build folder):
 
