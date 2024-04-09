@@ -44,21 +44,20 @@ jobs:
      - name: Build TESTS executable for PAPRECA
        run: |
           cd $HOME
-          mkdir papreca_tests;
-          cp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/
-          cd $HOME/papreca_tests/source\ tests/
+          cp -r $GITHUB_WORKSPACE/tests/ ./
+          cd ./tests/source\ tests/
           mkdir build; cd build
-          cmake ..-DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
+          cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
           cmake --build .
 
-     - name: Run source testscp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/ 
+     - name: Run source tests
        run: |
-        cd $HOME/papreca_tests/source\ tests/
+        cd $HOME/tests/source\ tests/
         bash ./run_tests.sh
 
      - name: Run all event tests for 5 different random seeds
        run: |
-        cd $HOME/papreca_tests/event\ tests/
+        cd $HOME/tests/event\ tests/
         echo -e "Starting test number 1"
         bash test_all_events.sh 52748145 $HOME/mypapreca/build python3
         echo -e "Starting test number 2"
