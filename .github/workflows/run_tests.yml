@@ -22,7 +22,9 @@ jobs:
         sudo apt-get install mpich
         
      - name: Clone LAMMPS repository
-       run: git clone -b release https://github.com/lammps/lammps.git mylammps
+       run: |
+        cd $HOME
+        git clone -b release https://github.com/lammps/lammps.git mylammps
       
      - name: Build LAMMPS with required packages
        run: |
