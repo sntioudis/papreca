@@ -44,9 +44,9 @@ jobs:
      - name: Build TESTS executable for PAPRECA
        run: |
           cd $HOME
-          mkdir papreca_tests; cd papreca_tests
-          cp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/ #Copy the entire tests folder to the working directory
-          cd ./source\ tests/
+          mkdir papreca_tests;
+          cp -r $GITHUB_WORKSPACE/tests/ $HOME/papreca_tests/
+          cd $HOME/papreca_tests/source\ tests/
           mkdir build; cd build
           cmake ..-DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
           cmake --build .
