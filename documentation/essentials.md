@@ -14,7 +14,7 @@ Firstly, the master process calculates the total rate of the current step and ad
 
 \image html ./images/clock_advance.png width=70%
 
-Where, Δt is the kMC time interval, ρ is a pseudo-random uniformly distributed random number between 0 and 1, R is a/the per-MPI-process/total rate on a given step, and r is a local event rate.
+Where Δt is the kMC time interval, ρ is a pseudo-random uniformly distributed random number between 0 and 1, R is the per-MPI-process/total rate on a given step, and r is a local event rate.
 After advancing the simulation clock, the master MPI process chooses the event MPI processor by performing a (rejection-free) kMC selection [1], [2]:
 
 \image html ./images/proc_select.png width=70%
@@ -23,9 +23,9 @@ Following, the selected event MPI processor chooses a (local) event for executio
 
 \image html ./images/event_select.png width=70%
 
-Finally, event data are communicated from the event MPI processor to all other processors, and finally, the event is executed globally.
+Finally, event data are communicated from the event MPI processor to all other processors and the event is executed globally.
 
-Providing a fully-parallelized scheme for event execution within the kMC stage of %PAPRECA will be prioritized in future version of the software.
+Providing a fully parallelized scheme for event execution within the kMC stage of %PAPRECA will be prioritized in future version of the software.
 
 For additional information regarding the rejection-free kMC scheme, as well as the execution/detection of predefined kMC events please see Ntioudis et al. [1] and Fichthorn and Weinberg [2].
 For an overview of the LAMMPS software please see Thompson et al. [3].
@@ -90,7 +90,7 @@ Units within the MD stage are (of course), consistent with units as defined in t
 
 Units within the kMC stage are, once again, consistent with units as defined in the LAMMPS input file. 
 
-The %PAPRECA simulation accounts for both the time elapsed within the MD stage (calculated as the product of the trajectory duration and the timestep) as well as the the elapsed time within the kMC stage.
+The %PAPRECA simulation accounts for both the time elapsed within the MD stage (calculated as the product of the trajectory duration and the timestep) as well as the elapsed time within the kMC stage.
 Note that, %PAPRECA will always report time in seconds on the terminal and in any exported file (e.g., heightVtime.log or execTimes.log).
 
 Also, be careful when using the **rate_arrhenius** and **rate_hertz** options (see \ref createDepo) to set a predefined event template rate. You should always use units
