@@ -33,9 +33,9 @@ On the other hand, the efficient parallelization techniques of LAMMPS are utiliz
 The following people are the main/original contributors of the %PAPRECA project:
 
 - Stavros Ntioudis ([stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk)): Development and maintenance of the %PAPRECA C++ code, parallel algorithms, conceptualization as well as methodology of the hybrid kMC/MD model, and %PAPRECA website design/maintenance.
-- C. Heath Turner ([hturner@eng.ua.edu](mailto:hturner@eng.ua.edu)): Conceptualization and methodology of the hybrid kMC/MD model.
 - Daniele Dini ([d.dini@imperial.ac.uk](mailto:d.dini@imperial.ac.uk)): Methodology of the hybrid kMC/MD model.
 - James P. Ewen ([j.ewen@imperial.ac.uk](mailto:j.ewen@imperial.ac.uk)): Methodology of the hybrid kMC/MD model.
+- C. Heath Turner ([hturner@eng.ua.edu](mailto:hturner@eng.ua.edu)): Conceptualization and methodology of the hybrid kMC/MD model.
 
 \section open_source Open-source and community guidelines
 
