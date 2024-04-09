@@ -47,9 +47,9 @@ As observed in the general flowchart (see \ref flowchart) %PAPRECA fires a singl
 
 A %PAPRECA run must be set up with 2 input files:
 
-- A LAMMPS input file that initializes the simulation units, the simulation box, the periodic boundaries, creates the initial system configuration (e.g., starting atoms, bonds, etc.).
+- A LAMMPS input file that initializes the simulation units, the simulation box, the periodic boundaries, and creates the initial system configuration (e.g., starting atoms, bonds, etc.).
 Furthermore, the LAMMPS input file controls any simulation parameter related to the MD stage of the hybrid kMC/MD run (e.g., thermostats, interatomic potential style, interatomic potential coefficients, etc.).
-A list of the acceptable LAMMPS commands can be found [here](https://docs.lammps.org/commands_list.html).
+A list of the acceptable LAMMPS s can be found [here](https://docs.lammps.org/s_list.html).
 
 - A %PAPRECA input file that sets up the kMC stage of the hybrid kMC/MD run. More specifically, the %PAPRECA input file initializes templates for the predefined events of the kMC stage.
 In the current version, the following predefined events are supported: Bond-formations (see \ref createForm), Bond-breaks (see \ref createBreak), Depositions (see \ref createDepo), 
