@@ -59,7 +59,7 @@ The local tests simulated 1000 ```PAPRECA``` steps. The second scalability test 
 ![Hybrid kMC/MD scalability tests of PAPRECA for TCP on Fe110 conducted on a workstation (left) and on Imperial College HPC (right).](./scalability.jpg){#scalability width="100%"}
 
 
-Where the speed-up value of N MPI processes was calculated as the $t_N = \frac{T_1}{T_N}$, with $t_1$ being the total walltime of 1 MPI process. It can be observed that in both tests the kMC stage does not scale as effectively as the MD stage (performed in LAMMPS). Nonetheless, the total speed-up (i.e., combined kMC and MD) of a ```PAPRECA``` run is comparable to the MD stage speed-up. This can be justified by the fact that the kMC stages last significantly less than the MD stages, regardless of the number of MPI processes. For instance, the total walltimes of the kMC and MD stages of the
+Where the speedup value of N MPI processes was calculated as the $t_N = \frac{T_1}{T_N}$, with $t_1$ being the total walltime of 1 MPI process. For this specific system (i.e., phosphates example), it can be observed that the kMC stage does not scale as effectively as the MD stage (performed in LAMMPS). Nonetheless, the total speedup (i.e., combined kMC and MD) of a ```PAPRECA``` run is comparable to the MD stage speedup. This can be justified by the fact that the kMC stages last significantly less than the MD stages, regardless of the number of MPI processes. For instance, the total walltimes of the kMC and MD stages of the
 64 MPI processes example (second scalability test on Imperial's HPC service) were 0.226 and 2.71 hours, respectively. Overall, improving the scalability of the kMC stage will be prioritized in the upcoming versions of ```PAPRECA```.
 
 # Acknowledgements
