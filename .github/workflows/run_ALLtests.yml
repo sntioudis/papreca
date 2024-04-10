@@ -1,6 +1,13 @@
-name: Run ALL tests
+name: Tests
 
-# Controls when the action will run.
+# 1) Builds LAMMPS
+# 2) Builds PAPRECA on top of LAMMPS
+# 3) Builds PAPRECA source tests
+# After completing steps 1-3, we can be certain that the PAPRECA version can be built without any issues
+# 4) Performs source tests on the C++ code
+# 5) Performs event tests (check the output to ensure that they succeed 100% for any given random seed)
+# 6) Performs 20 hybrid kMC/MD steps on the "Phosphate Growth from TCP on Fe110" example.
+
 
 on:
   workflow_dispatch: #Only trigger manually
