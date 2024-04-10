@@ -289,7 +289,7 @@ compute fluid_temp fluid temp
 
 thermo_style custom step c_fluid_temp etotal ke pe ecoul vol press enthalpy
 thermo_modify warn always
-thermo 10
+thermo 200
 
 #----------------------Define minimization style-------------------------
 min_style cg
