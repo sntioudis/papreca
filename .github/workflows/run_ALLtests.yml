@@ -1,4 +1,4 @@
-name: Tests
+name: Build and functionality tests
 
 # 1) Builds LAMMPS
 # 2) Builds PAPRECA on top of LAMMPS
