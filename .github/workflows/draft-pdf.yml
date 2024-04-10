@@ -1,3 +1,5 @@
+name: JOSS DRAFT
+
 on:
   workflow_dispatch: #Only trigger manually
 
