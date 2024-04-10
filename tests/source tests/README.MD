@@ -19,7 +19,7 @@ cd ./build/
 Then, run cmake:
 
 ```bash
-cmake .. -DLAMMPS_SRC_DIR=/path/to/your/LAMMPS/src/ -DLAMMPS_LIB_DIR=/path/to/your/LAMMPS/library/
+cmake .. -DLAMMPS_SRC_DIR=/path/to/your/LAMMPS/src/ -DLAMMPS_LIB_DIR=/path/to/your/LAMMPS/library/ -DPAPRECA_SRC_DIR=/path/to/your/PAPRECA/src/
 ```
 
 Finally, build with cmake:
