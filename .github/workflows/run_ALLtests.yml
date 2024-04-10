@@ -12,17 +12,19 @@ jobs:
 
      - name: Checkout
        uses: actions/checkout@v4 #Checkout repository
-      
-     - name: Install dependencies
-       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-        
+
      - name: Setup python
        uses: actions/setup-python@v5
        with:
-           python-version: '3.10'
+           python-version: '3.x'
+           architecture: 'x64'
+           
+     - name: Install dependencies
+       run: |
+        python3 -m pip install --upgrade pip numpy
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        sudo apt-get install mpich
         
      - name: Clone LAMMPS repository
        run: |
@@ -64,17 +66,20 @@ jobs:
        run: |
         cd $HOME/tests/event\ tests/
         echo -e "Starting test number 1"
-        bash test_all_events.sh 52748145 $HOME/mypapreca/build python
+        bash test_all_events.sh 52748145 $HOME/mypapreca/build python3
         echo -e "Starting test number 2"
-        bash test_all_events.sh 27149655 $HOME/mypapreca/build python
+        bash test_all_events.sh 27149655 $HOME/mypapreca/build python3
         echo -e "Starting test number 3"
-        bash test_all_events.sh 45334679 $HOME/mypapreca/build python
+        bash test_all_events.sh 45334679 $HOME/mypapreca/build python3
         echo -e "Starting test number 4"
-        bash test_all_events.sh 217676174 $HOME/mypapreca/build python
+        bash test_all_events.sh 217676174 $HOME/mypapreca/build python3
         echo -e "Starting test number 5"
-        bash test_all_events.sh 161081677 $HOME/mypapreca/build python
+        bash test_all_events.sh 161081677 $HOME/mypapreca/build python3
         
-        
+     - name: Run hybrid test
+       run: |
+        cd $HOME/tests/hybrid\ kMC\ MD/
+        bash ./test_hybrid.sh $HOME/mypapreca/build
 
         
        
