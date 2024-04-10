@@ -1,7 +1,7 @@
 PAPRECA
-![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)
-![Docs](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)
-![JOSS DRAFT](https://github.com/sntioudis/papreca/actions/workflows/draft-pdf.yml/badge.svg)
+[![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml)
+[![Docs](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
+[![JOSS DRAFT](https://github.com/sntioudis/papreca/actions/workflows/draft-pdf.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/draft-pdf.yml)
 ========
 PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
 
