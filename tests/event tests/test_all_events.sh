@@ -2,7 +2,7 @@
 
 #The random see and papreca paths are provided to the test_all_events.sh script
 
-random_seed=$1 #Retrieve seed, path, and python version from script invokation
+random_seed=$1 #Retrieve seed, path, and python version from script invocation
 papreca_path=$2
 python_version=$3
 
