@@ -1,3 +1,4 @@
+![Run ALL tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)
 PAPRECA
 ========
 PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
