@@ -10,6 +10,7 @@ tags:
   
 authors:
   - name: Stavros Ntioudis
+    corresponding: true
     orcid: 0009-0000-8095-1727
     affiliation: 1
   - name: James P. Ewen
