@@ -149,8 +149,7 @@ The files associated with this example can be found in the ./Examples/Phosphate 
 This example demonstrates the full capabilities of the software. The example is hybrid (i.e., MD/kMC) and involves bond-formation (see \ref createForm),
 bond-breaking (see \ref createBreak), deposition (see \ref createDepo), and diffusion (see \ref createDiff) events. For a detailed discussion
 regarding the results from our off-lattice hybrid kMC/MD runs on thin films from TCP molecules consider reading our paper on Computational Materials Science [1].
-An older (unpublished) version of %PAPRECA (written in FORTRAN) was used for all simulations in that paper. Nonetheless, the film-growth
-model can be reproduced in %PAPRECA by using the %PAPRECA and LAMMPS inputs files, as well as the param.qeq (declaring the coefficients of the [QeQ charge equilibration](https://docs.lammps.org/fix_qeq.html) scheme) and TCP.in (initializing an mmm-TCP molecule) files located in the example folder.
+A hybrid kMC/MD code (written in FORTRAN), specifically designed to study the decomposition of TCP molecules on Fe(110), was used for all simulations in this paper. Nonetheless, the film-growth model can be reproduced in %PAPRECA by using the %PAPRECA and LAMMPS inputs files, as well as the param.qeq (declaring the coefficients of the [QeQ charge equilibration](https://docs.lammps.org/fix_qeq.html) scheme) and TCP.in (initializing an mmm-TCP molecule) files located in the example folder.
 Note that, the following changes/improvements were made to the old phosphates model [1]:
 
 - In the newest model, Carbon and Hydrogen species are not deleted from the system following C-O bond breaks.
