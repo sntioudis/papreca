@@ -9,8 +9,9 @@ The source code of %PAPRECA is stored and can be downloaded/pulled from this [Gi
 To clone the latest %PAPRECA repository on your machine execute the following commands:
 
 ```bash
-git clone https://github.com/sntioudis/papreca.git mypapreca #Add the latest PAPRECA repository to a folder named mypapreca
+git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the latest PAPRECA repository to a folder named mypapreca
 cd ./mypapreca
+git checkout release
 git pull
 ```
 
