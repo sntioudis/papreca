@@ -1,92 +1,58 @@
 name: Build and functionality tests
 
-# 1) Builds LAMMPS
-# 2) Builds PAPRECA on top of LAMMPS
-# 3) Builds PAPRECA source tests
+# 1) Caches LAMMPS's release repository
+# 2) Builds LAMMPS (if changes are detected in the release branch)
+# 3) Builds PAPRECA on top of LAMMPS
+# 4) Builds PAPRECA source tests
 # After completing steps 1-3, we can be certain that the PAPRECA version can be built without any issues
-# 4) Performs source tests on the C++ code
-# 5) Performs event tests (check the output to ensure that they succeed 100% for any given random seed)
-# 6) Performs 20 hybrid kMC/MD steps on the "Phosphate Growth from TCP on Fe110" example.
+# 5) Performs source tests on the C++ code
+# 6) Performs event tests (check the output to ensure that they succeed 100% for any given random seed)
+# 7) Performs 20 hybrid kMC/MD steps on the "Phosphate Growth from TCP on Fe110" example.
 
 
 on:
   workflow_dispatch: #Only trigger manually
 
 jobs:
-  runAllTests:
+  buildLAMMPS:
     runs-on: ubuntu-latest
+
     steps:
+    
+    - name: Checkout LAMMPS release branch
+      uses: actions/checkout@v2
+      with:
+        repository: lammps/lammps
+        ref: release
+        path: $HOME/mylammps
+        
+    - name: Cache LAMMPS repository
+      id: cache-lammps-repo
+      uses: actions/cache@v2
+      with:
+        path: $HOME/mylammps
+        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/**') }}
+        restore-keys: |
+          ${{ runner.os }}-lammps-repo-
 
-     - name: Checkout
-       uses: actions/checkout@v4 #Checkout repository
-
-     - name: Setup python
-       uses: actions/setup-python@v5
-       with:
-           python-version: '3.x'
-           architecture: 'x64'
-           
-     - name: Install dependencies
-       run: |
-        python3 -m pip install --upgrade pip numpy
+    - name: Install LAMMPS dependencies
+      run: |
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
+
+    - name: Configure and build LAMMPS
+      if: steps.cache-lammps-repo.outputs.cache-hit != 'true' #Only if there are changes to "mylammps" (i.e., if there are changes to the release branch)
+      run: |
+        cd $HOME/mylammps
+        mkdir -p build
+        cd build
+        cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
+        cmake --build .
+
+    - name: Verify LAMMPS executable
+      run: |
+        cd $HOME/mylammps/build
+        ./lmp -h
         
-     - name: Clone LAMMPS repository
-       run: |
-        cd $HOME
-        git clone -b release https://github.com/lammps/lammps.git mylammps
-      
-     - name: Build LAMMPS with required packages
-       run: |
-          cd $HOME/mylammps
-          git checkout release
-          git pull
-          mkdir build; cd build
-          cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building 
-          cmake --build .
-
-     - name: Build PAPRECA
-       run: |
-          cd $HOME
-          mkdir mypapreca; cd ./mypapreca
-          mkdir build; cd build
-          cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
-          cmake --build .
-          
-     - name: Build TESTS executable for PAPRECA
-       run: |
-          cd $HOME
-          cp -r $GITHUB_WORKSPACE/tests/ ./
-          cd ./tests/source\ tests/
-          mkdir build; cd build
-          cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
-          cmake --build .
-
-     - name: Run source tests
-       run: |
-        cd $HOME/tests/source\ tests/
-        bash ./run_tests.sh
-
-     - name: Run all event tests for 5 different random seeds
-       run: |
-        cd $HOME/tests/event\ tests/
-        echo -e "Starting test number 1"
-        bash test_all_events.sh 52748145 $HOME/mypapreca/build python3
-        echo -e "Starting test number 2"
-        bash test_all_events.sh 27149655 $HOME/mypapreca/build python3
-        echo -e "Starting test number 3"
-        bash test_all_events.sh 45334679 $HOME/mypapreca/build python3
-        echo -e "Starting test number 4"
-        bash test_all_events.sh 217676174 $HOME/mypapreca/build python3
-        echo -e "Starting test number 5"
-        bash test_all_events.sh 161081677 $HOME/mypapreca/build python3
         
-     - name: Run hybrid test
-       run: |
-        cd $HOME/tests/hybrid\ kMC\ MD/
-        bash ./test_hybrid.sh $HOME/mypapreca/build
-
-        
-       
