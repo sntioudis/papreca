@@ -28,6 +28,12 @@ jobs:
         mkdir -p build #Prepare the build folder so that you cache mylammps correctly
         git checkout release
         git pull
+
+    - name: Install LAMMPS dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        sudo apt-get install mpich
         
     - name: Cache LAMMPS repository
       id: cache-lammps-repo
@@ -38,17 +44,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
-    - name: Install LAMMPS dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-
     - name: Configure and build LAMMPS
       if: steps.cache-lammps-repo.outputs.cache-hit != 'true' #Only if there are changes to "mylammps" (i.e., if there are changes to the release branch)
       run: |
         cd $HOME/mylammps
-        mkdir -p build
         cd build
         cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
