@@ -19,12 +19,13 @@ jobs:
 
     steps:
     
-    - name: Checkout LAMMPS release branch
-      uses: actions/checkout@v2
-      with:
-        repository: lammps/lammps
-        ref: release
-        path: $HOME/mylammps
+    - name: Clone LAMMPS repository (release branch)
+      run: |
+        cd $HOME
+        git clone -b release https://github.com/lammps/lammps.git mylammps
+        cd ./mylammps
+        git checkout release
+        git pull
         
     - name: Cache LAMMPS repository
       id: cache-lammps-repo
