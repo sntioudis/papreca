@@ -2,6 +2,10 @@
 
 papreca_dir="../../build"
 
+
+#resolve the real path of papreca_dir (this can prevent conflicts if the user provides a relative path).
+papreca_dir=$(realpath "$papreca_dir")
+
 #List ra and rd values
 ra_values=(1 3 5)
 rd_values=(1 3 5)
