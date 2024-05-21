@@ -39,16 +39,17 @@ jobs:
       id: cache-lammps-repo
       uses: actions/cache@v3
       with:
-        path: $HOME/mylammps
-        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/**') }}
+        path: |
+          $HOME/mylammps/build
+          $HOME/mylammps/src
+        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/src/**') }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
     - name: Configure and build LAMMPS
       if: steps.cache-lammps-repo.outputs.cache-hit != 'true' #Only if there are changes to "mylammps" (i.e., if there are changes to the release branch)
       run: |
-        cd $HOME/mylammps
-        cd build
+        cd $HOME/mylammps/build
         cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
 
@@ -97,7 +98,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: PAPRECA-artifact
-        path: $HOME/mypapreca
+        path: $HOME/mypapreca/build
 
     - name: Build TESTS executable for PAPRECA
       run: |
@@ -112,4 +113,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: PAPRECAtest-artifact
-        path: $HOME/tests/source\ tests/
+        path: $HOME/tests/source\ tests/build
