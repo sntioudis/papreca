@@ -75,8 +75,10 @@ jobs:
       id: cache-lammps
       uses: actions/cache@v3
       with:
-        path: $HOME/mylammps
-        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/**') }}
+        path: |
+          $HOME/mylammps/build
+          $HOME/mylammps/src
+        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/src/**') }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
           
