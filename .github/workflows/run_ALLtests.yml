@@ -61,7 +61,9 @@ jobs:
   #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
   #Upload artefacts of both to be used in subsequent tests
   buildPAPRECA: 
-  
+
+    needs: buildLAMMPS
+    
     runs-on: ubuntu-latest
 
     steps:
