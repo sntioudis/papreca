@@ -14,6 +14,7 @@ on:
   workflow_dispatch: #Only trigger manually
 
 jobs:
+
   buildLAMMPS:
     runs-on: ubuntu-latest
 
@@ -24,12 +25,13 @@ jobs:
         cd $HOME
         git clone -b release https://github.com/lammps/lammps.git mylammps
         cd ./mylammps
+        mkdir -p build #Prepare the build folder so that you cache mylammps correctly
         git checkout release
         git pull
         
     - name: Cache LAMMPS repository
       id: cache-lammps-repo
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: $HOME/mylammps
         key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/**') }}
@@ -55,5 +57,58 @@ jobs:
       run: |
         cd $HOME/mylammps/build
         ./lmp -h
-        
-        
+
+  #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
+  #Upload artefacts of both to be used in subsequent tests
+  buildPAPRECA: 
+  
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4 #Checkout PAPRECA repository
+
+    - name: Restore LAMMPS cache
+      id: cache-lammps
+      uses: actions/cache@v3
+      with:
+        path: $HOME/mylammps
+        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/**') }}
+        restore-keys: |
+          ${{ runner.os }}-lammps-repo-
+          
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        sudo apt-get install mpich
+
+    - name: Build PAPRECA
+      run: |
+        cd $HOME
+        mkdir mypapreca; cd ./mypapreca
+        mkdir build; cd build
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
+        cmake --build .
+
+    - name: Upload PAPRECA build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PAPRECA-artifact
+        path: $HOME/mypapreca
+
+    - name: Build TESTS executable for PAPRECA
+      run: |
+        cd $HOME
+        cp -r $GITHUB_WORKSPACE/tests/ ./
+        cd ./tests/source\ tests/
+        mkdir build; cd build
+        cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake --build .
+
+    - name: Upload artifact of PAPRECA test executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: PAPRECAtest-artifact
+        path: $HOME/tests/source\ tests/
