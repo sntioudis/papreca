@@ -62,6 +62,10 @@ Two independent scalability tests were performed. The first scalability test was
 Where the speedup value of N MPI processes was calculated as $t_N = \frac{T_1}{T_N}$, with $t_1$ being the total walltime of 1 MPI process. For this specific system (i.e., phosphates example), it can be observed that the kMC stage does not scale as effectively as the MD stage (performed in LAMMPS). Nonetheless, the total speedup (i.e., combined kMC and MD) of a hybrid ```PAPRECA``` run is comparable to the MD stage speedup. This can be justified by the fact that the kMC stages require significantly less CPU time than the MD stages, regardless of the number of MPI processes. For instance, the total walltimes of the kMC and MD stages of the
 64 MPI processes example (second scalability test on the CX3 cluster) were 0.226 and 2.71 hours, respectively. Overall, improving the scalability of the kMC stage will be prioritized in the upcoming versions of ```PAPRECA```.
 
+# Data availability
+
+Scalability test data is available on our [software repository](https://github.com/sntioudis/papreca/tree/main/Examples/Phosphate%20Film%20Growth%20from%20TCP%20on%20Fe110/scalability_data) [@PAPRECAgitHub].
+
 # Acknowledgements
 
 S.N., J.P.E., and D.D. thank Shell and the Engineering and Physical Sciences Research Council, United Kingdom (EPSRC) for PhD funding via the InFUSE Prosperity Partnership (EP/V038044/1).
