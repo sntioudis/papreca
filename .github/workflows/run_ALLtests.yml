@@ -58,11 +58,6 @@ jobs:
         cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
 
-    - name: Verify LAMMPS executable
-      run: |
-        cd lammpscache/build
-        ./lmp -h
-
   #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
   #Upload artefacts of both to be used in subsequent tests
   buildPAPRECA: 
