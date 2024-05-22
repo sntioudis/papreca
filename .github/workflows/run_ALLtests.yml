@@ -102,11 +102,9 @@ jobs:
 
     - name: Build PAPRECA
       run: |
-        pwd
-        echo "$(GITHUB_WORKSPACE)"
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=lammpscache/build/
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=${{ GITHUB_WORKSPACE }}/lammpscache/build/
         cmake --build .
 
     - name: Upload PAPRECA build artifact
@@ -120,7 +118,7 @@ jobs:
         cp -r $GITHUB_WORKSPACE/tests/ ./
         cd ./tests/source\ tests/
         mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake .. -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=${{ GITHUB_WORKSPACE }}/lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
 
     - name: Upload artifact of PAPRECA test executable
