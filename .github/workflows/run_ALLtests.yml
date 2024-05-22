@@ -33,12 +33,6 @@ jobs:
         cd lammpscache
         LAMMPS_COMMIT=$(git rev-parse HEAD)
         echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-    - name: Install LAMMPS dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
         
     - name: Cache LAMMPS library
       id: cache-lammps-repo
@@ -52,6 +46,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
+    - name: Install LAMMPS dependencies
+      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        sudo apt-get install mpich
+        
     - name: Configure and build LAMMPS
       if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
       run: |
@@ -61,6 +62,7 @@ jobs:
         cmake --build .
 
     - name: Verify LAMMPS
+      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
       run: ./lammpscache/build/lmp -h
 
   #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
@@ -104,7 +106,7 @@ jobs:
       run: |
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammpscache/build/
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammpscache/build/
         cmake --build .
 
     - name: Upload PAPRECA build artifact
@@ -118,7 +120,7 @@ jobs:
         cp -r $GITHUB_WORKSPACE/tests/ ./
         cd ./tests/source\ tests/
         mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
 
     - name: Upload artifact of PAPRECA test executable
