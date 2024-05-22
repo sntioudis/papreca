@@ -22,12 +22,17 @@ jobs:
     
     - name: Clone LAMMPS repository (release branch)
       run: |
-        cd $HOME
-        git clone -b release https://github.com/lammps/lammps.git mylammps
-        cd ./mylammps
-        mkdir -p build #Prepare the build folder so that you cache mylammps correctly
+        git clone -b release https://github.com/lammps/lammps.git $HOME/lammpscache
+        cd $HOME/lammpscache
         git checkout release
         git pull
+
+    - name: Get LAMMPS release commit SHA
+      id: get-lammps-commit
+      run: |
+        cd $HOME/lammpscache
+        LAMMPS_COMMIT=$(git rev-parse HEAD)
+        echo "::set-output name=commit_sha::$LAMMPS_COMMIT"
 
     - name: Install LAMMPS dependencies
       run: |
@@ -35,27 +40,27 @@ jobs:
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
         
-    - name: Cache LAMMPS repository
+    - name: Cache LAMMPS library
       id: cache-lammps-repo
-      uses: actions/cache@v3
+      uses: actions/cache@v4.0.2
       with:
-        path: |
-          $HOME/mylammps/build
-          $HOME/mylammps/src
-        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/src/**') }}
+        path: $HOME/lammpscache/build/liblammps.a
+        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
+        key: ${{ runner.os }}-lammps-repo-${{ steps.get-lammps-commit.outputs.commit_sha }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
     - name: Configure and build LAMMPS
-      if: steps.cache-lammps-repo.outputs.cache-hit != 'true' #Only if there are changes to "mylammps" (i.e., if there are changes to the release branch)
+      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
       run: |
-        cd $HOME/mylammps/build
+        cd $HOME/lammpscache
+        mkdir build; cd build
         cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
 
     - name: Verify LAMMPS executable
       run: |
-        cd $HOME/mylammps/build
+        cd $HOME/lammpscache/build
         ./lmp -h
 
   #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
@@ -71,14 +76,26 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4 #Checkout PAPRECA repository
 
+    - name: Clone LAMMPS repository (release branch)
+      run: |
+        git clone -b release https://github.com/lammps/lammps.git $HOME/mylammps
+        cd $HOME/mylammps
+        git checkout release
+        git pull
+
+    - name: Get LAMMPS release commit SHA
+      id: get-lammps-commit
+      run: |
+        cd $HOME/mylammps
+        LAMMPS_COMMIT=$(git rev-parse HEAD)
+        echo "::set-output name=commit_sha::$LAMMPS_COMMIT"
+        
     - name: Restore LAMMPS cache
       id: cache-lammps
-      uses: actions/cache@v3
+      uses: actions/cache@v4.0.2
       with:
-        path: |
-          $HOME/mylammps/build
-          $HOME/mylammps/src
-        key: ${{ runner.os }}-lammps-repo-${{ hashFiles('mylammps/src/**') }}
+        path: $HOME/lammpscache/build/liblammps.a
+        key: ${{ runner.os }}-lammps-repo-${{ steps.get-lammps-commit.outputs.commit_sha }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
           
@@ -93,7 +110,7 @@ jobs:
         cd $HOME
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/lammpscache/build/
         cmake --build .
 
     - name: Upload PAPRECA build artifact
@@ -108,7 +125,7 @@ jobs:
         cp -r $GITHUB_WORKSPACE/tests/ ./
         cd ./tests/source\ tests/
         mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/mylammps/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
 
     - name: Upload artifact of PAPRECA test executable
