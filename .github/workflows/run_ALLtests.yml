@@ -22,17 +22,17 @@ jobs:
     
     - name: Clone LAMMPS repository (release branch)
       run: |
-        git clone -b release https://github.com/lammps/lammps.git $HOME/lammpscache
-        cd $HOME/lammpscache
+        git clone -b release https://github.com/lammps/lammps.git lammpscache
+        cd lammpscache
         git checkout release
         git pull
 
     - name: Get LAMMPS release commit SHA
       id: get-lammps-commit
       run: |
-        cd $HOME/lammpscache
+        cd lammpscache
         LAMMPS_COMMIT=$(git rev-parse HEAD)
-        echo "::set-output name=commit_sha::$LAMMPS_COMMIT"
+        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
     - name: Install LAMMPS dependencies
       run: |
@@ -44,23 +44,23 @@ jobs:
       id: cache-lammps-repo
       uses: actions/cache@v4.0.2
       with:
-        path: $HOME/lammpscache/build/liblammps.a
+        path: lammpscache/build/liblammps.a
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ steps.get-lammps-commit.outputs.commit_sha }}
+        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
     - name: Configure and build LAMMPS
       if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
       run: |
-        cd $HOME/lammpscache
+        cd lammpscache
         mkdir build; cd build
         cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
 
     - name: Verify LAMMPS executable
       run: |
-        cd $HOME/lammpscache/build
+        cd lammpscache/build
         ./lmp -h
 
   #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
@@ -78,24 +78,17 @@ jobs:
 
     - name: Clone LAMMPS repository (release branch)
       run: |
-        git clone -b release https://github.com/lammps/lammps.git $HOME/mylammps
-        cd $HOME/mylammps
+        git clone -b release https://github.com/lammps/lammps.git mylammps
+        cd mylammps
         git checkout release
         git pull
-
-    - name: Get LAMMPS release commit SHA
-      id: get-lammps-commit
-      run: |
-        cd $HOME/mylammps
-        LAMMPS_COMMIT=$(git rev-parse HEAD)
-        echo "::set-output name=commit_sha::$LAMMPS_COMMIT"
         
     - name: Restore LAMMPS cache
       id: cache-lammps
       uses: actions/cache@v4.0.2
       with:
-        path: $HOME/lammpscache/build/liblammps.a
-        key: ${{ runner.os }}-lammps-repo-${{ steps.get-lammps-commit.outputs.commit_sha }}
+        path: lammpscache/build/liblammps.a
+        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
           
@@ -107,29 +100,27 @@ jobs:
 
     - name: Build PAPRECA
       run: |
-        cd $HOME
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/lammpscache/build/
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=lammpscache/build/
         cmake --build .
 
     - name: Upload PAPRECA build artifact
       uses: actions/upload-artifact@v4
       with:
         name: PAPRECA-artifact
-        path: $HOME/mypapreca/build
+        path: mypapreca/build
 
     - name: Build TESTS executable for PAPRECA
       run: |
-        cd $HOME
         cp -r $GITHUB_WORKSPACE/tests/ ./
         cd ./tests/source\ tests/
         mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$HOME/mylammps/src/ -DLAMMPS_LIB_DIR=$HOME/lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake .. -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=lammpscache/build/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
 
     - name: Upload artifact of PAPRECA test executable
       uses: actions/upload-artifact@v4
       with:
         name: PAPRECAtest-artifact
-        path: $HOME/tests/source\ tests/build
+        path: tests/source\ tests/build
