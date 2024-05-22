@@ -96,14 +96,14 @@ jobs:
           
     - name: Install dependencies
       run: |
-        cd lammpscache/build/
-        ls
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
 
     - name: Build PAPRECA
       run: |
+        pwd
+        echo "$(GITHUB_WORKSPACE)"
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
         cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=mylammps/src/ -DLAMMPS_LIB_DIR=lammpscache/build/
