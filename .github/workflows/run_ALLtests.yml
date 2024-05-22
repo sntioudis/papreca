@@ -110,23 +110,24 @@ jobs:
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
 
+    - name: Create cached directory to save papreca executables
+      run: |
+        mkdir -p cached
+        cd ./cached
+        mkdir -p papreca
+        
+    - name: Cache papreca executables
+      id: cache-papreca
+      uses: actions/cache@v4.0.2
+      with:
+        path: cached/papreca
+        key: ${{ runner.os }}-papreca-
+        restore-keys: |
+          ${{ runner.os }}-papreca-
+
     - name: Build PAPRECA
       run: |
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
         cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/
-        cmake --build .
-
-    - name: Upload PAPRECA build artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: PAPRECA-artifact
-        path: mypapreca/build
-
-    - name: Build TESTS executable for PAPRECA
-      run: |
-        cp -r $GITHUB_WORKSPACE/tests/ ./
-        cd ./tests/source\ tests/
-        mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
