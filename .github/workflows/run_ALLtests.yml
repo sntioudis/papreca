@@ -126,7 +126,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: papreca-artifacts
-        path:
+        path: |
           mypapreca/build/papreca
           $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests
 
