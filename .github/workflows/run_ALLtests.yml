@@ -160,8 +160,9 @@ jobs:
 
     - name: Run source tests
       run: |
+        chmod +rwx $GITHUB_WORKSPACE/artifacts/source_tests
         cd $GITHUB_WORKSPACE/tests/source\ tests/
-        bash run_tests.sh $GITHUB_WORKSPACE/artifacts/
+        bash run_tests.sh $GITHUB_WORKSPACE/artifacts
 
   hybridTest:
   
@@ -186,8 +187,10 @@ jobs:
         name: papreca-artifacts
         path: artifacts
         merge-multiple: false
+        
 
     - name: Run hybrid test
       run: |
+        chmod +rwx $GITHUB_WORKSPACE/artifacts/papreca
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
-        bash ./test_hybrid.sh $GITHUB_WORKSPACE/artifacts/
+        bash ./test_hybrid.sh $GITHUB_WORKSPACE/artifacts
