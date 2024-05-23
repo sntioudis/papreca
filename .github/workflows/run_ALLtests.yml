@@ -134,7 +134,7 @@ jobs:
         name: papreca-artifacts
         path: artifacts
 
-  testingArtifactDonwload:
+  sourceTests:
   
     needs: buildPAPRECA
     
@@ -142,15 +142,40 @@ jobs:
 
     steps:
 
-    - name: Download a single artifact
+    - name: Checkout #Checkout PAPRECA repository
+      uses: actions/checkout@v4 
+      
+    - name: Restore papreca executables
       uses: actions/download-artifact@v4
       with:
         name: papreca-artifacts
         path: artifacts
         merge-multiple: false
 
-    - name: check artifacts folder
+    - name: Run source tests
       run: |
-        cd ./artifacts
-        ls
+        cd $GITHUB_WORKSPACE/tests/source\ tests/
+        bash run_tests.sh $GITHUB_WORKSPACE/artifacts/
+
+  hybridTest:
   
+    needs: buildPAPRECA
+    
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout #Checkout PAPRECA repository
+      uses: actions/checkout@v4 
+      
+    - name: Restore papreca executables
+      uses: actions/download-artifact@v4
+      with:
+        name: papreca-artifacts
+        path: artifacts
+        merge-multiple: false
+
+    - name: Run hybrid test
+      run: |
+        cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
+        bash ./test_hybrid.sh $GITHUB_WORKSPACE/artifacts/
