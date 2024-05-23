@@ -75,8 +75,6 @@ jobs:
         mv mylammps/build/lmp cached/lammps
         mv mylammps/build/liblammps.a cached/lammps
 
-  #Build PAPRECA and PAPRECA test executables on top of LAMMPS.
-  #Upload artefacts of both to be used in subsequent tests
   buildPAPRECA: 
 
     needs: buildLAMMPS
@@ -131,3 +129,15 @@ jobs:
         mkdir build; cd build
         cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/
         cmake --build .
+
+    - name: Build TESTS executable for PAPRECA
+      run: |
+        cd $GITHUB_WORKSPACE/tests/source\ tests/
+        mkdir build; cd build
+        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake --build .
+
+    - name: Move papreca and papreca test executables to cached directory
+      run: |
+        mv mypapreca/build/papreca cached/papreca
+        mv $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests cached/papreca
