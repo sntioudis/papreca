@@ -10,10 +10,10 @@ python_version=$3
 run_test( ){
 
 	# Check if exactly three arguments are provided
-    if [ "$#" -ne 3 ]; then
-        echo "Error: run_test function requires exactly 3 arguments (python_version, python_script name, and papreca_path)."
-        return 1
-    fi
+	if [ "$#" -ne 3 ]; then
+		echo "Error: run_test function requires exactly 3 arguments (python_version, python_script name, and papreca_path)."
+		return 1
+	fi
 	
 	#Retrieve paths and python script name
 	local python_version=$1
@@ -26,9 +26,9 @@ run_test( ){
 	#Retrieve exit code and abort if necessary
 	exit_code=$?
 	if [ $exit_code -eq 1 ]; then
-        echo "Test failed...aborting!"
-        exit 1
-    fi
+        	echo "Test failed...aborting!"
+        	exit 1
+    	fi
 	
 }
 echo -e "Running ALL predefined event tests with a random seed of "$random_seed" \n \n"
