@@ -10,25 +10,17 @@ To clone the latest %PAPRECA repository on your machine execute the following co
 
 ```bash
 git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the latest PAPRECA repository to a folder named mypapreca
-cd ./mypapreca
-git checkout release
-git pull
 ```
 
 \section beforeInstall Read before you install: Important notes and prerequisites
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version is: 7 Feb 2024 and any of the following branches is expected to work properly: release, stable, develop. Note that older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version (tag) is: patch_17Apr2024. Note that older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a library with a few optional packages:
 
 ```bash
-git clone -b release https://github.com/lammps/lammps.git mylammps #Add the latest LAMMPS repository (release branch) to a folder named mylammps
-cd ./mylammps
-git checkout release
-git pull
-
-mkdir build
-cd build
+git clone --depth 1 --branch patch_17Apr2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
+mkdir build; cd build
 cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building
 cmake --build .
 ```
