@@ -5,14 +5,15 @@ name: Build and functionality tests
 # 3) Builds PAPRECA on top of LAMMPS
 # 4) Builds PAPRECA source tests
 # 5) Saves artifacts of papreca executables
-# After completing steps 1-4, we can be certain that the PAPRECA version can be built without any issues
+# After completing steps 1-5, we can be certain that the PAPRECA version can be built without any issues
 # 6) Performs source tests
 # 7) Performs a hybrid kMC/MD test (TCP decomposition on Fe-110)
 # 8) Performs all event tests with 5 different seeds (matrix strategy)
 
 
 on:
-  workflow_dispatch: #Only trigger manually
+  schedule: #Test runs everyday at midnight UTC
+    - cron: "0 0 * * *"
 
 jobs:
 
