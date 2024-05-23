@@ -4,10 +4,11 @@ name: Build and functionality tests
 # 2) Builds LAMMPS (if changes are detected in the release branch)
 # 3) Builds PAPRECA on top of LAMMPS
 # 4) Builds PAPRECA source tests
-# After completing steps 1-3, we can be certain that the PAPRECA version can be built without any issues
-# 5) Performs source tests on the C++ code
-# 6) Performs event tests (check the output to ensure that they succeed 100% for any given random seed)
-# 7) Performs 20 hybrid kMC/MD steps on the "Phosphate Growth from TCP on Fe110" example.
+# 5) Saves artifacts of papreca executables
+# After completing steps 1-4, we can be certain that the PAPRECA version can be built without any issues
+# 6) Performs source tests
+# 7) Performs a hybrid kMC/MD test (TCP decomposition on Fe-110)
+# 8) Performs all event tests with 5 different seeds (matrix strategy)
 
 
 on:
@@ -194,3 +195,47 @@ jobs:
         chmod +rwx $GITHUB_WORKSPACE/artifacts/papreca
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
         bash ./test_hybrid.sh $GITHUB_WORKSPACE/artifacts
+
+
+  eventTests:
+  
+    needs: buildPAPRECA
+    
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        seed: [52748145,27149655,45334679,217676174,161081677]
+
+    steps:
+
+    - name: Checkout #Checkout PAPRECA repository
+      uses: actions/checkout@v4
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+          python-version: '3.x'
+          architecture: 'x64'
+           
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip numpy
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+        sudo apt-get install mpich
+        
+    - name: Restore papreca executables
+      uses: actions/download-artifact@v4
+      with:
+        name: papreca-artifacts
+        path: artifacts
+        merge-multiple: false
+        
+
+    - name: Run event test
+      run: |
+        chmod +rwx $GITHUB_WORKSPACE/artifacts/papreca
+        echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
+        cd $GITHUB_WORKSPACE/tests/event\ tests/
+        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/artifacts python3
