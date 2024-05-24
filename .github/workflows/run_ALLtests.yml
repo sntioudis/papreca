@@ -37,15 +37,15 @@ jobs:
     - name: Restore papreca executables
       uses: actions/download-artifact@v4
       with:
-        name: papreca-artifacts
-        path: papreca_artifacts
+        name: papreca-artifacts_${{ env.COMMIT_HASH }} #use commit hash (enviromental variable captured in the reusable workflow)
+        path: papreca_artifacts_${{ env.COMMIT_HASH }}
         merge-multiple: false
 
     - name: Run source tests
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/source_tests
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }}/source_tests
         cd $GITHUB_WORKSPACE/tests/source\ tests/
-        bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts
+        bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }}
 
   hybridTest:
   
@@ -67,16 +67,16 @@ jobs:
     - name: Restore papreca executables
       uses: actions/download-artifact@v4
       with:
-        name: papreca-artifacts
-        path: papreca_artifacts
+        name: papreca-artifacts_${{ env.COMMIT_HASH }}
+        path: papreca_artifacts_${{ env.COMMIT_HASH }}
         merge-multiple: false
         
 
     - name: Run hybrid test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/papreca
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }}/papreca
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
-        bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts
+        bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }}
 
 
   eventTests:
@@ -110,14 +110,14 @@ jobs:
     - name: Restore papreca executables
       uses: actions/download-artifact@v4
       with:
-        name: papreca-artifacts
-        path: papreca_artifacts
+        name: papreca-artifacts_${{ env.COMMIT_HASH }}
+        path: papreca_artifacts_${{ env.COMMIT_HASH }}
         merge-multiple: false
         
 
     - name: Run event test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/papreca
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }}/papreca
         echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
         cd $GITHUB_WORKSPACE/tests/event\ tests/
-        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/papreca_artifacts python3
+        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/papreca_artifacts_${{ env.COMMIT_HASH }} python3
