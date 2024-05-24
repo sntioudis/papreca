@@ -25,7 +25,7 @@ jobs:
    uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
    with:
      clone_type: branch
-     clone_name: ${{ needs.setCloneName.outputs.clone_name }
+     clone_name: ${{ needs.setCloneName.outputs.clone_name }}
      cache_lammps: true
 
      
