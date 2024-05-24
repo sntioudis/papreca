@@ -17,9 +17,10 @@ jobs:
    uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
    with:
      clone_type: branch
-     clone_name: ${{ clone_name }}
+     clone_name: ${{ secrets.clone_name }}
      cache_lammps: true
-
+   secrets:     
+     clone_name: ${{ env.clone_name }}
   sourceTests:
   
     needs: build-reusable
