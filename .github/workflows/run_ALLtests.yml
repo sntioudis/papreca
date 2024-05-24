@@ -13,16 +13,19 @@ jobs:
 
   setCloneName:
     runs-on: ubuntu-latest
+    outputs:
+      clone_name: ${{ steps.set-clone-name.outputs.clone_name }}
     steps:
       - name: Set clone name variable
-        run: echo "clone_name=release" >> $GITHUB_ENV
+        id: set-clone-name
+        run: echo "clone_name=release" >> $GITHUB_OUTPUT
         
   build-reusable:
    needs: setCloneName
    uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
    with:
      clone_type: branch
-     clone_name: ${{ env.clone_name }}
+     clone_name: ${{ needs.setCloneName.outputs.clone_name }
      cache_lammps: true
 
      
