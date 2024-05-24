@@ -14,7 +14,7 @@ git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the
 
 \section beforeInstall Read before you install: Important notes and prerequisites
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version (tag) is: patch_17Apr2024. Note that older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_17Apr2024).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a library with a few optional packages:
 
