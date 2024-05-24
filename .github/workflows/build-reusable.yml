@@ -28,9 +28,6 @@ jobs:
 
   buildLAMMPS:
     runs-on: ubuntu-latest
-
-    outputs:
-      COMMT_HASH: ${{steps.get-lammps-commit.outputs.COMMIT_HASH}}
       
     steps:
 
@@ -52,20 +49,20 @@ jobs:
       id: get-lammps-commit
       run: |
         cd mylammps
-        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
       
     - name: Create lammps_artifacts directory to save liblammps.a and lmp
       run: |
-        mkdir -p lammps_artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
+        mkdir -p lammps_artifacts_${{ env.COMMIT_HASH }}
        
     - name: Cache LAMMPS library
       if: ${{ inputs.cache_lammps }}
       id: cache-lammps-repo
       uses: actions/cache@v4.0.2
       with:
-        path: lammps_artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
+        path: lammps_artifacts_${{ env.COMMIT_HASH }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
+        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
@@ -91,18 +88,15 @@ jobs:
     - name: Move lmp executable and lammps library to lammps_artifacts directory
       if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
       run: |
-        mv mylammps/build/lmp lammps_artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
-        mv mylammps/build/liblammps.a lammps_artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
+        mv mylammps/build/lmp lammps_artifacts_${{ env.COMMIT_HASH }}
+        mv mylammps/build/liblammps.a lammps_artifacts_${{ env.COMMIT_HASH }}
 
     - name: Save LAMMPS as an artifact (if chosen by user)
       if: ${{ !inputs.cache_lammps }} #This means that we do not use a LAMMPS cache so we save it as an artifact
       uses: actions/upload-artifact@v4
       with:
-        name: lammps-artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
-        path: lammps_artifacts_${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}
-        
-    - name: Sanity check
-      run: echo "${{ steps.get-lammps-commit.outputs.COMMIT_HASH }}"
+        name: lammps-artifacts_${{ env.COMMIT_HASH }}
+        path: lammps_artifacts_${{ env.COMMIT_HASH }}
       
   buildPAPRECA: 
 
@@ -111,9 +105,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
-    - name: Sanity check
-      run: echo "${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}"
       
     - name: Checkout
       uses: actions/checkout@v4 #Checkout PAPRECA repository
@@ -130,15 +121,22 @@ jobs:
       if: ${{ inputs.clone_type == 'tag' }}
       run: |
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+
+    - name: Get LAMMPS release commit SHA
+      if: ${{ inputs.cache_lammps }}
+      id: get-lammps-commit
+      run: |
+        cd mylammps
+        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
         
     - name: Restore LAMMPS cache
       if: ${{ inputs.cache_lammps }}
       id: cache-lammps
       uses: actions/cache@v4.0.2
       with:
-        path: lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
+        path: lammps_artifacts_${{ env.COMMIT_HASH }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
+        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
@@ -146,8 +144,8 @@ jobs:
       if: ${{ !inputs.cache_lammps }}
       uses: actions/download-artifact@v4
       with:
-        name: lammps-artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
-        path: lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
+        name: lammps-artifacts_${{ env.COMMIT_HASH }}
+        path: lammps_artifacts_${{ env.COMMIT_HASH }}
         merge-multiple: false
           
     - name: Install dependencies
@@ -158,28 +156,28 @@ jobs:
 
     - name: Build PAPRECA
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}/liblammps.a #Grant full permissions to use LAMMPS library (sometimes artifacts do not come with full permissions)
+        chmod +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ env.COMMIT_HASH }}/liblammps.a #Grant full permissions to use LAMMPS library (sometimes artifacts do not come with full permissions)
         mkdir mypapreca; cd ./mypapreca
         mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}/
+        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ env.COMMIT_HASH }}/
         cmake --build .
 
     - name: Build TESTS executable for PAPRECA
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}/liblammps.a
+        chmod +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ env.COMMIT_HASH }}/liblammps.a
         cd $GITHUB_WORKSPACE/tests/source\ tests/
         mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }} -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
+        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ env.COMMIT_HASH }} -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
         cmake --build .
         
     - name: Move papreca executables to artifacts folder
       run: |
-        mkdir -p papreca_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
-        mv mypapreca/build/papreca papreca_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
-        mv $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests papreca_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
+        mkdir -p papreca_artifacts_${{ env.COMMIT_HASH }}
+        mv mypapreca/build/papreca papreca_artifacts_${{ env.COMMIT_HASH }}
+        mv $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests papreca_artifacts_${{ env.COMMIT_HASH }}
 
     - name: Upload papreca executables as artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: papreca-artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
-        path: papreca_artifacts_${{ needs.buildLAMMPS.outputs.COMMIT_HASH }}
+        name: papreca-artifacts_${{ env.COMMIT_HASH }}
+        path: papreca_artifacts_${{ env.COMMIT_HASH }}
