@@ -5,9 +5,6 @@
 
 name: Build and test reusable
 
-env:
-  COMMIT_HASH: ''
-
 on:
   workflow_call:
     inputs:
@@ -174,3 +171,17 @@ jobs:
       with:
         name: papreca-artifacts_${{ inputs.clone_name }}
         path: papreca_artifacts_${{ inputs.clone_name }}
+
+  exportCloneName: 
+
+    needs: buildLAMMPS
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      clone_name: ${{ steps.export-clone-name.outputs.clone_name }}
+
+    steps:
+      - name: Export clone name
+        id: export-clone-name
+        run: echo "clone_name=${{ inputs.clone_name }}" >> $GITHUB_OUTPUTS
