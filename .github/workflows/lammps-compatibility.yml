@@ -1,0 +1,23 @@
+#Example matrix job to test if PAPRECA can be built against various LAMMPS versions
+
+name: LAMMPS compatibility tests
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  call-reusable-workflow:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        clone_name: [ patch_17Apr2024 , patch_7Feb2024 , patch_21Nov2023 , patch_2Aug2023 , patch_15Jun2023 , patch_28Mar2023 , patch_8Feb2023 , patch_22Dec2022 , patch_3Nov2022 , patch_15Sep2022 , patch_3Aug2022] #Target many feature releases from newest to oldest
+
+    steps:
+      - name: Build LAMMPS and PAPRECA via reusable workflow
+        uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
+        with:
+          clone_type: tag
+          clone_name: ${{ matrix.clone_name }}
+          cache_lammps: false
