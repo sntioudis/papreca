@@ -1,7 +1,6 @@
 PAPRECA
 [![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml)
-[![My Custom Badge](https://img.shields.io/badge/Awesome-BrightGreen)](https://example.com)
-[![Compatibility]([https://github.com/sntioudis/papreca/actions/workflows/lammps-compatibility.yml/badge.svg](https://img.shields.io/badge/LAMMPS-earliest-version:patch_15Sep2022-BrightGreen)](https://github.com/sntioudis/papreca/actions/workflows/lammps-compatibility.yml)
+[![Compatibility]([https://github.com/sntioudis/papreca/actions/workflows/lammps-compatibility.yml/badge.svg](https://img.shields.io/badge/Earliest Copatible Lammps Version:patch_15Sep2022-BrightGreen)](https://github.com/sntioudis/papreca/actions/workflows/lammps-compatibility.yml)
 [![Docs](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
 [![status](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b/status.svg)](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b)
 ========
