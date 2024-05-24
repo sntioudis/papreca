@@ -179,9 +179,9 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      clone_name: ${{ steps.export-clone-name.outputs.clone_name }}
+      CLONE_NAME: ${{ steps.export-clone-name.outputs.CLONE_NAME }}
 
     steps:
       - name: Export clone name
         id: export-clone-name
-        run: echo "clone_name=${ inputs.clone_name }" >> $GITHUB_OUTPUTS
+        run: echo "CLONE_NAME=${{ inputs.clone_name }}" >> $GITHUB_OUTPUTS
