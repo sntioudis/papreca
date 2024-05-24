@@ -126,7 +126,7 @@ jobs:
       id: cache-lammps
       uses: actions/cache@v4.0.2
       with:
-        path: lammps_artifacts__${{ env.COMMIT_HASH }}
+        path: lammps_artifacts_${{ env.COMMIT_HASH }}
         key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
