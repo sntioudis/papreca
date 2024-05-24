@@ -53,16 +53,16 @@ jobs:
       
     - name: Create lammps_artifacts directory to save liblammps.a and lmp
       run: |
-        mkdir -p lammps_artifacts_${{ env.COMMIT_HASH }}
+        mkdir -p lammps_artifacts_${{ COMMIT_HASH }}
        
     - name: Cache LAMMPS library
       if: ${{ inputs.cache_lammps }}
       id: cache-lammps-repo
       uses: actions/cache@v4.0.2
       with:
-        path: lammps_artifacts_${{ env.COMMIT_HASH }}
+        path: lammps_artifacts_${{ COMMIT_HASH }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
+        key: ${{ runner.os }}-lammps-repo-${{ COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
 
@@ -88,15 +88,15 @@ jobs:
     - name: Move lmp executable and lammps library to lammps_artifacts directory
       if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
       run: |
-        mv mylammps/build/lmp lammps_artifacts_${{ env.COMMIT_HASH }}
-        mv mylammps/build/liblammps.a lammps_artifacts_${{ env.COMMIT_HASH }}
+        mv mylammps/build/lmp lammps_artifacts_${{ COMMIT_HASH }}
+        mv mylammps/build/liblammps.a lammps_artifacts_${{ COMMIT_HASH }}
 
     - name: Save LAMMPS as an artifact (if chosen by user)
       if: ${{ !inputs.cache_lammps }} #This means that we do not use a LAMMPS cache so we save it as an artifact
       uses: actions/upload-artifact@v4
       with:
-        name: lammps-artifacts_${{ env.COMMIT_HASH }}
-        path: lammps_artifacts_${{ env.COMMIT_HASH }}
+        name: lammps-artifacts_${{ COMMIT_HASH }}
+        path: lammps_artifacts_${{ COMMIT_HASH }}
       
   buildPAPRECA: 
 
@@ -121,13 +121,6 @@ jobs:
       if: ${{ inputs.clone_type == 'tag' }}
       run: |
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-
-    - name: Get LAMMPS release commit SHA
-      if: ${{ inputs.cache_lammps }}
-      id: get-lammps-commit
-      run: |
-        cd mylammps
-        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
         
     - name: Restore LAMMPS cache
       if: ${{ inputs.cache_lammps }}
