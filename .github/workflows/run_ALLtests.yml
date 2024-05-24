@@ -1,14 +1,6 @@
 name: Build and functionality tests
 
-# 1) Caches LAMMPS's release repository
-# 2) Builds LAMMPS (if changes are detected in the release branch)
-# 3) Builds PAPRECA on top of LAMMPS
-# 4) Builds PAPRECA source tests
-# 5) Saves artifacts of papreca executables
-# After completing steps 1-5, we can be certain that the PAPRECA version can be built without any issues
-# 6) Performs source tests
-# 7) Performs a hybrid kMC/MD test (TCP decomposition on Fe-110)
-# 8) Performs all event tests with 5 different seeds (matrix strategy)
+# Builds LAMMPS from a reusable workflow and then executes all PAPRECA tests
 
 
 on:
@@ -16,129 +8,17 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-
-  buildLAMMPS:
-    runs-on: ubuntu-latest
-
-    steps:
-    
-    - name: Clone LAMMPS repository (release branch)
-      run: |
-        git clone -b release https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout release
-        git pull
-
-    - name: Get LAMMPS release commit SHA
-      id: get-lammps-commit
-      run: |
-        cd mylammps
-        LAMMPS_COMMIT=$(git rev-parse HEAD)
-        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
-    - name: Create cached directory to save liblammps.a and lmp
-      run: |
-        mkdir -p cached
-        cd ./cached
-        mkdir -p lammps
-        
-    - name: Cache LAMMPS library
-      id: cache-lammps-repo
-      uses: actions/cache@v4.0.2
-      with:
-        path: cached/lammps
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-
-
-    - name: Install LAMMPS dependencies
-      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-        
-    - name: Configure and build LAMMPS
-      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
-      run: |
-        cd mylammps
-        mkdir build; cd build
-        cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
-        cmake --build .
-
-    - name: Verify LAMMPS
-      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
-      run: ./mylammps/build/lmp -h
-
-    - name: Move lmp executable and lammps library to cached directory
-      if: steps.cache-lammps-repo.outputs.cache-hit != 'true'
-      run: |
-        mv mylammps/build/lmp cached/lammps
-        mv mylammps/build/liblammps.a cached/lammps
-
-  buildPAPRECA: 
-
-    needs: buildLAMMPS
-    
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Checkout
-      uses: actions/checkout@v4 #Checkout PAPRECA repository
-
-    - name: Clone LAMMPS repository (release branch)
-      run: |
-        git clone -b release https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout release
-        git pull
-        
-    - name: Restore LAMMPS cache
-      id: cache-lammps
-      uses: actions/cache@v4.0.2
-      with:
-        path: cached/lammps
-        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-
-          
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-
-    - name: Build PAPRECA
-      run: |
-        mkdir mypapreca; cd ./mypapreca
-        mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/
-        cmake --build .
-
-    - name: Build TESTS executable for PAPRECA
-      run: |
-        cd $GITHUB_WORKSPACE/tests/source\ tests/
-        mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/cached/lammps/ -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
-        cmake --build .
-        
-    - name: Move papreca executables to artifacts folder
-      run: |
-        mkdir -p artifacts
-        mv mypapreca/build/papreca artifacts
-        mv $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests artifacts
-
-    - name: Upload papreca executables as artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: papreca-artifacts
-        path: artifacts
+  build-reusable:
+   uses: sntioudis/papreca/.github/workflows/templates/build-test-reusable.yml@main
+   with:
+     clone_type: branch
+     clone_name: release
+     cache_lammps: true
+   
 
   sourceTests:
   
-    needs: buildPAPRECA
+    needs: build-reusable
     
     runs-on: ubuntu-latest
 
@@ -157,18 +37,18 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: papreca-artifacts
-        path: artifacts
+        path: papreca_artifacts
         merge-multiple: false
 
     - name: Run source tests
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/artifacts/source_tests
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/source_tests
         cd $GITHUB_WORKSPACE/tests/source\ tests/
-        bash run_tests.sh $GITHUB_WORKSPACE/artifacts
+        bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts
 
   hybridTest:
   
-    needs: buildPAPRECA
+    needs: build-reusable
     
     runs-on: ubuntu-latest
 
@@ -187,20 +67,20 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: papreca-artifacts
-        path: artifacts
+        path: papreca_artifacts
         merge-multiple: false
         
 
     - name: Run hybrid test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/artifacts/papreca
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/papreca
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
-        bash ./test_hybrid.sh $GITHUB_WORKSPACE/artifacts
+        bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts
 
 
   eventTests:
   
-    needs: buildPAPRECA
+    needs: build-reusable
     
     runs-on: ubuntu-latest
 
@@ -230,13 +110,13 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: papreca-artifacts
-        path: artifacts
+        path: papreca_artifacts
         merge-multiple: false
         
 
     - name: Run event test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/artifacts/papreca
+        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts/papreca
         echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
         cd $GITHUB_WORKSPACE/tests/event\ tests/
-        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/artifacts python3
+        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/papreca_artifacts python3
