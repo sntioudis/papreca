@@ -63,7 +63,9 @@ jobs:
 
   hybridTest:
   
-    needs: build-reusable
+    needs:
+      - setCloneName #required to retrieve the clone name
+      - build-reusable
     
     runs-on: ubuntu-latest
 
@@ -95,7 +97,9 @@ jobs:
 
   eventTests:
   
-    needs: build-reusable
+    needs:
+      - setCloneName #required to retrieve the clone name
+      - build-reusable
     
     runs-on: ubuntu-latest
 
