@@ -49,8 +49,8 @@ jobs:
       id: get-lammps-commit
       run: |
         cd mylammps
-        LAMMPS_COMMIT=$(git rev-parse HEAD)
-        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        COMMIT_HASH=$(git rev-parse HEAD)
+        #echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
       
     - name: Create lammps_artifacts directory to save liblammps.a and lmp
       run: |
