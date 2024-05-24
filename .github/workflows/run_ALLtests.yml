@@ -31,7 +31,9 @@ jobs:
      
   sourceTests:
   
-    needs: build-reusable
+    needs:
+      - setCloneName #required to retrieve the clone name
+      - build-reusable
     
     runs-on: ubuntu-latest
 
