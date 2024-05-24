@@ -106,7 +106,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
+    
+    - name: Sanity check
+      run: echo "${{ env.COMMIT_HASH }}"
+      
     - name: Checkout
       uses: actions/checkout@v4 #Checkout PAPRECA repository
 
