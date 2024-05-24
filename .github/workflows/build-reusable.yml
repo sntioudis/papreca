@@ -97,11 +97,6 @@ jobs:
       with:
         name: lammps-artifacts_${{ inputs.clone_name }}
         path: lammps_artifacts_${{ inputs.clone_name }}
-
-
-    - name: Export clone name as env variable
-      run: |
-        echo "clone_name=${{inputs.clone_name}}" >> $GITHUB_ENV #In order to use it in subsequent jobs to retrieve paths
       
   buildPAPRECA: 
 
