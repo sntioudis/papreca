@@ -48,9 +48,6 @@ jobs:
         cd mylammps
         LAMMPS_COMMIT=$(git rev-parse HEAD)
         echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        
-    - name: Sanity check
-      run: echo "${{ env.COMMIT_HAS }}"
       
     - name: Create lammps_artifacts directory to save liblammps.a and lmp
       run: |
@@ -99,7 +96,9 @@ jobs:
         name: lammps-artifacts_${{ env.COMMIT_HASH }}
         path: lammps_artifacts_${{ env.COMMIT_HASH }}
         
-
+    - name: Sanity check
+      run: echo "${{ env.COMMIT_HASH }}"
+      
   buildPAPRECA: 
 
     needs: buildLAMMPS
