@@ -5,6 +5,9 @@
 
 name: Build and test reusable
 
+env:
+  COMMIT_HASH: ''
+
 on:
   workflow_call:
     inputs:
