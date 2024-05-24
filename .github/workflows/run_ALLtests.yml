@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-reusable:
-   uses: sntioudis/papreca/.github/workflows/templates/build-test-reusable.yml@main
+   uses: sntioudis/papreca/.github/workflows/build-test-reusable.yml@main
    with:
      clone_type: branch
      clone_name: release
