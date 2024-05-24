@@ -8,19 +8,24 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
-env:
-  clone_name: release
   
 jobs:
-    
+
+  setCloneName:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set clone name variable
+        run: echo "clone_name=release" >> $GITHUB_ENV
+        
   build-reusable:
+   needs: setCloneName
    uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
    with:
      clone_type: branch
-     clone_name: ${{ secrets.clone_name }}
-     cache_lammps: true
-   secrets:     
      clone_name: ${{ env.clone_name }}
+     cache_lammps: true
+
+     
   sourceTests:
   
     needs: build-reusable
