@@ -120,6 +120,9 @@ jobs:
       if: ${{ inputs.clone_type == 'tag' }}
       run: |
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+
+    - name: test
+      run: echo "${{ env.COMMIT_HASH }}"
         
     - name: Restore LAMMPS cache
       if: ${{ inputs.cache_lammps }}
