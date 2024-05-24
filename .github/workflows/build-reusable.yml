@@ -120,9 +120,6 @@ jobs:
       if: ${{ inputs.clone_type == 'tag' }}
       run: |
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-
-    - name: test
-      run: echo "${{ env.COMMIT_HASH }}"
         
     - name: Restore LAMMPS cache
       if: ${{ inputs.cache_lammps }}
@@ -130,6 +127,7 @@ jobs:
       uses: actions/cache@v4.0.2
       with:
         path: lammps_artifacts_${{ env.COMMIT_HASH }}
+        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
         key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-
