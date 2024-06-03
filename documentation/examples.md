@@ -1,4 +1,4 @@
-Update essentials.md# Example Applications
+# Example Applications
 
 \anchor examples
 
