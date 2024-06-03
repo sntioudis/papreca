@@ -1,4 +1,4 @@
-# Example Applications
+Update essentials.md# Example Applications
 
 \anchor examples
 
@@ -143,6 +143,9 @@ is observed for all other tested adsorption/desorption rate ratios (see ./result
 <hr>
 
 \section phosphates Film growth from the thermal decomposition of tricresyl phosphate (TCP) molecules on a Fe110 surface.
+
+> **DISCLAIMER:**
+> This example requires considerably more time to finish than the \ref brownian and \ref adsorption simulations. See [here](https://github.com/sntioudis/papreca/tree/main/Examples/Phosphate%20Film%20Growth%20from%20TCP%20on%20Fe110/scalability_data) for more information regarding the scalability of this example and the required runtime. Also, consider reducing the total number of kMC steps of kMC_steps for shorter runs.
 
 The files associated with this example can be found in the ./Examples/Phosphate Film Growth from TCP on Fe110/
 
