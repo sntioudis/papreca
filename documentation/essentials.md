@@ -65,6 +65,16 @@ Before you start, it is very important that you familiarize yourself with LAMMPS
 - The following group names are reserved by %PAPRECA and **cannot** be used in the LAMMPS input file: del_atoms, delete_atoms, deletion, new_mol, fluid, frozen.
 - %PAPRECA uses a dummy group with id=1 to perform bond deletions (see this LAMMPS wrapper function for more information PAPRECA::deleteBond()), which means that you should **NOT** use this bond id to define some another bonded interaction. Please see the "kmc.lmp" file located in ./Examples/Phosphate Film Growth from TCP on Fe110/ for an example demonstrating how you can define multiple bond types.
 
+\section loglammps Dealing with large log.lammps files
+
+%PAPRECA alternates between kMC and MD stages (performed in LAMMPS). At the setup phase of the MD stage, LAMMPS appends various information on the log.lammps file (e.g., LAMMPS version, MPI warnings, LAMMPS inputs). Additionally, LAMMPS outputs minimization and trajectory information during the MD stage. This means that log.lammps files can become very large. A possible way to stop LAMMPS from constantly writing on the log.lammps file is by adding the following line to your LAMMPS input file (see the relevant [LAMMPS documentation page](https://docs.lammps.org/log.html):
+
+```bash
+log none
+```
+
+Note that the above command will not turn off screen outputs.
+
 \section running Running a PAPRECA simulation
 
 After creating your LAMMPS and %PAPRECA input files, a %PAPRECA run can be performed by running the papreca executable (as built in your build folder) with MPI.
