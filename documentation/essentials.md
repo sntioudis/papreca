@@ -30,6 +30,27 @@ Providing a fully parallelized scheme for event execution within the kMC stage o
 For additional information regarding the rejection-free kMC scheme, as well as the execution/detection of predefined kMC events please see Ntioudis et al. [1] and Fichthorn and Weinberg [2].
 For an overview of the LAMMPS software please see Thompson et al. [3].
 
+\section Supported predefined events
+
+%PAPRECA currently supports 5 different classes of predefined events.
+
+1-2) Reactions (bond-formation and bond breaking). See \ref createBreak and \ref createForm .
+
+\image html ./images/events_reaction.png width=70%
+
+3) Molecular and monoatomic deposition. See \ref createDepo .
+
+\image html ./images/events_adsorption.png width=70%
+
+4) Monoatomic desorption. See \ref createMonodes .
+
+\image html ./images/events_desorption.png width=70%
+
+5) Diffusion hops. See \ref createDiff .
+
+\image html ./images/events_diffusion.png width=70%
+
+
 \section decomposition Domain Decomposition
 
 The domain decomposition of %PAPRECA is identical to that of LAMMPS. On each kMC stage, %PAPRECA searches for local atomic scale processes by accessing whether
