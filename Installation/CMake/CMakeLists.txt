@@ -77,35 +77,6 @@ else()
 	message(FATAL_ERROR "Cannot find the OpenMP package required by the LAMMPS library.")
 endif()
 
-# Link with FFTW through PkgConfig
-find_package(PkgConfig REQUIRED)     
-pkg_check_modules(FFTW IMPORTED_TARGET REQUIRED fftw3)
-          
-if(NOT FFTW_ROOT AND DEFINED ENV{FFTWDIR})
-    set(FFTW_ROOT $ENV{FFTWDIR})
-endif()
-          
-find_library(
-    FFTW_DOUBLE_THREADS_LIB
-    NAMES "fftw3_threads"
-    PATHS ${PKG_FFTW_LIBRARY_DIRS} ${LIB_INSTALL_DIR}
-)
-          
-if (FFTW_DOUBLE_THREADS_LIB)
-    set(FFTW_DOUBLE_THREADS_LIB_FOUND TRUE)
-    set(FFTW_LIBRARIES ${FFTW_LIBRARIES} ${FFTW_DOUBLE_THREADS_LIB})
-    add_library(FFTW::DoubleThreads INTERFACE IMPORTED)
-    set_target_properties(FFTW::DoubleThreads
-        PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
-        INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_THREADS_LIB}"
-    )
-else()
-    set(FFTW_DOUBLE_THREADS_LIB_FOUND FALSE)
-endif()
-
-target_link_libraries(papreca PRIVATE PkgConfig::FFTW)
-target_link_libraries(PAPRECA_LIBRARY PRIVATE PkgConfig::FFTW)
-
 # tweak jpeg library names to avoid linker errors with MinGW cross-compilation
 set(JPEG_NAMES libjpeg libjpeg-62)
 find_package(JPEG QUIET)
