@@ -2,8 +2,11 @@
 
 \anchor examples
 
-> **Important note:**
+> **Important note 1:**
 > To be able to run all the examples below, please ensure that you have built your LAMMPS library with the following packages: EXTRA-DUMP, MOLECULE, RIGID, and QEQ. See \ref installation and the relevant [LAMMPS documentation page](https://docs.lammps.org/Build_package.html) for more information.
+
+> **Important note 2:**
+> The Adsorption/Desorption and Phosphates examples produce trajectory files (i.e., xyz) with varying (from timestep to timestep) numbers of atoms. [VMD](https://www.ks.uiuc.edu/Research/vmd/) cannot handle such trajectory files and will only draw the initial state (i.e., the substrate). Consider using another software (e.g., [OVITO](https://www.ovito.org/) capable of handling varying atoms.
 
 \section brownian Your first PAPRECA simulation: Brownian Diffusion (random walk)
 
