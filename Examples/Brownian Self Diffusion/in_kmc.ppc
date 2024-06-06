@@ -1,8 +1,8 @@
 #PAPRECA input file
 
 #Basic settings
-KMC_steps 100000
-KMC_per_MD 10
+KMC_steps 200000
+KMC_per_MD 1
 random_seed 13452234
 fluid_atomtypes 1 1
 
@@ -20,5 +20,5 @@ random_diffvecs yes 3D
 neiblists lj/cut zero
 
 #Export files
-export_ElementalDistributions 10 bin_width 10
+export_ElementalDistributions 1000 bin_width 10
 export_ExecutionTimes 1000

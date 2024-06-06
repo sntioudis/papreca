@@ -302,7 +302,7 @@ fluid_atomtypes 2 4 9
 
 \subsection flutypes_description Description
 
-Defines the mobile atom types for the %PAPRECA simulation
+Defines the mobile atom types for the MD stage of the %PAPRECA simulation
 
 > **Note 1:**
 > This is a mandatory command. The %PAPRECA simulation will not start unless the fluid atom types have been defined.
@@ -333,7 +333,7 @@ frozen_atomtypes 2 4 9
 
 \subsection frotypes_description Description
 
-Defines the frozen atom types for the %PAPRECA simulation.
+Defines the frozen atom types for the MD stage %PAPRECA simulation.
 
 > **Note 1:**
 > %PAPRECA will not check if the defined frozen atom types are consistent with the mobile types of the MD (LAMMPS) stage.

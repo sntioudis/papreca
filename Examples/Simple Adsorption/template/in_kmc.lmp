@@ -44,6 +44,8 @@ neigh_modify    every 1 delay 0 check yes
 group fluid type 2 #GROUP FLUID HAS TO BE DEFINED FOR APRECAT RUNS
 group frozen type 1
 #----------------Set Timestep-------------------------------
-timestep    	1.0e-100
+timestep    	1
 #----------------------File Outputs-------------------------  
-dump 2 all xyz 1 langmuir.xyz
+#dump 1 all dcd 250 langmuir.dcd #DO NOT USE A DUMP FREQUENCY DIFFERENT THAT THE MD_PER_KMC VARIABLE. CAN LEAD TO ETERNAL LOOPING.
+
+dump 2 all xyz 1 langmuir.xyz #Dump trajectory in xyz format (can comment this out)

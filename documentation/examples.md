@@ -3,7 +3,7 @@
 \anchor examples
 
 > **Important note:**
-> To be able to run all the examples below, please ensure that you have built your LAMMPS library with the following packages: MOLECULE, RIGID, and QEQ. See \ref installation and the relevant [LAMMPS documentation page](https://docs.lammps.org/Build_package.html) for more information.
+> To be able to run all the examples below, please ensure that you have built your LAMMPS library with the following packages: EXTRA-DUMP, MOLECULE, RIGID, and QEQ. See \ref installation and the relevant [LAMMPS documentation page](https://docs.lammps.org/Build_package.html) for more information.
 
 \section brownian Your first PAPRECA simulation: Brownian Diffusion (random walk)
 
@@ -21,10 +21,6 @@ As far as the LAMMPS input file (i.e., in_kmc.lmp)  is concerned, note that:
 - This simulation is a pure kMC simulation. The choice of pair_style does not make any difference at all. We simply use a hybrid/overlay of
 two interatomic potentials to produce a half neighbor list (generated from the "lj/cut" potential) as well as a full list (obtained from the "zero" potential).
 - The pair_coeff 1 1 for the "lj/cut" potential is defined to set the sigma value (i.e., 2.84642 Angstroms). Such value is used to perform collision searches for the diffusion event (see \ref createDiff, \ref sigoptions, and \ref insigma).
-- A timestep of 1.0e-100 is deployed. This is done because we plan on running an MD stage every few kMC stages to output trajectory files. Of course, the
-MD stage will solely generate an "xyz" file and will have no effect on the system dynamics (i.e., the %PAPRECA run will be a pure off-lattice kMC simulation). This
-can be justified by the following fact: 1) the chosen timestep value (i.e., 1.0e-100 fs) is beyond the accuracy limits of double, and 2) the trajectory_duration (as in the %PAPRECA 
-input file below) is set to 1.
 
 For more information regarding the used LAMMPS commands consider visiting the relevant [documentation pages](https://docs.lammps.org/commands_list.html#).
 
@@ -36,7 +32,7 @@ When it comes to the %PAPRECA input file (i.e., in_kmc.ppc), note that:
 
 \subsection brownian_run Execution
 
-Execute the following command in the ./Examples/Brownian Self Diffusion/ folder to run the Brownian motion example:
+The easiest way to run %PAPRECA is by running one of the follwing commands in the directory where the input files are located:
 
 ```bash
 mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
@@ -45,24 +41,43 @@ mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable pa
 or
 
 ```bash
+mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc > log.hybrid #modify papreca executable path if necessary
+```
+
+or
+
+```bash
 mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
 ```
 
-Of course, running the example requires that you have previously installed %PAPRECA (see \ref installation).
+or
 
-To run the Brownian motion example as an automated test use "test_brownian.sh" bash script in the example folder directory. Note that,
-you will have to modify the "papreca_dir" variable in your "test_brownian.sh" script so it points to the path of your %PAPRECA executable. If you wish to use "python" instead of "python3" you will also have to modify "test_brownian.sh". In any case, the Brownian test can be executed through the following command:
+```bash
+mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc > log.hybrid #modify papreca executable path if necessary
+```
+
+> **Important note 1:**
+> Redirecting the screen output to an external file (e.g., log.hybrid) is generally not advised. Such external files can occupy a considerable amount of disc space and potentially lower the performance of %PAPRECA. LAMMPS' screen output is already redirected to the log.lammps file and a some information from %PAPRECA is written on the papreca.log file.
+
+> **Important note 2:**
+> It is better advised to run the Brownian example as an automated test (see below).
+
+To run the Brownian motion example as an automated test use "test_brownian.sh" bash script in the example folder directory. Note that, you might have to modify the "papreca_dir" variable in your "test_brownian.sh" script so it points to the path of your %PAPRECA executable. If you wish to use "python" instead of "python3" you will also have to modify "test_brownian.sh". In any case, the Brownian test can be executed through one of the following commands:
 
 ```bash
 bash test_brownian.sh
+```
+
+or
+
+```bash
+bash test_brownian.sh > log.brownian
 ```
 
 The automated test runs %PAPRECA with the relevant LAMMPS and %PAPRECA input files. After the simulation finishes, it calls a python script to plot the spatial distributions
 of atoms (as exported in the distribution files in the results folder) at various times. The python script also exports an image file in the parent directory named distributions.png.
 
 \subsection brownian_results Results
-
-
 
 \image html ./images/brownian_superslowdown.gif width=60%
 
@@ -110,10 +125,16 @@ See the relevant section in the Brownian motion example (i.e., \ref brownian_INP
 \subsection adsorption_run Execution
 
 This example is meant to be executed as a batch test. To run the batch test, modify the "papreca_dir" directory of your "test_simple_adsdep.sh" file so it points to the path of your %PAPRECA executable.
-If you wish to use "python" instead of "python3" you will also have to modify "test_simple_adsdep.sh". The automated test can be executed through the following command:
+If you wish to use "python" instead of "python3" you will also have to modify "test_simple_adsdep.sh". The automated test can be executed through one of the following command:
 
 ```bash
 bash test_simple_adsdep.sh
+```
+
+or
+
+```bash
+bash test_simple_adsdep.sh > log.adsdes
 ```
 
 The batch script will access and modify the template %PAPRECA and LAMMPS input files (located in the ./template folder), and perform a series of %PAPRECA simulations
@@ -177,6 +198,12 @@ or
 
 ```bash
 mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
+```
+
+or
+
+```bash
+bash test_phosphates.sh #modify papreca executable path if necessary
 ```
 
 \subsection phosphates_results Results
