@@ -32,7 +32,7 @@ When it comes to the %PAPRECA input file (i.e., in_kmc.ppc), note that:
 
 \subsection brownian_run Execution
 
-The easiest way to run %PAPRECA is by running one of the follwing commands in the directory where the input files are located:
+The easiest way to run %PAPRECA is by running one of the following commands in the directory where the input files are located:
 
 ```bash
 mpiexec ../build/papreca -in in_kmc.lmp in_kmc.ppc #modify papreca executable path if necessary
@@ -57,7 +57,7 @@ mpirun ../build/papreca -in in_kmc.lmp in_kmc.ppc > log.hybrid #modify papreca e
 ```
 
 > **Important note 1:**
-> Redirecting the screen output to an external file (e.g., log.hybrid) is generally not advised. Such external files can occupy a considerable amount of disc space and potentially lower the performance of %PAPRECA. LAMMPS' screen output is already redirected to the log.lammps file and a some information from %PAPRECA is written on the papreca.log file.
+> Redirecting the screen output to an external file (e.g., log.hybrid) is generally not advised. Such external files can occupy a considerable amount of disc space and potentially lower the performance of %PAPRECA. LAMMPS' screen output is already redirected to the log.lammps file and some information from %PAPRECA is written on the papreca.log file.
 
 > **Important note 2:**
 > It is better advised to run the Brownian example as an automated test (see below).
