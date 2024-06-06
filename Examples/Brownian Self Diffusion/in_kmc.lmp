@@ -24,13 +24,12 @@ mass 1    1.0079
 pair_coeff 1 1 lj/cut 0.0152 2.84642
 
 pair_coeff * * zero
-
-group frozen type 2
-group fluid type 1
 #----------------------Define group and neib/charge interactions-----------
 neighbor        2 bin
 neigh_modify    every 1 delay 0 check yes
 
+group frozen type 2
+group fluid type 1
 #----------------Set Timestep----------------------------------------------
 timestep    	1.0
 
