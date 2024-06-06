@@ -117,14 +117,13 @@ mpirun -np 256 ../build/papreca -in LAMMPSinput.lmp PAPRECAinput.ppc
 
 \section units PAPRECA units
 
-Units within the MD stage are (of course), consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).
+Units within the MD stage are consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).
 
-Units within the kMC stage are, once again, consistent with units as defined in the LAMMPS input file. 
+Units within the kMC stage are consistent with units as defined in the LAMMPS input file. Nonetheless, event rates (in frequency units) are internally converted to 1/s. This is done to facilitate the passing of intuitive rate values from the %PAPRECA input file to the source code (using the rate_arrhenius, rate_hertz, rate_manual options in the create_BondBreak, create_BondForm, create_Deposition, create_DiffusionHop, and create_MonoatomicDesorption \ref commands). For that reason, %PAPRECA will always report time in seconds on the terminal and in any exported file (e.g., heightVtime.log or execTimes.log).
 
 The %PAPRECA simulation accounts for both the time elapsed within the MD stage (calculated as the product of the trajectory duration and the timestep) as well as the elapsed time within the kMC stage.
-Note that, %PAPRECA will always report time in seconds on the terminal and in any exported file (e.g., heightVtime.log or execTimes.log).
 
-Also, be careful when using the **rate_arrhenius** and **rate_hertz** options (see \ref createDepo) to set a predefined event template rate. You should always use units
+Also, be careful when using the **rate_arrhenius**, **rate_hertz**, and **rate_manual** options (see \ref createDepo) to set a predefined event template rate. You should always use units
 as requested by the respective rate calculation option.
 
 > **Important Note:**
