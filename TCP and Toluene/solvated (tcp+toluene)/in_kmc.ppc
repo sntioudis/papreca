@@ -1,0 +1,50 @@
+#APRECAT input file
+
+#Basic settings
+KMC_steps 500
+KMC_per_MD 1
+random_seed 1234124
+fluid_atomtypes 7 2 3 4 5 6 7 8
+frozen_atomtypes 1 1
+
+
+#Sigmas for types
+sigmas_options manual mix geom
+init_sigma 1 1 4.04468
+init_sigma 2 2 3.47299
+init_sigma 3 3 3.47299
+init_sigma 4 4 3.03315
+init_sigma 5 5 3.69723
+init_sigma 6 6 3.03315
+init_sigma 7 7 2.84642
+init_sigma 8 8 4.04468
+
+#Species bonds max
+species_maxbonds 2 2 #C_3
+species_maxbonds 3 2 #C_R
+species_maxbonds 4 2 #O singly-bonded
+species_maxbonds 5 4 #P
+species_maxbonds 6 2 #O doubly-bonded
+species_maxbonds 7 1 #H
+
+#Equilibration
+minimize_prior yes minimize 1.0e-5 1.0e-5 100 1000
+minimize_after yes minimize 1.0e-5 1.0e-5 100 1000
+trajectory_duration 200
+
+#NeibLists
+neiblists lj/cut/coul/cut zero
+
+#Predefined events
+#!BondBreaks
+create_BondBreak 2 3 2 rate_arrhenius 22 1.0e13 523.15# Cr-C3
+create_BondBreak 3 4 6 rate_arrhenius 20.54 1.56e10 523.15 #C-O
+#!BondForms. All distances are sigma_ij*2^(1/6)
+create_BondForm 5 4 8 3.7588562 no no no rate_manual 1.0e13 #P - O
+create_BondForm 5 6 9 3.7588562 no no no rate_manual 1.0e13 #P = O
+create_BondForm 4 4 12 3.4045958 yes yes yes rate_manual 1.0e13 #O - O
+create_BondForm 4 2 6 3.64309650 no no no rate_manual 1.0e13 #C-O
+create_BondForm 4 3 6 3.64309650 no no no rate_manual 1.0e13 #C-O
+
+#File Exports
+export_ExecutionTimes 1
