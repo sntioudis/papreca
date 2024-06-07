@@ -225,4 +225,25 @@ export files at the end of the run (i.e., heightVtime.log after 12000 %PAPRECA s
 
 [1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
 
+\section solvents Organic solvents
+
+The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl molecules, and 2) a system of tri-m-cresyl molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performace comparisons between solvated and unsolvated systems. 
+
+\image html ./images/solvents.png width=60%
+
+
+\subsection solvents_run Execution
+
+Similarly to the previous sections,t he examples can be initiated by calling the %PAPRECA executable with the either the mpiexec or the mpirun command:
+
+```bash
+mpiexec /path/to/papreca -in in_kmc.lmp in_kmc.ppc
+```
+
+or
+
+```bash
+mpirun /path/to/papreca -in in_kmc.lmp in_kmc.ppc
+```
+
 
