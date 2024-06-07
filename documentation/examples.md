@@ -6,7 +6,7 @@
 > To be able to run all the examples below, please ensure that you have built your LAMMPS library with the following packages: EXTRA-DUMP, MOLECULE, RIGID, and QEQ. See \ref installation and the relevant [LAMMPS documentation page](https://docs.lammps.org/Build_package.html) for more information.
 
 > **Important note 2:**
-> The Adsorption/Desorption and Phosphates examples produce trajectory files (i.e., xyz) with varying (from timestep to timestep) numbers of atoms. [VMD](https://www.ks.uiuc.edu/Research/vmd/) cannot handle such trajectory files and will only draw the initial state (i.e., the substrate). Consider using another software (e.g., [OVITO](https://www.ovito.org/)) capable of handling varying atoms.
+> The Adsorption/Desorption and Phosphates examples produce trajectory files (i.e., xyz) with varying (from timestep to timestep) numbers of atoms. [VMD](https://www.ks.uiuc.edu/Research/vmd/) cannot handle such trajectory files and will only draw the initial state (i.e., the substrate). Consider using another visualization software (e.g., [OVITO](https://www.ovito.org/)) capable of handling varying atoms.
 
 \section brownian Your first PAPRECA simulation: Brownian Diffusion (random walk)
 
@@ -227,14 +227,14 @@ export files at the end of the run (i.e., heightVtime.log after 12000 %PAPRECA s
 
 \section solvents Organic solvents
 
-The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl molecules, and 2) a system of tri-m-cresyl molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performace comparisons between solvated and unsolvated systems. 
+The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl molecules, and 2) a system of tri-m-cresyl molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performance comparisons between solvated and unsolvated systems. 
 
 \image html ./images/solvents.png width=60%
 
 
 \subsection solvents_run Execution
 
-Similarly to the previous sections,t he examples can be initiated by calling the %PAPRECA executable with the either the mpiexec or the mpirun command:
+Similarly to the previous sections, the examples can be initiated by calling the %PAPRECA executable with either the mpiexec or the mpirun command:
 
 ```bash
 mpiexec /path/to/papreca -in in_kmc.lmp in_kmc.ppc
