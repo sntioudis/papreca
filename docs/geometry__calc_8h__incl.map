@@ -1,0 +1,33 @@
+<map id="geometry_calc.h" name="geometry_calc.h">
+<area shape="rect" id="node1" title="Header for geometry calculation functions (e.g., film height, interference)." alt="" coords="718,5,834,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="1081,453,1135,480"/>
+<area shape="rect" id="node3" title=" " alt="" coords="5,304,64,331"/>
+<area shape="rect" id="node4" title=" " alt="" coords="801,229,879,256"/>
+<area shape="rect" id="node5" href="$papreca__error_8h.html" title="Functions that enable the communication of error/warning messages to the terminal and coordinate the ..." alt="" coords="791,304,902,331"/>
+<area shape="rect" id="node9" href="$papreca__config_8h.html" title="Declarations for PAPRECA::PaprecaConfig class storing settings and global variables." alt="" coords="1085,80,1203,107"/>
+<area shape="rect" id="node6" title=" " alt="" coords="1068,379,1140,405"/>
+<area shape="rect" id="node7" title=" " alt="" coords="938,379,993,405"/>
+<area shape="rect" id="node8" href="$mpi__wrappers_8h.html" title="Wrapper functions of MPI protocol functions." alt="" coords="749,379,862,405"/>
+<area shape="rect" id="node10" title=" " alt="" coords="1965,155,2032,181"/>
+<area shape="rect" id="node11" title=" " alt="" coords="865,155,975,181"/>
+<area shape="rect" id="node12" title=" " alt="" coords="1000,155,1053,181"/>
+<area shape="rect" id="node13" title=" " alt="" coords="1544,229,1611,256"/>
+<area shape="rect" id="node14" href="$event__list_8h.html" title="Declarations of PredefinedEvent classes." alt="" coords="283,155,371,181"/>
+<area shape="rect" id="node18" href="$utilities_8h.html" title="Utility functions (e.g., for arrays, strings etc.) and typedefs used in papreca.cpp main and in the o..." alt="" coords="573,229,646,256"/>
+<area shape="rect" id="node23" href="$lammps__wrappers_8h.html" title="Declarations for LAMMPS wrapper functions." alt="" coords="1128,155,1267,181"/>
+<area shape="rect" id="node28" href="$export__files_8h.html" title="Declarations of export File classes." alt="" coords="1595,155,1693,181"/>
+<area shape="rect" id="node15" title=" " alt="" coords="75,229,127,256"/>
+<area shape="rect" id="node16" title=" " alt="" coords="139,304,250,331"/>
+<area shape="rect" id="node17" title=" " alt="" coords="275,304,379,331"/>
+<area shape="rect" id="node19" title=" " alt="" coords="1079,304,1129,331"/>
+<area shape="rect" id="node20" title=" " alt="" coords="453,304,528,331"/>
+<area shape="rect" id="node21" title=" " alt="" coords="553,304,613,331"/>
+<area shape="rect" id="node22" title=" " alt="" coords="637,304,715,331"/>
+<area shape="rect" id="node24" title=" " alt="" coords="1411,229,1469,256"/>
+<area shape="rect" id="node25" title=" " alt="" coords="1193,229,1253,256"/>
+<area shape="rect" id="node26" title=" " alt="" coords="1005,229,1067,256"/>
+<area shape="rect" id="node27" title=" " alt="" coords="1328,229,1387,256"/>
+<area shape="rect" id="node29" title=" " alt="" coords="1875,229,1936,256"/>
+<area shape="rect" id="node30" title=" " alt="" coords="1685,229,1752,256"/>
+<area shape="rect" id="node31" title=" " alt="" coords="1776,229,1851,256"/>
+</map>

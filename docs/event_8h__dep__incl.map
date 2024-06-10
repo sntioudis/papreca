@@ -1,0 +1,12 @@
+<map id="event.h" name="event.h">
+<area shape="rect" id="node1" title="Declarations for PAPRECA:Event class and its children classes." alt="" coords="229,5,293,32"/>
+<area shape="rect" id="node2" href="$debug_8h.html" title="Functions that can potentially be useful for debugging purposes. These function are not used in the m..." alt="" coords="13,80,79,107"/>
+<area shape="rect" id="node4" href="$event_8cpp.html" title="Definitions for PAPRECA:Event class and its children classes." alt="" coords="104,80,183,107"/>
+<area shape="rect" id="node5" href="$event__detect_8h.html" title="Declarations for functions that detect predefined events." alt="" coords="207,80,314,107"/>
+<area shape="rect" id="node7" href="$event__execute_8h.html" title="Declarations for functions that execute events." alt="" coords="319,155,435,181"/>
+<area shape="rect" id="node9" href="$event__select_8h.html" title="Declarations for functions that (stochastically) select events for execution." alt="" coords="389,80,495,107"/>
+<area shape="rect" id="node3" href="$debug_8cpp.html" title="Definitions for debug.h." alt="" coords="5,155,87,181"/>
+<area shape="rect" id="node6" href="$event__detect_8cpp.html" title="Definitions for event_detect.h." alt="" coords="173,155,295,181"/>
+<area shape="rect" id="node8" href="$event__execute_8cpp.html" title="Definitions for event_detect.h." alt="" coords="311,229,442,256"/>
+<area shape="rect" id="node10" href="$event__select_8cpp.html" title="Definitions for event_detect.h." alt="" coords="459,155,579,181"/>
+</map>

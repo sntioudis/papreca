@@ -1,0 +1,5 @@
+<map id="papreca.h" name="papreca.h">
+<area shape="rect" id="node1" title="General PAPRECA header containing all headers of the PAPRECA library." alt="" coords="77,5,156,32"/>
+<area shape="rect" id="node2" href="$papreca_8cpp.html" title="Driver function. Initializes MPI, LAMMPS, and PAPRECA. Then runs kMC/MD loops." alt="" coords="5,80,97,107"/>
+<area shape="rect" id="node3" href="$source__tests_8cpp.html" title="Independent c++ file testing core functionality of the PAPRECA software." alt="" coords="121,80,243,107"/>
+</map>
