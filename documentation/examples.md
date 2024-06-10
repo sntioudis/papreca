@@ -227,7 +227,7 @@ export files at the end of the run (i.e., heightVtime.log after 12000 %PAPRECA s
 
 \section solvents Organic solvents
 
-The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl molecules, and 2) a system of tri-m-cresyl molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performance comparisons between solvated and unsolvated systems. 
+The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl phosphate (mmm-TCP) molecules, and 2) a system of mmm-TCP molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performance comparisons between solvated and unsolvated systems. 
 
 \image html ./images/solvents.png width=60%
 
