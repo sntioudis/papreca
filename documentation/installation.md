@@ -10,36 +10,30 @@ To clone the latest %PAPRECA repository on your machine execute the following co
 
 ```bash
 git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the latest PAPRECA repository to a folder named mypapreca
-cd ./mypapreca
-git checkout release
-git pull
 ```
 
 \section beforeInstall Read before you install: Important notes and prerequisites
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum suggested LAMMPS version is: 7 Feb 2024 and any of the following branches is expected to work properly: release, stable, develop. Note that older LAMMPS versions might also work with %PAPRECA but have not been tested (build %PAPRECA and run your simulations at your own risk).
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_17Apr2024).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a library with a few optional packages:
 
 ```bash
-git clone -b release https://github.com/lammps/lammps.git mylammps #Add the latest LAMMPS repository (release branch) to a folder named mylammps
-cd ./mylammps
-git checkout release
-git pull
-
-mkdir build
-cd build
-cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building
+git clone --depth 1 --branch patch_17Apr2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
+mkdir build; cd build
+cmake -DPKG_EXTRA-DUMP=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building
 cmake --build .
 ```
 
 > **Note:**
-> To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **MOLECULE**, **RIGID**, and **QEQ**.
+> To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, and **QEQ**.
 
 
 &bull; The current version of %PAPRECA (1.0) runs only on LINUX-based systems. Cross-platform compatibility will be available in future versions. At the moment, non-LINUX users can run %PAPRECA on a virtual machine (e.g., [VirtualBox](https://www.virtualbox.org/) or Windows Subsystem for Linux).
 
 &bull; An MPI/C++ compiler (e.g., mpicxx or mpiCC) that is at least compatible with the C++-11 standard is required to build %PAPRECA.
+
+&bull; After configuring the LAMMPS build, kindly ensure that the MPI package has been correctly configured. If the MPI package is not configured, cmake will build a non-MPI LAMMPS version which will lead to %PAPRECA linkage errors. If the installed MPI compiler in your system is not detected by cmake, you should add the following argument to your cmake configuration command: -DCMAKE_CXX_COMPILER=/path/to/your/cxx/compiler. Hint: the relevant cxx compiler path can be obtained by running: 'which compiler_name' (e.g., 'which mpicxx'). It is advised that the same flag (i.e., -DCMAKE_CXX_COMPILER) is also used for the configuration of LAMMPS.
 
 &bull; Exactly the same package (e.g., MPI protocol, MPI/C++ compiler, openMP) versions have to be used when building LAMMPS and %PAPRECA. You will probably encounter linking errors if there is a package version mismatch.
 

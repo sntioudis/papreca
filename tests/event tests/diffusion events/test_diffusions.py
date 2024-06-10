@@ -48,11 +48,11 @@ def compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_
     z_success = 0
     
     for i in range(len(X_PAPRECA)):
-        if( X_PAPRECA[i] == X_LAMMPS[i] ):
+        if( np.isclose( X_PAPRECA[i] , X_LAMMPS[i] ) ):
            x_success += 1
-        if( Y_PAPRECA[i] == Y_LAMMPS[i] ):
+        if( np.isclose( Y_PAPRECA[i] , Y_LAMMPS[i] ) ):
             y_success += 1
-        if( Z_PAPRECA[i] == Z_LAMMPS[i] ):
+        if( np.isclose( Z_PAPRECA[i] , Z_LAMMPS[i] ) ):
             z_success += 1
         
         print( "PAPRECA vacancy coords for test " , i , ": " , X_PAPRECA[i] , " " , Y_PAPRECA[i] , Z_PAPRECA[i] )
@@ -70,9 +70,11 @@ def compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_
     print( "Successful Y: " , y_success )
     print( "Successful Z: " , z_success )
     
-    if( x_success == 100.0 and y_success == 100.0 and z_success == 100.0 ):
-        print( "The test was 100% successful!" )
-    print( "---------------------------------------------------------------- \n \n \n" )
+    success_avg = ( x_success + y_success + z_success ) / 3
+    print( "The average test success rate was: " + str( success_avg ) )
+    print( "----------------------------------------------------------------  \n \n \n" )
+    
+    return success_avg
     
 
 def main():
@@ -149,19 +151,14 @@ def main():
     Z_PAPRECA = np.array( Z_PAPRECA )
 
 
-    #Round those coming from the PAPRECA run because the PAPRECA and LAMMPS report with different accuracy
-    X_PAPRECA = np.round( X_PAPRECA , 4 )
-    X_LAMMPS = np.round( X_LAMMPS , 4 )
-
-    Y_PAPRECA = np.round( Y_PAPRECA , 4 )
-    Y_LAMMPS = np.round( Y_LAMMPS , 4 )
-
-    Z_PAPRECA = np.round( Z_PAPRECA , 4 )
-    Z_LAMMPS = np.round( Z_LAMMPS , 4 )
-
-
     #Compare coordinate results
-    compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS )
+    success = compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS )
+    
+    #Exit with the relevant code
+    if( success < 100.0 ):
+        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
+    else:
+        sys.exit(0)
 
 
 if __name__ == "__main__":

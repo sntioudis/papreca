@@ -69,14 +69,13 @@ else()
 	message(FATAL_ERROR "MPI not found. Please make sure MPI is installed.")
 endif()
 
-find_package(OpenMP COMPONENTS CXX QUIET)
+find_package(OpenMP COMPONENTS CXX)
 if(OpenMP_FOUND)
 	target_link_libraries(papreca PRIVATE OpenMP::OpenMP_CXX)
 	target_link_libraries(PAPRECA_LIBRARY PRIVATE OpenMP::OpenMP_CXX)
 else()
 	message(FATAL_ERROR "Cannot find the OpenMP package required by the LAMMPS library.")
 endif()
-
 
 # tweak jpeg library names to avoid linker errors with MinGW cross-compilation
 set(JPEG_NAMES libjpeg libjpeg-62)

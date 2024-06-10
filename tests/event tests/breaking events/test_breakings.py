@@ -116,8 +116,12 @@ def compareArraysAndPrintStats( btype_PAPRECA , btype_LAMMPS , atom1_PAPRECA , a
     print( "PRINTING TEST SUMMARY" )
     print( "----------------------------------------------------------------" )
     print( "Stats after testing " , len(btype_PAPRECA) , " sequential bond-breaking events..." )
-    print( 100 * float( step_success ) / len( btype_PAPRECA ) , "% success rate!" )
+    
+    success = 100 * float( step_success ) / len( btype_PAPRECA )
+    print( str( success ) + " success rate!" )
     print( "----------------------------------------------------------------" )
+    
+    return success
     
         
 
@@ -182,7 +186,14 @@ def main():
     btype_LAMMPS , atom1_LAMMPS , atom2_LAMMPS = extractDataFromLines( lines )
     
     #Now compare results and print stats
-    compareArraysAndPrintStats( btype_PAPRECA , btype_LAMMPS , atom1_PAPRECA , atom1_LAMMPS , atom2_PAPRECA , atom2_LAMMPS )
+    success = compareArraysAndPrintStats( btype_PAPRECA , btype_LAMMPS , atom1_PAPRECA , atom1_LAMMPS , atom2_PAPRECA , atom2_LAMMPS )
+    
+    
+    #Exit with the relevant code
+    if( success < 100.0 ):
+        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
+    else:
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

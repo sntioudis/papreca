@@ -30,6 +30,27 @@ Providing a fully parallelized scheme for event execution within the kMC stage o
 For additional information regarding the rejection-free kMC scheme, as well as the execution/detection of predefined kMC events please see Ntioudis et al. [1] and Fichthorn and Weinberg [2].
 For an overview of the LAMMPS software please see Thompson et al. [3].
 
+\section supEvents Supported Predefined events
+
+%PAPRECA currently supports 5 different classes of predefined events.
+
+1-2) Reactions (bond-formation and bond breaking). See \ref createBreak and \ref createForm.
+
+\image html ./images/events_reaction.png width=70%
+
+3) Molecular and monoatomic deposition. See \ref createDepo.
+
+\image html ./images/events_adsorption.jpg width=70%
+
+4) Monoatomic desorption. See \ref createMonodes.
+
+\image html ./images/events_desorption.png width=70%
+
+5) Diffusion hops. See \ref createDiff.
+
+\image html ./images/events_diffusion.jpg width=70%
+
+
 \section decomposition Domain Decomposition
 
 The domain decomposition of %PAPRECA is identical to that of LAMMPS. On each kMC stage, %PAPRECA searches for local atomic scale processes by accessing whether
@@ -65,6 +86,16 @@ Before you start, it is very important that you familiarize yourself with LAMMPS
 - The following group names are reserved by %PAPRECA and **cannot** be used in the LAMMPS input file: del_atoms, delete_atoms, deletion, new_mol, fluid, frozen.
 - %PAPRECA uses a dummy group with id=1 to perform bond deletions (see this LAMMPS wrapper function for more information PAPRECA::deleteBond()), which means that you should **NOT** use this bond id to define some another bonded interaction. Please see the "kmc.lmp" file located in ./Examples/Phosphate Film Growth from TCP on Fe110/ for an example demonstrating how you can define multiple bond types.
 
+\section loglammps Dealing with large log.lammps files
+
+%PAPRECA alternates between kMC and MD stages (performed in LAMMPS). At the setup phase of the MD stage, LAMMPS appends various information on the log.lammps file (e.g., LAMMPS version, MPI warnings, LAMMPS inputs). Additionally, LAMMPS outputs minimization and trajectory information during the MD stage. This means that log.lammps files can become very large. A possible way to stop LAMMPS from constantly writing on the log.lammps file is by adding the following line to your LAMMPS input file (see the relevant [LAMMPS documentation page](https://docs.lammps.org/log.html):
+
+```bash
+log none
+```
+
+Note that the above command will not turn off screen outputs.
+
 \section running Running a PAPRECA simulation
 
 After creating your LAMMPS and %PAPRECA input files, a %PAPRECA run can be performed by running the papreca executable (as built in your build folder) with MPI.
@@ -86,14 +117,13 @@ mpirun -np 256 ../build/papreca -in LAMMPSinput.lmp PAPRECAinput.ppc
 
 \section units PAPRECA units
 
-Units within the MD stage are (of course), consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).
+Units within the MD stage are consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).
 
-Units within the kMC stage are, once again, consistent with units as defined in the LAMMPS input file. 
+Units within the kMC stage are consistent with units as defined in the LAMMPS input file. Nonetheless, event rates (in frequency units) are internally converted to 1/s. This is done to facilitate the passing of intuitive rate values from the %PAPRECA input file to the source code (using the rate_arrhenius, rate_hertz, rate_manual options in the create_BondBreak, create_BondForm, create_Deposition, create_DiffusionHop, and create_MonoatomicDesorption \ref commands). For that reason, %PAPRECA will always report time in seconds on the terminal and in any exported file (e.g., heightVtime.log or execTimes.log).
 
 The %PAPRECA simulation accounts for both the time elapsed within the MD stage (calculated as the product of the trajectory duration and the timestep) as well as the elapsed time within the kMC stage.
-Note that, %PAPRECA will always report time in seconds on the terminal and in any exported file (e.g., heightVtime.log or execTimes.log).
 
-Also, be careful when using the **rate_arrhenius** and **rate_hertz** options (see \ref createDepo) to set a predefined event template rate. You should always use units
+Also, be careful when using the **rate_arrhenius**, **rate_hertz**, and **rate_manual** options (see \ref createDepo) to set a predefined event template rate. You should always use units
 as requested by the respective rate calculation option.
 
 > **Important Note:**

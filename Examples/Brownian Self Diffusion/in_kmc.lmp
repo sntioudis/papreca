@@ -12,27 +12,33 @@ processors * * *
 boundary p p p
 
 #--------------------------Create simulation-------------------------------
-region simulation_box block -50 50 -50 50 -50 50
+region simulation_box block -150 150 -150 150 -150 150
 create_box 1 simulation_box
 
 #--------------------------Create atoms------------
-region origin_sphere sphere 0.0 0.0 0.0 3
-create_atoms 1 random 300 141241 origin_sphere
+region origin_sphere sphere 0.0 0.0 0.0 20
+create_atoms 1 random 300 141241 origin_sphere overlap 1
 #---------------------------Atom masses------------------------------------
 mass 1    1.0079
 #----------------------Pair coeffs -------------------------
 pair_coeff 1 1 lj/cut 0.0152 2.84642
 
 pair_coeff * * zero
-
 #----------------------Define group and neib/charge interactions-----------
 neighbor        2 bin
 neigh_modify    every 1 delay 0 check yes
 
-group fluid type 2
-group frozen type 1
+group frozen type 2
+group fluid type 1
 #----------------Set Timestep----------------------------------------------
-timestep    	1.0e-100
+timestep    	1.0
+
+#---------------------Minimize to prepare structure------------------------
+min_style cg
+minimize 1.0e-4 1.0e-6 100 1000
+
 #----------------------File Outputs----------------------------------------
-dump 1 all xyz 1 brownian.xyz
-dump_modify 1 element H first yes
+#dump 1 all dcd 100 brownian.dcd #Dump trajectory in dcd format
+
+dump 2 all xyz 100 brownian.xyz #Dump trajectory in xyz format (can comment this out)
+dump_modify 2 element H first yes

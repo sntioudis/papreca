@@ -1,5 +1,6 @@
 PAPRECA
 [![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml)
+[![Compatibility](https://img.shields.io/badge/Earliest%20Compatible%20Lammps%20Version-patch_15Sep2022-BrightGreen)](https://github.com/sntioudis/papreca/actions/runs/9228674083)
 [![Docs](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
 [![status](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b/status.svg)](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b)
 ========

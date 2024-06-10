@@ -96,11 +96,10 @@ def compareArraysAndPrintStats( id_PAPRECA , id_LAMMPS ):
     print( "----------------------------------------------------------------" )
     print( "Monoatomic desorption tests after comparing the ids of " , len(id_PAPRECA) , " events..." )
     print( "Successful id comparisons: " , success)
-    
-    if( success == 100.0 ):
-        print( "The test was 100% successful!" )
+    print( "The test success rate was: " + str( success ) )
     print( "----------------------------------------------------------------  \n \n \n" )
     
+    return success
 
 def main():
 
@@ -153,7 +152,14 @@ def main():
 
 
     #Compare ID results
-    compareArraysAndPrintStats( id_PAPRECA , id_LAMMPS )
+    success = compareArraysAndPrintStats( id_PAPRECA , id_LAMMPS )
+    
+    #Exit with the relevant code
+    if( success < 100.0 ):
+        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
+    else:
+        sys.exit(0)
+        
 
 
 if __name__ == "__main__":

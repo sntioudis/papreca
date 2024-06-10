@@ -191,7 +191,8 @@ void testMolCoords( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pro
 	
 	MPI_Reduce( &success_local , &success_global , 1 , MPI_INT , MPI_SUM , 0 , MPI_COMM_WORLD ); //Reduce all success values on the master process (i.e., proc_id == 0 0) to determine successful comparisons.
 	MPI_Reduce( &tests_local , &tests_global , 1 , MPI_INT , MPI_SUM , 0 , MPI_COMM_WORLD );
-		
+
+	double success_rate = 0.0;
 	if( proc_id == 0 ){
 		
 		printf( "\n \nPRINTING MOLECULE COORDINATES TEST SUMMARY \n" );
@@ -200,11 +201,16 @@ void testMolCoords( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pro
 		printf( "Molecule atoms: %d \n" , mol_natoms );
 		printf( "Total coordinate comparisons: %d \n" , tests_global );
 		
-		double success_rate = 100.0 * static_cast<double>( success_global ) / tests_global;
+		success_rate = 100.0 * static_cast<double>( success_global ) / tests_global;
 		printf( "SUCCESS RATE: %f %% \n" , success_rate );
 		printf( "----------------------------------------------------------------\n \n \n \n" );
 		
 	}
+
+	MPI_Bcast( &success_rate , 1 , MPI_DOUBLE , 0 , MPI_COMM_WORLD ); //Cast calculated success rate to all other processes
+	if( success_rate < 100.0 ){ allAbortWithMessage( MPI_COMM_WORLD , "testMolCoords function in source_tests.cpp failed!" ); }
+
+	
 
 }
 
@@ -284,7 +290,7 @@ void testCollisions( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pr
 		}
 	}
 	
-	MPI_Reduce( &collisions_local , &collisions_global , 1 , MPI_INT , MPI_SUM , 0 , MPI_COMM_WORLD ); //Get collisions from all procs on master proc
+	MPI_Allreduce( &collisions_local , &collisions_global , 1 , MPI_INT , MPI_SUM , MPI_COMM_WORLD ); //Get collisions from all procs on master proc
 	
 	if( proc_id == 0 ){
 		
@@ -301,6 +307,8 @@ void testCollisions( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pr
 		printf( "----------------------------------------------------------------\n \n \n \n" );
 		
 	}
+
+	if( collisions_global != 1 ){ allAbortWithMessage( MPI_COMM_WORLD , "testCollisions function in source_tests.cpp failed!" ); }
 	
 }
 
