@@ -29,5 +29,7 @@ Citing PAPRECA
 If you use PAPRECA for your research, kindly give credit to the PAPRECA [1-2] and LAMMPS [2] developers by citing the following papers:
 
 [1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
 [2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
+
 [3] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales", Computer Physics Communications, 272, 108171 (2022). https://doi.org/10.1016/j.cpc.2021.108171
