@@ -26,7 +26,7 @@ For additional information (installation, dependencies, theory, algorithms, exam
 Citing PAPRECA
 ---------------
 
-If you use PAPRECA for your research, kindly give credit to the PAPRECA [1-2] and LAMMPS [2] developers by citing the following papers:
+If you use PAPRECA for your research, kindly give credit to the PAPRECA [1], [2] and LAMMPS [3] developers by citing the following papers:
 
 [1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
 
