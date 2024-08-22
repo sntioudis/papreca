@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(papreca)
 
+# Add the path to the custom CMake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules")
+
 #Set minimum C++ required and CXX compiler options
 set(CMAKE_CXX_STANDARD 11)
 if(CMAKE_CXX_STANDARD LESS 11)
@@ -75,6 +78,14 @@ if(OpenMP_FOUND)
 	target_link_libraries(PAPRECA_LIBRARY PRIVATE OpenMP::OpenMP_CXX)
 else()
 	message(FATAL_ERROR "Cannot find the OpenMP package required by the LAMMPS library.")
+endif()
+
+find_package(FFTW3 QUIET) #Attempt to compile with fftw3 (if available in the system) to avoid conflicts with packages using fftw3 (e.g., Kokkos or KSPACE)
+if( FFTW3_FOUND )
+	message(STATUS "Configuring FFTW3 library to avoid linking errors with LAMMPS packages (e.g., KSPACE, KOKKOS)" )
+	include_directories(${FFTW3_INCLUDE_DIRS})
+	target_link_libraries(papreca PRIVATE ${FFTW3_LIBRARIES})
+	target_link_libraries(PAPRECA_LIBRARY PRIVATE ${FFTW3_LIBRARIES})
 endif()
 
 # tweak jpeg library names to avoid linker errors with MinGW cross-compilation

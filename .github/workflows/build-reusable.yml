@@ -59,9 +59,9 @@ jobs:
       with:
         path: lammps_artifacts_${{ inputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
+        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
         restore-keys: |
-          ${{ runner.os }}-lammps-repo-
+          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
 
     - name: Install LAMMPS dependencies
       if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
@@ -75,7 +75,7 @@ jobs:
       run: |
         cd mylammps
         mkdir build; cd build
-        cmake -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
+        cmake -DPKG_KSPACE=on -DPKG_MOLECULE=on -DPKG_RIGID=on -D PKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .
 
     - name: Verify LAMMPS
@@ -126,9 +126,9 @@ jobs:
       with:
         path: lammps_artifacts_${{ inputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-${{ env.COMMIT_HASH }}
+        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
         restore-keys: |
-          ${{ runner.os }}-lammps-repo-
+          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
 
     - name: Restore LAMMPS artifact
       if: ${{ !inputs.cache_lammps }}

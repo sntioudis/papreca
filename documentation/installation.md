@@ -20,13 +20,20 @@ The following snippet demonstrates (briefly) how LAMMPS can be built as a librar
 
 ```bash
 git clone --depth 1 --branch patch_17Apr2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
+cd mylammps
 mkdir build; cd build
 cmake -DPKG_EXTRA-DUMP=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=off -DBUILD_STATIC_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable static library building
 cmake --build .
 ```
 
-> **Note:**
+> **Note 1:**
 > To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, and **QEQ**.
+
+> **Note 2:**
+> In the current version of %PAPRECA the LAMMPS package **KOKKOS** is **NOT supported**.
+  
+> **Note 3:**
+> Kindly report any installation errors/issues (i.e., via GitHub issues or email).
 
 
 &bull; The current version of %PAPRECA (1.0) runs only on LINUX-based systems. Cross-platform compatibility will be available in future versions. At the moment, non-LINUX users can run %PAPRECA on a virtual machine (e.g., [VirtualBox](https://www.virtualbox.org/) or Windows Subsystem for Linux).
@@ -49,8 +56,7 @@ to the CMakelists.txt file might have to be made if your machine includes many d
 To build %PAPRECA with CMake you should execute the following commands in the cloned %PAPRECA repository:
 
 ```bash
-mkdir build
-cd build
+mkdir build; cd build
 cmake ../Installation/CMake -DLAMMPS_SRC_DIR=/path/to/LAMMPS/source -DLAMMPS_LIB_DIR=/path/to/LAMMPS/library #Replace paths with YOUR source (./src LAMMPS directory) and library (typically ./build LAMMPS directory) paths.
 cmake --build .
 ```
