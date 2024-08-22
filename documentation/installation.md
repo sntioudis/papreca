@@ -30,7 +30,7 @@ cmake --build .
 > To run all the examples in the ./Examples/ folder (see \ref examples) you must build your LAMMPS library with the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, and **QEQ**.
 
 > **Note 2:**
-> Compilation against the LAMMPS package **KOKKOS** is currently **NOT supported**.
+> In the current version of %PAPRECA the LAMMPS package **KOKKOS** is **NOT supported**.
   
 > **Note 3:**
 > Kindly report any installation errors/issues (i.e., via GitHub issues or email).
