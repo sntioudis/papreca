@@ -156,7 +156,7 @@ jobs:
 
     - name: Build TESTS executable for PAPRECA
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/
+        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/source\ tests/
         mkdir build; cd build
         cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }} -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
