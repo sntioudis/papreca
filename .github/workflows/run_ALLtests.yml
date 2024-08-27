@@ -109,8 +109,30 @@ jobs:
         name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
         path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         merge-multiple: false
-        
 
+    - name: Clone a specific LAMMPS branch
+      if: ${{ inputs.clone_type == 'branch' }}
+      run: |
+        git clone -b ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+        cd mylammps
+        git checkout ${{ needs.setCloneName.outputs.clone_name }}
+        git pull
+
+    - name: Clone a specific LAMMPS tag
+      if: ${{ inputs.clone_type == 'tag' }}
+      run: |
+        git clone --depth 1 --branch ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+        
+    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
+      id: cache-lammps
+      uses: actions/cache@v4.0.2
+      with:
+        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
+        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
+        restore-keys: |
+          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
+          
     - name: Run hybrid test
       run: |
         chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
@@ -155,8 +177,30 @@ jobs:
         name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
         path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         merge-multiple: false
-        
 
+    - name: Clone a specific LAMMPS branch
+      if: ${{ inputs.clone_type == 'branch' }}
+      run: |
+        git clone -b ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+        cd mylammps
+        git checkout ${{ needs.setCloneName.outputs.clone_name }}
+        git pull
+
+    - name: Clone a specific LAMMPS tag
+      if: ${{ inputs.clone_type == 'tag' }}
+      run: |
+        git clone --depth 1 --branch ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+        
+    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
+      id: cache-lammps
+      uses: actions/cache@v4.0.2
+      with:
+        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
+        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
+        restore-keys: |
+          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
+          
     - name: Run event test
       run: |
         chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
