@@ -57,7 +57,7 @@ jobs:
 
     - name: Run source tests
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/source_tests
+        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/source\ tests/
         bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
@@ -90,7 +90,7 @@ jobs:
 
     - name: Run hybrid test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/papreca
+        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
         bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
@@ -135,7 +135,7 @@ jobs:
 
     - name: Run event test
       run: |
-        chmod +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/papreca
+        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
         cd $GITHUB_WORKSPACE/tests/event\ tests/
         bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }} python3
