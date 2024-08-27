@@ -26,7 +26,6 @@ jobs:
    with:
      clone_type: branch
      clone_name: ${{ needs.setCloneName.outputs.clone_name }}
-     cache_lammps: true
 
      
   sourceTests:
