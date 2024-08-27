@@ -16,10 +16,6 @@ on:
         description: 'This is the name of either the branch or the tag name'
         required: true
         type: string
-      cache_lammps:
-        description: 'Boolean variable. If true the generated LAMMPS library and executable will be cached. If not, they will be saved as artifacts.'
-        required: true
-        type: boolean
 
 jobs:
 
@@ -53,7 +49,6 @@ jobs:
         mkdir -p lammps_artifacts_${{ inputs.clone_name }}
        
     - name: Cache LAMMPS library
-      if: ${{ inputs.cache_lammps }}
       id: cache-lammps-repo
       uses: actions/cache@v4.0.2
       with:
@@ -89,13 +84,6 @@ jobs:
         mv mylammps/build/liblammps.so lammps_artifacts_${{ inputs.clone_name }}
         mv mylammps/build/liblammps.so.0 lammps_artifacts_${{ inputs.clone_name }}
         mv mylammps/build/liblammps.pc lammps_artifacts_${{ inputs.clone_name }}
-
-    - name: Save LAMMPS as an artifact (if chosen by user)
-      if: ${{ !inputs.cache_lammps }} #This means that we do not use a LAMMPS cache so we save it as an artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: lammps-artifacts_${{ inputs.clone_name }}
-        path: lammps_artifacts_${{ inputs.clone_name }}
       
   buildPAPRECA: 
 
@@ -122,7 +110,6 @@ jobs:
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
         
     - name: Restore LAMMPS cache
-      if: ${{ inputs.cache_lammps }}
       id: cache-lammps
       uses: actions/cache@v4.0.2
       with:
@@ -131,14 +118,6 @@ jobs:
         key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
         restore-keys: |
           ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
-
-    - name: Restore LAMMPS artifact
-      if: ${{ !inputs.cache_lammps }}
-      uses: actions/download-artifact@v4
-      with:
-        name: lammps-artifacts_${{ inputs.clone_name }}
-        path: lammps_artifacts_${{ inputs.clone_name }}
-        merge-multiple: false
           
     - name: Install dependencies
       run: |
