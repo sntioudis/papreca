@@ -21,9 +21,9 @@ else()
 endif()
 
 #LAMMPS configuration
-#LAMMPS library configuration
+#LAMMPS (SHARED) library configuration
 if(NOT DEFINED LAMMPS_LIB_DIR)
-    message(FATAL_ERROR "LAMMPS library (i.e., liblammps.a, typically located in the build folder) directory not provided. Please specify the path in your cmake command using -DLAMMPS_LIB_DIR=/path/to/lammps/library/")
+    message(FATAL_ERROR "SHARED LAMMPS library (i.e., liblammps.so, typically located in the build folder) directory not provided. Please specify the path in your cmake command using -DLAMMPS_LIB_DIR=/path/to/shared/lammps/library/")
 endif()
 
 find_library(LAMMPS_LIBRARY
@@ -50,17 +50,14 @@ file(GLOB PAPRECA_LIB_SOURCES ${PAPRECA_LIB_DIR}/*.cpp)
 add_library(PAPRECA_LIBRARY STATIC ${PAPRECA_LIB_SOURCES})
 target_link_libraries(PAPRECA_LIBRARY PRIVATE ${LAMMPS_LIBRARY})
 
-#Link papreca against PAPRECA and LAMMPS libraries. Also, include the necessary header directories
+#Link papreca executable against PAPRECA and LAMMPS libraries. Also, include the necessary header directories
 add_executable(papreca ../../source/papreca.cpp)
 target_link_libraries(papreca PRIVATE ${LAMMPS_LIBRARY})
 
 target_link_libraries(papreca PRIVATE PAPRECA_LIBRARY)
 target_include_directories(papreca PRIVATE ${PAPRECA_LIB_DIR})
 
-
-message(STATUS "Configuring additional packages..." )
-message( WARNING "PAPRECA does not use OpenMP, JPEG, and PNG packages. However, the LAMMPS library uses them and therefore, we need to compile against those libraries to avoid linkage errors. Depending on how YOUR LAMMPS library was built (i.e., based on the LAMMPS packages you enabled) you might need to enable additional libraries in the PAPRECA CMakeLists.txt file.")
-
+#PAPRECA packages.
 find_package(MPI REQUIRED)
 if(MPI_FOUND)
 	# do not include the (obsolete) MPI C++ bindings which makes
@@ -69,45 +66,5 @@ if(MPI_FOUND)
 	target_link_libraries(papreca PUBLIC MPI::MPI_CXX)
 	target_link_libraries(PAPRECA_LIBRARY PUBLIC MPI::MPI_CXX)
 else()
-	message(FATAL_ERROR "MPI not found. Please make sure MPI is installed.")
-endif()
-
-find_package(OpenMP COMPONENTS CXX)
-if(OpenMP_FOUND)
-	target_link_libraries(papreca PRIVATE OpenMP::OpenMP_CXX)
-	target_link_libraries(PAPRECA_LIBRARY PRIVATE OpenMP::OpenMP_CXX)
-else()
-	message(FATAL_ERROR "Cannot find the OpenMP package required by the LAMMPS library.")
-endif()
-
-find_package(FFTW3 QUIET) #Attempt to compile with fftw3 (if available in the system) to avoid conflicts with packages using fftw3 (e.g., Kokkos or KSPACE)
-if( FFTW3_FOUND )
-	message(STATUS "Configuring FFTW3 library to avoid linking errors with LAMMPS packages (e.g., KSPACE, KOKKOS)" )
-	include_directories(${FFTW3_INCLUDE_DIRS})
-	target_link_libraries(papreca PRIVATE ${FFTW3_LIBRARIES})
-	target_link_libraries(PAPRECA_LIBRARY PRIVATE ${FFTW3_LIBRARIES})
-endif()
-
-# tweak jpeg library names to avoid linker errors with MinGW cross-compilation
-set(JPEG_NAMES libjpeg libjpeg-62)
-find_package(JPEG QUIET)
-option(WITH_JPEG "Enable JPEG support" ${JPEG_FOUND})
-if(WITH_JPEG)
-	find_package(JPEG REQUIRED)
-	target_link_libraries(papreca PRIVATE JPEG::JPEG)
-	target_link_libraries(PAPRECA_LIBRARY PRIVATE JPEG::JPEG)
-endif()
-
-find_package(PNG QUIET)
-find_package(ZLIB QUIET)
-if(PNG_FOUND AND ZLIB_FOUND)
-	option(WITH_PNG "Enable PNG support" ON)
-else()
-	option(WITH_PNG "Enable PNG support" OFF)
-endif()
-if(WITH_PNG)
-	find_package(PNG REQUIRED)
-	find_package(ZLIB REQUIRED)
-	target_link_libraries(papreca PRIVATE PNG::PNG ZLIB::ZLIB)
-	target_link_libraries(PAPRECA_LIBRARY PRIVATE PNG::PNG ZLIB::ZLIB)
+	message(FATAL_ERROR "MPI not found. Please make sure MPI is correctly installed/configured.")
 endif()
