@@ -55,9 +55,19 @@ jobs:
         path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         merge-multiple: false
 
+    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
+      id: cache-lammps
+      uses: actions/cache@v4.0.2
+      with:
+        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
+        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
+        restore-keys: |
+          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
+          
     - name: Run source tests
       run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/ #Restore LAMMPS library cache/artifact because linking to the shared library is performed at runtime
+        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/ 
         chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/source\ tests/
         bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
