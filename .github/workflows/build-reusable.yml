@@ -38,7 +38,6 @@ jobs:
         git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
 
     - name: Get LAMMPS release commit SHA
-      if: ${{ inputs.cache_lammps }}
       id: get-lammps-commit
       run: |
         cd mylammps
@@ -59,14 +58,14 @@ jobs:
           ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
 
     - name: Install LAMMPS dependencies
-      if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
+      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' )}}
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
         
     - name: Configure and build LAMMPS
-      if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
+      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
       run: |
         cd mylammps
         mkdir build; cd build
@@ -74,11 +73,11 @@ jobs:
         cmake --build .
 
     - name: Verify LAMMPS
-      if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
+      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' ) }}
       run: ./mylammps/build/lmp -h
 
     - name: Move lmp executable and lammps library to lammps_artifacts directory
-      if: ${{ ( inputs.cache_lammps && steps.cache-lammps-repo.outputs.cache-hit != 'true' ) || !inputs.cache_lammps }}
+      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' ) }}
       run: |
         mv mylammps/build/lmp lammps_artifacts_${{ inputs.clone_name }}
         mv mylammps/build/liblammps.so lammps_artifacts_${{ inputs.clone_name }}
