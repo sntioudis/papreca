@@ -57,6 +57,7 @@ jobs:
 
     - name: Run source tests
       run: |
+        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/ #Restore LAMMPS library cache/artifact because linking to the shared library is performed at runtime
         chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/source\ tests/
         bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
@@ -90,6 +91,7 @@ jobs:
 
     - name: Run hybrid test
       run: |
+        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/ 
         chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
         bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
@@ -135,6 +137,7 @@ jobs:
 
     - name: Run event test
       run: |
+        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/ 
         chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
         echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
         cd $GITHUB_WORKSPACE/tests/event\ tests/
