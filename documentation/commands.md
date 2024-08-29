@@ -123,7 +123,10 @@ Declares the names of the half and full neighbor lists. %PAPRECA uses those name
 The neighbor lists have to come from interatomic potentials (e.g., neighbor lists from fixes cannot be used with this command). Note that, in the current version of %PAPRECA it is mandatory to define two neighbor lists (a half and a full).
 This is done because certain kMC events (e.g., diffusion, deposition) require interference (i.e., collision) checks. Therefore, a full neighbor list has to be used with such events as it guarantees that
 the collision can be detected when scanning through the neighbor list of either atom. On the other hand, the discovery of other kMC events (e.g., bond formation) is significantly more efficient when
-half lists are used (since those list each pair of atoms once). Please refer to the [LAMMPS documentation](https://docs.lammps.org/Developer_par_neigh.html) for more information regarding neighbor lists.
+half lists are used (since those lists each pair of atoms once). Please refer to the [LAMMPS documentation](https://docs.lammps.org/Developer_par_neigh.html) for more information regarding neighbor lists.
+
+> **Note:**
+> If the %PAPRECA simulation does not utilize any bond formation events, two neighbor lists would still need to be defined, but the name of a full list can be used twice with this command. On the other hand, if the %PAPRECA simulation solely utilizes bond formation events, the name of a half list can be used twice with this command. This facilitates the set up stage of the simulation, since it eliminates the need to deploy hybrid potentials (see below).
 
 The name of the list is typically identical to the name of the interatomic potential (i.e., the pair_style) in LAMMPS. For example, the neighbor list name of the lj/cut potential is "lj/cut".
 
