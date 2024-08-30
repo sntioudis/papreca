@@ -14,12 +14,12 @@ git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the
 
 \section beforeInstall Read before you install: Important notes and prerequisites
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a **shared** library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_27Jun2024).
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a **shared** library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_29Aug2024).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a shared library with a few optional packages:
 
 ```bash
-git clone --depth 1 --branch patch_27Jun2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
+git clone --depth 1 --branch patch_29Aug2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
 cd mylammps
 mkdir build; cd build
 cmake -DPKG_EXTRA-DUMP=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable lib building as well as shared libraries
