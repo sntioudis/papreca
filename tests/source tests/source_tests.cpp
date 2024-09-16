@@ -257,7 +257,7 @@ void testCollisions( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pr
 	//ONLY 1 COLLISION SHOULD BE DETECTED IN A SUCCESSFUL TEST.
 	
 	//We will do the search through the HALF neighbors list, so retrieve list information
-	int neiblist_id = lammps_find_pair_neighlist( lmp , papreca_config.getHalfNeibListName( ).c_str( ) , 1 , 0 , 0 );
+	int neiblist_id = lammps_find_fix_neighlist( lmp , "papreca" , 2 ); //Get neighbors list with ID 2 (half list as in the papreca fix)
 	if( neiblist_id == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Lammps could not find neib list with name " + papreca_config.getFullNeibListName( ) + ". Either the list does not exist or there is a spelling error in your PAPRECA input file." ); }
 	int atoms_num = lammps_neighlist_num_elements( lmp , neiblist_id );
 	
