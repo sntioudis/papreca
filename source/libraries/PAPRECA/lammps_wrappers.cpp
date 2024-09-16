@@ -305,6 +305,8 @@ namespace PAPRECA{
 		/// @param[in,out] type2sigma PAPRECA::INTPAIR2DOUBLE_MAP mapping a pair of atom types to their corresponding sigma.
 		/// @note WARNING: You need to have a sigma pairstyle to use this function (i.e., sigma LJ or equivalent.).
 		/// If you don't have such pair style you would have to MANUALLY add those parameters. The input file helps you setup/manage those options
+
+		runLammps( lmp , 0 ); //Always run 0 before initializing sigmas from LAMMPS. This ensures that you retrieve the crossterms effectively (pair_modify mixes are computed on runtime)
 		
 		int types_num = *( int *)lammps_extract_global( lmp , const_cast<char*>( "ntypes" ) ); //Obtain number of types to allocate/retrieve sigma array (containing sigma pairstyle coeffs).
 		int dim;
