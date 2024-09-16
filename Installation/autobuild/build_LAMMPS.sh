@@ -19,7 +19,7 @@ cp ../../source/libraries/LAMMPS/fix_papreca.cpp ./src/
 
 #Compile LAMMPS with package options and fix PAPRECA
 mkdir build; cd build
-cmake -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on $args ../cmake
+cmake -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on "${package_args}" ../cmake
 make -j
 
 #Delete unwanted installation files (keep only build and src folders required for PAPRECA installation)
