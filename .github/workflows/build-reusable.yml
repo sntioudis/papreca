@@ -24,6 +24,9 @@ jobs:
       
     steps:
 
+    - name: checkout PAPRECA
+      uses: actions/checkout@v4 #Checkout PAPRECA repository (to retrieve headers and source files for papreca fix) in case LAMMPS needs building.
+      
     - name: Clone a specific LAMMPS branch
       if: ${{ inputs.clone_type == 'branch' }}
       run: |
@@ -63,10 +66,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
-
-    - name: Checkout
-      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
-      uses: actions/checkout@v4 #Checkout PAPRECA repository (to retrieve headers and source files for papreca fix) if LAMMPS needs building.
       
     - name: Configure and build LAMMPS
       if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
