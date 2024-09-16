@@ -24,6 +24,7 @@ The autobuild script pulls LAMMPS from the official Github repository, builds LA
 
 > **Note 1:**
 > At the moment, building with autobuild will generate a LAMMPS library that includes the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, **QEQ**, **REAXFF**, **REPLICA**, **KSPACE**, **KOKKOS**, **MEAM**. Modify the **package_args** variable of the build_LAMMPS.sh script (located in the ./Installation/autobuild/ directory of the %PAPRECA project) to build with different packages, if necessary.
+
 > **Note 2:**
 > LAMMPS and compiler build options for both LAMMPS and %PAPRECA can be added to either the build_LAMMPS.sh or build_PAPRECA.sh scripts, if necessary.
 
