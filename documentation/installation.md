@@ -45,6 +45,20 @@ cmake --build . #make -j N (where N is the number of processes) can also be used
 
 After building LAMMPS as a library, %PAPRECA can be built using a Traditional Make approach or a [CMake](https://cmake.org/) approach. However, mixed Traditional Make/CMake builds should be avoided! If you installed %PAPRECA using a traditional Make approach you should remove all associated libraries, dependency files, and executables before re-building with CMake (and vice versa).
 
+\subsection autobuild %PAPRECA autobuild
+
+The quickest way to install %PAPRECA is by using the autobuild script located in ./Installation/autobuild. Running the autobuild script can be as simple as executing the following bash command form the ./Installation/autobuild/ directory of the %PAPRECA project:
+
+```bash
+bash build_PAPRECA.sh
+```
+
+The autobuild script pulls LAMMPS from the official Github repository, builds LAMMPS with the fix papreca command, and finally, builds %PAPRECA. 
+
+> **Note:**
+> At the moment, building with autobuild will generate a LAMMPS library that includes the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, **QEQ**, **REAXFF**, **REPLICA**, **KSPACE**, **KOKKOS**, **MEAM**. Modify the **package_args** variable of the build_LAMMPS.sh script (located in the ./Installation/autobuild/ directory of the %PAPRECA project) to build with different packages, if necessary.
+
+
 \subsection cmake CMake
 
 Building both LAMMPS and %PAPRECA with CMake is generally recommended since it does not require the manual specification of installation packages (e.g., MPI/C++ compiler). However, some modifications
