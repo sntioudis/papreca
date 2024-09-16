@@ -104,7 +104,12 @@ namespace PAPRECA{
 		for( int i = 0; i < num_atoms; ++i ){ input_str += std::to_string( atom_ids[i] ) + " "; }
 		lmp->input->one( input_str.c_str( ) );
 		
-		input_str = "delete_atoms group deletion bond " + delete_bonds + " mol " + delete_molecule; //Delete desired atoms from deletion group and with selected bond and mol options
+		if( ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "molecule" ) == NULL ){
+			input_str = "delete_atoms group deletion"; //For non-molecular systems bond yes and mol yes options are not supported. Hence, they are discarded from the input command
+		}else{
+			input_str = "delete_atoms group deletion bond " + delete_bonds + " mol " + delete_molecule; //Delete desired atoms from deletion group and with selected bond and mol options
+		}
+		
 		lmp->input->one( input_str.c_str( ) );
 		
 		input_str = "group deletion delete";

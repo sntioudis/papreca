@@ -4,7 +4,7 @@
 dimension 3
 units           real
 atom_style      full
-pair_style 	hybrid/overlay lj/cut 10 zero 10 full
+pair_style		lj/cut 10
 
 #---------------------------Processors-------------------------------------
 processors * * *
@@ -15,18 +15,19 @@ boundary p p p
 region simulation_box block -50 50 -50 50 -50 50
 create_box 2 simulation_box
 
+#--------------------------PAPRECA fix--------------------------------
+fix papreca all papreca
+
 #--------------------------Create atoms------------
 create_atoms 1 single 0.0 0.0 0.0
 #---------------------------Atom masses------------------------------------
 mass 1    1.0079
 mass 2	  1.0079
 #----------------------Pair coeffs -------------------------
-pair_coeff 1 1 lj/cut 0.0152 2.84642
-pair_coeff 2 2 lj/cut 0.0152 2.84642
-pair_coeff 1 2 lj/cut 0.0152 2.84642
+pair_coeff 1 1 0.0152 2.84642 10.0
+pair_coeff 2 2 0.0152 2.84642 10.0
 
-pair_coeff * * zero
-
+pair_modify mix geometric
 #----------------------Define group and neib/charge interactions-----------
 neighbor        2 bin
 neigh_modify    every 1 delay 0 check yes

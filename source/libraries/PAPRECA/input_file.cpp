@@ -1125,24 +1125,6 @@ namespace PAPRECA{
 		
 	}
 	
-	void executeNeibListsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
-		
-		/// Sets the names of the neighbor lists in the PAPRECA::PaprecaConfig object.
-		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
-		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
-		/// @note THis function will not check if any of the neighbor list names (i.e., the half and the full) are valid neighbor list names in LAMMPS. If a non-existing neighbor list name is provided by the user (in the PAPRECA input file) the code will abort in papreca.cpp.
-		
-		std::string error_message = "Invalid neiblists command. Must be neiblists name1 name2 (name1=Half list name. name2=Full list name.";
-		if( commands.size( ) != 3 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
-		
-		std::string half_name = commands[1];
-		std::string full_name = commands[2];
-		
-		papreca_config.setNeibLists( half_name , full_name );
-		
-	}
-	
-	
 	
 	void executePaprecaCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 		
@@ -1215,8 +1197,6 @@ namespace PAPRECA{
 			executeSigmasOptionsCommand( lmp , commands , papreca_config );
 		}else if( command_class == "init_sigma" ){
 			executeInitSigmaCommand( lmp , commands , papreca_config );
-		}else if( command_class == "neiblists" ){
-			executeNeibListsCommand( commands , papreca_config );
 		}else{ 
 			allAbortWithMessage( MPI_COMM_WORLD , "Invalid PAPRECA command:" + command_class + " in PAPRECA input file." );
 		}
@@ -1269,16 +1249,13 @@ namespace PAPRECA{
 		/// @param[in] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
 		//Basic settings aborts
-		if( papreca_config.getKMCsteps( ) == 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "APRECAT KMC steps were not set (or set to zero)." ); }
+		if( papreca_config.getKMCsteps( ) == 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "PAPRECA KMC steps were not set (or set to zero)." ); }
 		
 		//Random number generator aborts
 		if( !papreca_config.ranNumGeneratorIsInitialized( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Random number generator was not initialized properly. This typically indicates that the random seed WAS NOT provided in the PAPRECA input file." ); }
 		
 		//Sigmas aborts
 		if( ( papreca_config.predefinedCatalogHasBondBreakEvents( ) || papreca_config.predefinedCatalogHasBondFormEvents( ) ) && papreca_config.type2SigmaMapIsEmpty( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Bond form/break events were defined but no sigma_options and sigmas were detected! Please defined sigmas." ); }
-		
-		//Neiblists aborts
-		if( papreca_config.getHalfNeibListName( ).empty( ) || papreca_config.getFullNeibListName( ).empty( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Half or Full neib list pairstyles were not defined in the PAPRECA input file." ); }
 		
 		//Film height aborts
 		if( papreca_config.getHeightMethod( ).empty( ) && papreca_config.predefinedCatalogHasDepositionEvents( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Cannot setup deposition events without setting up a film calculation method." ); }

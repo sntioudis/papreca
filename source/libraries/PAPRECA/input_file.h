@@ -88,8 +88,6 @@ namespace PAPRECA{
 	void executeRestartFreqCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeSigmasOptionsCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeInitSigmaCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );
-	void executeNeiblistsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
-	
 	
 	//General command execution functions
 	void executePaprecaCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );

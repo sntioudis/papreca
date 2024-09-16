@@ -115,6 +115,17 @@ mpirun -np 256 ../build/papreca -in LAMMPSinput.lmp PAPRECAinput.ppc
 > **Important Note2:**
 > %PAPRECA reads the LAMMPS input file and then the %PAPRECA input file. Hence, make sure the LAMMPS input file is provided first in your MPI execution command (e.g., mpiexec or mpirun).
 
+\section fixpapreca fix papreca
+
+Running %PAPRECA requires that the following line is added to your LAMMPS input file (after defining the simulation box):
+
+```bash
+fix papreca all papreca
+```
+
+Of course, using this fix demands that LAMMPS is compiled with the papreca fix (see \ref installation). For more information regarding this fix please refer to \ref FIX_papreca.
+
+
 \section units PAPRECA units
 
 Units within the MD stage are consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).

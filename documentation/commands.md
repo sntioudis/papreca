@@ -8,6 +8,31 @@ This page contains information regarding %PAPRECA commands. For details related 
 > %PAPRECA will always ignore text to the right of a "#" character. You can use "#" characters to add comments to your input files.
 
 
+\section FIX_papreca fix papreca command
+
+\subsection FIX_papreca_syntax Syntax
+
+```bash
+fix papreca all papreca
+```
+
+\subsection FIX_papreca_description Description
+
+LAMMPS fix command to be used in the LAMMPS input file. This command has to be utilized after defining the LAMMPS simulation box in your LAMMPS input file. 
+The papreca fix for LAMMPS initializes and updates two neighbors lists (a half and a full) and facilitates predefined event detection and execution.
+Certain kMC events (e.g., diffusion, deposition) require interference (i.e., collision) checks. Therefore, a full neighbor list has to be used with such events as it guarantees that
+the collision can be detected when scanning through the neighbor list of either atom. On the other hand, the discovery of other kMC events (e.g., bond formation) is significantly more efficient when
+half lists are used (since those lists each pair of atoms once). Effectively, this is why two neighbor lists are required for %PAPRECA.
+Please refer to the [LAMMPS documentation](https://docs.lammps.org/Developer_par_neigh.html) for more information regarding neighbor lists.
+
+> **Note 1:**
+> If you plan to use [special_bonds](https://docs.lammps.org/special_bonds.html) in your simulation refrain from setting **ANY** of the special_bonds to zero. Setting a special_bond to zero eliminates the (1-2,1-3, or 1-4) neighbors from the neighbor lists. Please use a double number beyond the accuracy limits of a C++ double instead of zero (e.g., use "special_bonds lj 1e-100 1.0 1.0 coul 1e-100 1.0 1.0" in your input file instead of "special_bonds lj 0.0 1.0 1.0 coul 0.0 1.0 1.0" to include the 1-2 neighbors). Once again, this does not affect the computational efficiency of the MD stage but includes additional neighbor pairs in the neighbor list.
+
+> **Note 2:**
+> Consider using [neigh_modify](https://docs.lammps.org/neigh_modify.html) command with the "every 1", "delay 0", and "check yes" options in your LAMMPS input file (where applicable). This forces LAMMPS to update the neighbors lists on every timestep and increases the accuracy of your %PAPRECA run (in the expense of computational efficiency).
+
+<hr>
+
 \section KMC_steps kMC_steps command
 
 \subsection KMCsteps_syntax Syntax
@@ -92,106 +117,6 @@ Defines the random seed to initialize the random number generator. %PAPRECA uses
 \subsection random_seed_bibliography Bibliography
 
 [1] James, F. "A review of pseudorandom number generators." Computer Physics Communications, vol. 60, 1990
-
-
-
-<hr>
-
-
-
-\section neiblists neiblists command
-
-\subsection neiblists_syntax Syntax
-
-```bash
-neiblists half full
-```
-
-- half = name of half neighbors list (as defined in LAMMPS).
-- full = name of full neighbors list (as defined in LAMMPS).
-
-\subsection neiblists_examples Example(s)
-
-```bash
-neiblists lj/cut/coul/cut zero
-neiblists lj/cut zero
-```
-
-\subsection neiblists_description Description
-
-Declares the names of the half and full neighbor lists. %PAPRECA uses those names to retrieve the neighbor lists of atoms during runtime.
-The neighbor lists have to come from interatomic potentials (e.g., neighbor lists from fixes cannot be used with this command). Note that, in the current version of %PAPRECA it is mandatory to define two neighbor lists (a half and a full).
-This is done because certain kMC events (e.g., diffusion, deposition) require interference (i.e., collision) checks. Therefore, a full neighbor list has to be used with such events as it guarantees that
-the collision can be detected when scanning through the neighbor list of either atom. On the other hand, the discovery of other kMC events (e.g., bond formation) is significantly more efficient when
-half lists are used (since those lists each pair of atoms once). Please refer to the [LAMMPS documentation](https://docs.lammps.org/Developer_par_neigh.html) for more information regarding neighbor lists.
-
-> **Note:**
-> If the %PAPRECA simulation does not utilize any bond formation events, two neighbor lists would still need to be defined, but the name of a full list can be used twice with this command. On the other hand, if the %PAPRECA simulation solely utilizes bond formation events, the name of a half list can be used twice with this command. This facilitates the set up stage of the simulation, since it eliminates the need to deploy hybrid potentials (see below).
-
-The name of the list is typically identical to the name of the interatomic potential (i.e., the pair_style) in LAMMPS. For example, the neighbor list name of the lj/cut potential is "lj/cut".
-
-LAMMPS gives you the ability to always have a half and a full neighbor lists (from pair_styles) in the same simulation.
-This can be done by "combining" the interatomic potential of your choice with a zero potential using the [pair_style hybrid/overlay command](https://docs.lammps.org/pair_hybrid.html) in your LAMMPS input file.
-For instance, if you plan to utilize a "lj/cut/coul/cut" potential (associated with a half neighbor list) you should include the following command in your LAMMPS input file:
-
-```bash
-pair_style hybrid/overlay lj/cut/coul/cut 10 zero 10 full
-```
-
-By doing so, you will force LAMMPS to generate and update a full neighbor list (for zero pair_style) alongside the half neighbor list of the lj/cut/coul/cut pairstyle. Of course, if your
-pair_style of choice works with a full list, you should use the pair_style hybrid/overlay command without the "full" option in the end.
-Note that, "combining" your interatomic potential with a zero pair_style is not associated with more intensive force computations during the MD stage of the %PAPRECA simulation (see [here)](https://matsci.org/t/requesting-a-full-neighbor-list-in-c-code-using-lammps-as-a-library/48294/2).
-Nonetheless, the efficiency of the MD stage can be possibly lowered due to operations associated with assembling and maintaining the additional neighbor list (of the zero potential).
-
-If you are unsure about the name of a neighbor list or whether the list is half or full, you can run a small MD (LAMMPS) trajectory (after you set up your LAMMPS input file).
-By doing so, you will force LAMMPS to output (on the screen or in the lammps.log file) detailed information related to the neighbor lists in your simulation.
-The snippet below demonstrates the information printed in the first few lines of the lammps.log file generated when running the example located in ./Examples/Phosphate Film Growth from TCP on Fe110/ :
-
-```bash
-Neighbor list info ...
-  update: every = 1 steps, delay = 0 steps, check = yes
-  max neighbors/atom: 2000, page size: 100000
-  master list distance cutoff = 12
-  ghost atom cutoff = 12
-  binsize = 6, bins = 10 10 10
-  3 neighbor lists, perpetual/occasional/extra = 3 0 0
-  (1) pair lj/cut/coul/cut, perpetual, half/full from (2)
-      attributes: half, newton on
-      pair build: halffull/newton
-      stencil: none
-      bin: none
-  (2) pair zero, perpetual
-      attributes: full, newton on
-      pair build: full/bin
-      stencil: full/bin/3d
-      bin: standard
-  (3) fix qeq/point, perpetual, copy from (2)
-      attributes: full, newton on
-      pair build: copy
-      stencil: none
-      bin: none
-```
-
-Where you observe that the lj/cut/cout/cut is a half list (see attributes) and that the zero pair_style is associated with a full list.
-
-In future %PAPRECA versions and to reduce the complexity associated with the neighbor lists, we plan to remove the neiblists command. Instead, a fix %PAPRECA
-LAMMPS command will be used (in the LAMMPS input file) to initialize two neighbor lists (i.e., one half and one full) to be utilized to discover of kMC events.
-
-
-> **Note 1:**
-> This is a mandatory command. The %PAPRECA simulation will not start unless both the half and full neighbor list names have been declared. if the user provides incorrect neighbor list names, the %PAPRECA run will abort prematurely, as soon as it tries to retrieve an atom from the (non-existing) neighbor list.
-
-> **Note 2:**
-> When using the pair_style hybrid/overlay command you need to define the coefficients of both the pair_style of your choice and the zero potential. When it comes to the zero potential, please use the following command in your LAMMPS input file: "pair_coeff * *" to initialize all the coefficients.
-
-> **Note 3:**
-> When using the pair_style hybrid/overlay command, there is a chance that LAMMPS will not generate the cross-terms of your interatomic potential of choice. Hence, manual definition might be required. Please check if the cross-terms were generated by examining the screen output (or the lammps.log file), i.e., a similar line will be present if the mixing failed "Generated 0 of 28 mixed pair_coeff terms from geometric mixing rule". See the LAMMPS input files in the ./Examples/ folder for ideas on how to properly define pair_style coefficients.
-
-> **Note 4:**
-> If you plan to use [special_bonds](https://docs.lammps.org/special_bonds.html) in your simulation refrain from setting **ANY** of the special_bonds to zero. Setting a special_bond to zero eliminates the (1-2,1-3, or 1-4) neighbors from the neighbor lists. Please use a double number beyond the accuracy limits of a C++ double instead of zero (e.g., use "special_bonds lj 1e-100 1.0 1.0 coul 1e-100 1.0 1.0" in your input file instead of "special_bonds lj 0.0 1.0 1.0 coul 0.0 1.0 1.0" to include the 1-2 neighbors). Once again, this does not affect the computational efficiency of the MD stage but includes additional neighbor pairs in the neighbor list.
-
-> **Note 5:**
-> Consider using [neigh_modify](https://docs.lammps.org/neigh_modify.html) command with the "every 1", "delay 0", and "check yes" options in your LAMMPS input file (where applicable). This forces LAMMPS to update the neighbors lists on every timestep and increases the accuracy of your %PAPRECA run (in the expense of computational efficiency).
 
 
 <hr>

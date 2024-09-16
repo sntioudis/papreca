@@ -97,6 +97,7 @@ namespace PAPRECA{
 			const bool predefinedCatalogHasBondFormEvents( ) const;
 			const bool predefinedCatalogHasDiffusionHopEvents( ) const;
 			const bool predefinedCatalogHasDepositionEvents( ) const;
+			const bool predefinedCatalogHasMonoDesEvents( ) const;
 			const bool predefinedCatalogIsEmpty( ) const;
 			
 			//Random Deposition and Diffusion Vectors
