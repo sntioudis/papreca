@@ -1,0 +1,6 @@
+<map id="geometry_calc.h" name="geometry_calc.h">
+<area shape="rect" id="node1" title="Header for geometry calculation functions (e.g., film height, interference)." alt="" coords="79,5,195,32"/>
+<area shape="rect" id="node2" href="$event__detect_8h.html" title="Declarations for functions that detect predefined events." alt="" coords="13,80,119,107"/>
+<area shape="rect" id="node4" href="$geometry__calc_8cpp.html" title="Definitions for geometry_calc.h." alt="" coords="143,80,274,107"/>
+<area shape="rect" id="node3" href="$event__detect_8cpp.html" title="Definitions for event_detect.h." alt="" coords="5,155,127,181"/>
+</map>

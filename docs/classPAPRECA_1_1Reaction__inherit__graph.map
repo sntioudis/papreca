@@ -1,0 +1,6 @@
+<map id="PAPRECA::Reaction" name="PAPRECA::Reaction">
+<area shape="rect" id="node1" title="Child of PAPRECA:Event and parent of PAPRECA::BondBreak and PAPRECA::BondForm classes." alt="" coords="100,80,241,107"/>
+<area shape="rect" id="node3" href="$classPAPRECA_1_1BondBreak.html" title="child of PAPRECA::Reaction dedicated to bond&#45;breaking events." alt="" coords="5,155,160,181"/>
+<area shape="rect" id="node4" href="$classPAPRECA_1_1BondForm.html" title="child of PAPRECA::Reaction dedicated to bond formation events." alt="" coords="185,155,335,181"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1Event.html" title="Parent class for PAPRECA events." alt="" coords="109,5,232,32"/>
+</map>

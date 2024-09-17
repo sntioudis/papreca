@@ -1,0 +1,18 @@
+<map id="papreca_config.h" name="papreca_config.h">
+<area shape="rect" id="node1" title="Declarations for PAPRECA::PaprecaConfig class storing settings and global variables." alt="" coords="483,5,601,32"/>
+<area shape="rect" id="node2" href="$equilibration_8h.html" title="Declarations for functions equilibrate the system (i.e., Molecular Dynamics runs, system minimization..." alt="" coords="713,155,814,181"/>
+<area shape="rect" id="node4" href="$event__detect_8h.html" title="Declarations for functions that detect predefined events." alt="" coords="13,155,119,181"/>
+<area shape="rect" id="node6" href="$event__execute_8h.html" title="Declarations for functions that execute events." alt="" coords="443,155,559,181"/>
+<area shape="rect" id="node8" href="$event__select_8h.html" title="Declarations for functions that (stochastically) select events for execution." alt="" coords="357,80,463,107"/>
+<area shape="rect" id="node10" href="$geometry__calc_8h.html" title="Header for geometry calculation functions (e.g., film height, interference)." alt="" coords="151,80,267,107"/>
+<area shape="rect" id="node12" href="$input__file_8h.html" title="Declarations of functions related to the reading of the PAPRECA input file, and the initialization of..." alt="" coords="861,80,943,107"/>
+<area shape="rect" id="node14" href="$papreca__config_8cpp.html" title="Definitions for the PAPRECA::PaprecaConfig class." alt="" coords="703,80,837,107"/>
+<area shape="rect" id="node15" href="$sim__clock_8h.html" title="Declarations for functions that (stochastically) advance the simulation time." alt="" coords="538,80,629,107"/>
+<area shape="rect" id="node3" href="$equilibration_8cpp.html" title="Definitions for equilibration.h." alt="" coords="706,229,821,256"/>
+<area shape="rect" id="node5" href="$event__detect_8cpp.html" title="Definitions for event_detect.h." alt="" coords="5,229,127,256"/>
+<area shape="rect" id="node7" href="$event__execute_8cpp.html" title="Definitions for event_detect.h." alt="" coords="435,229,566,256"/>
+<area shape="rect" id="node9" href="$event__select_8cpp.html" title="Definitions for event_detect.h." alt="" coords="298,155,418,181"/>
+<area shape="rect" id="node11" href="$geometry__calc_8cpp.html" title="Definitions for geometry_calc.h." alt="" coords="143,155,274,181"/>
+<area shape="rect" id="node13" href="$input__file_8cpp.html" title="Definitions for input_file.h." alt="" coords="853,155,951,181"/>
+<area shape="rect" id="node16" href="$sim__clock_8cpp.html" title="Definitions for sim_clock.h." alt="" coords="583,155,688,181"/>
+</map>
