@@ -9,15 +9,7 @@ frozen_atomtypes 1 1
 
 
 #Sigmas for types
-sigmas_options manual mix geom
-init_sigma 1 1 4.04468
-init_sigma 2 2 3.47299
-init_sigma 3 3 3.47299
-init_sigma 4 4 3.03315
-init_sigma 5 5 3.69723
-init_sigma 6 6 3.03315
-init_sigma 7 7 2.84642
-init_sigma 8 8 4.04468
+sigmas_options LAMMPS
 
 #Species bonds max
 species_maxbonds 2 2 #C_3
@@ -31,9 +23,6 @@ species_maxbonds 7 1 #H
 minimize_prior yes minimize 1.0e-5 1.0e-5 100 1000
 minimize_after yes minimize 1.0e-5 1.0e-5 100 1000
 trajectory_duration 200
-
-#NeibLists
-neiblists lj/cut/coul/cut zero
 
 #Predefined events
 #!BondBreaks

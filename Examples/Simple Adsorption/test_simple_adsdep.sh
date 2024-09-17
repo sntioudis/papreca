@@ -1,6 +1,6 @@
 #!/bin/bash
 
-papreca_dir="../../build"
+papreca_dir="../../build/PAPRECA"
 
 
 #resolve the real path of papreca_dir (this can prevent conflicts if the user provides a relative path).

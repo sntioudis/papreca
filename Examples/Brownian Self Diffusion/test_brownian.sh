@@ -1,5 +1,5 @@
 #!/bin/bash
-papreca_dir="../../build"
+papreca_dir="../../build/PAPRECA/"
 
 #Run test
 mpiexec "${papreca_dir}/papreca" -in in_kmc.lmp in_kmc.ppc

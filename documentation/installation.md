@@ -12,14 +12,36 @@ To clone the latest %PAPRECA repository on your machine execute the following co
 git clone -b release https://github.com/sntioudis/papreca.git mypapreca #Add the latest PAPRECA repository to a folder named mypapreca
 ```
 
-\section beforeInstall Read before you install: Important notes and prerequisites
+\subsection autobuild PAPRECA autobuild
 
-&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a **shared** library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_27Jun2024).
+The quickest way to install %PAPRECA is by using the autobuild script located in ./Installation/autobuild. Running the autobuild script can be as simple as executing the following bash command form the ./Installation/autobuild/ directory of the %PAPRECA project:
+
+```bash
+bash build_PAPRECA.sh
+```
+
+The autobuild script pulls LAMMPS from the official Github repository, builds LAMMPS with the fix papreca command, and finally, builds %PAPRECA. 
+
+> **Note 1:**
+> At the moment, building with autobuild will generate a LAMMPS library that includes the following packages: **EXTRA-DUMP**, **MOLECULE**, **RIGID**, **QEQ**, **REAXFF**, **REPLICA**, **KSPACE**, **KOKKOS**, **MEAM**. Modify the **package_args** variable of the build_LAMMPS.sh script (located in the ./Installation/autobuild/ directory of the %PAPRECA project) to build with different packages, if necessary.
+
+> **Note 2:**
+> Compiler and build options for both LAMMPS and %PAPRECA can be added to either the build_LAMMPS.sh or build_PAPRECA.sh scripts, if necessary.
+
+> **CAUTION**:
+> In case the user desires to install %PAPRECA manually (or if autobuild fails), LAMMPS will have to be installed manually with the papreca fix. Then, %PAPRECA will have to be built using either cmake or a traditional make method (see sections bellow for more information).
+
+\section beforeInstall Read before you install MANUALLY: Important notes and prerequisites
+
+&bull; Copy fix_papreca.h and fix_papreca.cpp files from the %PAPRECA source files (located in ./source/libraries/LAMMPS/ of the pulled %PAPRECA directory) to the LAMMPS source files (located in ./src/ of the pulled LAMMPS directory).
+This will install LAMMPS with the fix papreca command option which is necessary to run %PAPRECA (see \ref FIX_papreca for more information).
+
+&bull; [Build LAMMPS](https://docs.lammps.org/Install.html) as a **shared** library (with any optional LAMMPS packages that you intend to use) before you build %PAPRECA. The minimum working LAMMPS version (tag) is: patch_15Sep2022. Version patch_15Sep2022 and any later release version have been tested with %PAPRECA and are expected to function properly. Nevertheless, users are advised to use the latest working LAMMPS version (patch_29Aug2024).
 
 The following snippet demonstrates (briefly) how LAMMPS can be built as a shared library with a few optional packages:
 
 ```bash
-git clone --depth 1 --branch patch_27Jun2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
+git clone --depth 1 --branch patch_29Aug2024 https://github.com/lammps/lammps.git mylammps #clone LAMMPS with tag patch_17Apr2024 to a folder named mylammps
 cd mylammps
 mkdir build; cd build
 cmake -DPKG_EXTRA-DUMP=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DPKG_REAXFF=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on ../cmake #Configure LAMMPS, build with some optional package, and enable lib building as well as shared libraries
@@ -38,9 +60,10 @@ cmake --build . #make -j N (where N is the number of processes) can also be used
 
 &bull; Exactly the same package (e.g., MPI protocol, MPI/C++ compiler, openMP) versions have to be used when building LAMMPS and %PAPRECA. You will probably encounter linking errors if there is a package version mismatch.
 
-\section build Building PAPRECA
+\section build Building PAPRECA manually
 
 After building LAMMPS as a library, %PAPRECA can be built using a Traditional Make approach or a [CMake](https://cmake.org/) approach. However, mixed Traditional Make/CMake builds should be avoided! If you installed %PAPRECA using a traditional Make approach you should remove all associated libraries, dependency files, and executables before re-building with CMake (and vice versa).
+
 
 \subsection cmake CMake
 

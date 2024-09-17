@@ -13,7 +13,7 @@ height_calculation mass_bins 0.95 0.01
 desorption 10 gather_local
 
 #Sigmas for types
-sigmas_options LAMMPS mix geom
+sigmas_options LAMMPS
 
 #Equilibration
 trajectory_duration 1
@@ -25,9 +25,6 @@ random_depovecs no
 
 #!MonoatomicDesorptions
 create_MonoatomicDesorption 2 rate_manual DESRATEPLACEHOLDER
-
-#NeibLists
-neiblists lj/cut zero
 
 #File Exports
 export_SurfCoverage 1

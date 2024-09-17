@@ -7,7 +7,7 @@ random_seed SEEDHOLDER
 fluid_atomtypes 2 1 2
 
 #Sigmas for types
-sigmas_options LAMMPS mix geom
+sigmas_options LAMMPS
 
 #Species bonds max
 species_maxbonds 1 2
@@ -15,9 +15,6 @@ species_maxbonds 2 2
 
 #Trajectory
 trajectory_duration 1
-
-#NeibLists
-neiblists lj/cut zero
 
 #Predefined events
 #!BondForms.

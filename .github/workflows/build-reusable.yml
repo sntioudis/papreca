@@ -24,6 +24,9 @@ jobs:
       
     steps:
 
+    - name: checkout PAPRECA
+      uses: actions/checkout@v4 #Checkout PAPRECA repository (to retrieve headers and source files for papreca fix) in case LAMMPS needs building.
+      
     - name: Clone a specific LAMMPS branch
       if: ${{ inputs.clone_type == 'branch' }}
       run: |
@@ -63,11 +66,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential
         sudo apt-get install mpich
-        
+      
     - name: Configure and build LAMMPS
       if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
       run: |
         cd mylammps
+        cp $GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.h ./src/
+        cp $GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.cpp ./src/
         mkdir build; cd build
         cmake -DPKG_KOKKOS=on -DPKG_KSPACE=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
         cmake --build .

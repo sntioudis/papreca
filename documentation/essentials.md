@@ -15,11 +15,11 @@ Firstly, the master process calculates the total rate of the current step and ad
 \image html ./images/clock_advance.png width=70%
 
 Where Δt is the kMC time interval, ρ is a pseudo-random uniformly distributed random number between 0 and 1, R is the per-MPI-process/total rate on a given step, and r is a local event rate.
-After advancing the simulation clock, the master MPI process chooses the event MPI processor by performing a (rejection-free) kMC selection [1], [2]:
+After advancing the simulation clock, the master MPI process chooses the event MPI processor by performing a (rejection-free) kMC selection [1], [2], [3]:
 
 \image html ./images/proc_select.png width=70%
 
-Following, the selected event MPI processor chooses a (local) event for execution (using a rejection-free selection process [1], [2]):
+Following, the selected event MPI processor chooses a (local) event for execution (using a rejection-free selection process [1], [2], [3]):
 
 \image html ./images/event_select.png width=70%
 
@@ -27,8 +27,8 @@ Finally, event data are communicated from the event MPI processor to all other p
 
 Providing a fully parallelized scheme for event execution within the kMC stage of %PAPRECA will be prioritized in future version of the software.
 
-For additional information regarding the rejection-free kMC scheme, as well as the execution/detection of predefined kMC events please see Ntioudis et al. [1] and Fichthorn and Weinberg [2].
-For an overview of the LAMMPS software please see Thompson et al. [3].
+For additional information regarding the rejection-free kMC scheme, as well as the execution/detection of predefined kMC events please see Ntioudis et al. [1], [2] and Fichthorn and Weinberg [3].
+For an overview of the LAMMPS software please see Thompson et al. [4].
 
 \section supEvents Supported Predefined events
 
@@ -115,6 +115,17 @@ mpirun -np 256 ../build/papreca -in LAMMPSinput.lmp PAPRECAinput.ppc
 > **Important Note2:**
 > %PAPRECA reads the LAMMPS input file and then the %PAPRECA input file. Hence, make sure the LAMMPS input file is provided first in your MPI execution command (e.g., mpiexec or mpirun).
 
+\section fixpapreca fix papreca
+
+Running %PAPRECA requires that the following line is added to your LAMMPS input file (after defining the simulation box):
+
+```bash
+fix papreca all papreca
+```
+
+Of course, using this fix demands that LAMMPS is compiled with the papreca fix (see \ref installation). For more information regarding this fix please refer to \ref FIX_papreca.
+
+
 \section units PAPRECA units
 
 Units within the MD stage are consistent with units as defined in the LAMMPS input file. Units in LAMMPS are set by the [units command](https://docs.lammps.org/units.html).
@@ -132,9 +143,11 @@ as requested by the respective rate calculation option.
 
 \section essentials_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
 
-[2] Fichthorn, K.A. and Weinberg, W.H. "Theoretical foundations of dynamic Monte Carlo simulations." Journal of Chemical Physics, vol. 95, 1991
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
-[3] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Comunications, vol. 272 2022
+[3] Fichthorn, K.A. and Weinberg, W.H. "Theoretical foundations of dynamic Monte Carlo simulations." Journal of Chemical Physics, vol. 95, 1991
+
+[4] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Comunications, vol. 272 2022
 

@@ -160,6 +160,9 @@ namespace PAPRECA{
 		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
 		/// @see PAPRECA::loopAtomsAndIdentifyEvents()
 		
+		
+		if( !papreca_config.predefinedCatalogHasDiffusionHopEvents( ) ){ return; }
+		
 		LAMMPS_NS::tagint *atom_ids = ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "id" ); //extract atom ids
 		double **atom_xyz = ( double **)lammps_extract_atom( lmp , "x" );//extract atom positions
 		int *atom_types = ( int *)lammps_extract_atom( lmp , "type" );//extract atom types
@@ -421,6 +424,9 @@ namespace PAPRECA{
 		/// @param[in,out] events_local vector containing all the PAPRECA::Event objects for a specific MPI process.
 		/// @see PAPRECA::loopAtomsAndIdentifyEvents()
 		
+		
+		if( !papreca_config.predefinedCatalogHasDepositionEvents( ) ){ return; }
+		
 		LAMMPS_NS::tagint *atom_ids = ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "id" ); //extract atom ids
 		double **atom_xyz = ( double **)lammps_extract_atom( lmp , "x" );//extract atom positions
 		int *atom_types = ( int *)lammps_extract_atom( lmp , "type" );//extract atom types
@@ -503,6 +509,9 @@ namespace PAPRECA{
 		/// @param[in,out] events_local vector containing all the PAPRECA::Event objects for a specific MPI process.
 		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
 		/// @see PAPRECA::loopAtomsAndIdentifyEvents()
+		
+		
+		if( !papreca_config.predefinedCatalogHasBondBreakEvents( ) ){ return; }
 		
 		LAMMPS_NS::tagint *atom_ids = ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "id" ); //extract atom ids
 		int *atom_types = (int *) lammps_extract_atom( lmp , "type" ); //extract atom types
@@ -643,6 +652,8 @@ namespace PAPRECA{
 		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
 		/// @see PAPRECA::loopAtomsAndIdentifyEvents()
 		
+		if( !papreca_config.predefinedCatalogHasBondFormEvents( ) ){ return; }
+		
 		//Get Lammps pointers
 		LAMMPS_NS::tagint *atom_ids = ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "id" ); //extract atom ids
 		double **atom_xyz = ( double **)lammps_extract_atom( lmp , "x" );//extract atom positions
@@ -651,7 +662,10 @@ namespace PAPRECA{
 		
 		//Define atoms properties based on iatom
 		const LAMMPS_NS::tagint iatom_id = atom_ids[iatom];
-		const LAMMPS_NS::tagint iatom_mol = atom_mol[iatom];
+		
+		LAMMPS_NS::tagint iatom_mol;
+		if( atom_mol != NULL ){ iatom_mol = atom_mol[iatom]; } //Ensure that atom_mol exists before obtaining specific imol value (non-molecular systems do not have molecule ids and this can cause segmentation faults!)
+		
 		double *iatom_xyz = atom_xyz[iatom];
 		const int iatom_type = atom_types[iatom];
 			
@@ -674,7 +688,7 @@ namespace PAPRECA{
 				
 			if( form_template ){ //This indicates that the bond is formable (i.e., form_template is not NULL).
 				
-				if( !form_template->isSameMol( ) && atomsBelong2TheSameMol( iatom_mol , jneib_mol ) ){ continue; } //This is only for formation events from templates with same_mol=false;
+				if( atom_mol != NULL && !form_template->isSameMol( ) && atomsBelong2TheSameMol( iatom_mol , jneib_mol ) ){ continue; } //This is only for formation events from templates with same_mol=false;
 				
 				if ( !atomHasMaxBonds( papreca_config , atomID2bonds , iatom_id ,iatom_type ) && !atomHasMaxBonds( papreca_config , atomID2bonds , jneib_id , jneib_type ) && !bondBetweenAtomsExists( atomID2bonds , iatom_id , jneib_id ) ){ //Those conditions are now checked sequencially based on computational cost (i.e., as you move further in the nested loop in costs more to check if the condition is true).			
 				
@@ -706,6 +720,8 @@ namespace PAPRECA{
 		/// @param[in,out] events_local vector containing all the PAPRECA::Event objects for a specific MPI process.
 		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
 		/// @see PAPRECA::loopAtomsAndIdentifyEvents()
+		
+		if( !papreca_config.predefinedCatalogHasMonoDesEvents( ) ){ return; }
 		
 		LAMMPS_NS::tagint *atom_ids = ( LAMMPS_NS::tagint *)lammps_extract_atom( lmp , "id" ); //extract atom ids
 		int *atom_types = ( int *)lammps_extract_atom( lmp , "type" );//extract atom types
@@ -749,8 +765,8 @@ namespace PAPRECA{
 		
 		calcFilmHeight( lmp , proc_id , KMC_loopid ,  papreca_config , film_height );
 		
-		int neiblist_id = lammps_find_pair_neighlist( lmp , papreca_config.getFullNeibListName( ).c_str( ) , 1 , 0 , 0 );
-		if( neiblist_id == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Lammps could not find neib list with name " + papreca_config.getFullNeibListName( ) + ". Either the list does not exist or there is a spelling error in your PAPRECA input file." ); }
+		int neiblist_id = lammps_find_fix_neighlist( lmp , "papreca" , 1 ); //Get neighbors list with ID 1 (full list as in the papreca fix)
+		if( neiblist_id == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Lammps could not find full neib list from fix papreca (fix papreca all papreca) command. Please ensure that the fix papreca command is present in your LAMMPS input file." ); }
 		int iatom = -1 , neighbors_num = -1 , *neighbors = NULL;
 		
 		int atoms_num = lammps_neighlist_num_elements( lmp , neiblist_id ); //Find number of atoms in the "zero" neighbor list.
@@ -773,8 +789,8 @@ namespace PAPRECA{
 		neighbors = NULL;
 		
 		//Now loop half neiblist atoms to get the bond formation events
-		neiblist_id = lammps_find_pair_neighlist( lmp , papreca_config.getHalfNeibListName( ).c_str( ) , 1 , 0 , 0 );
-		if( neiblist_id == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Lammps could not find neib list with name " + papreca_config.getHalfNeibListName( ) + ". Either the list does not exist or there is a spelling error in your PAPRECA input file." ); }
+		neiblist_id = lammps_find_fix_neighlist( lmp , "papreca" , 2 ); //Get neighbors list with ID 2 (half list as in the papreca fix)
+		if( neiblist_id == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Lammps could not find full neib list from fix papreca (fix papreca all papreca) command. Please ensure that the fix papreca command is present in your LAMMPS input file." ); }
 		
 		atoms_num = lammps_neighlist_num_elements( lmp , neiblist_id );
 		for( int i = 0; i < atoms_num; ++i ){

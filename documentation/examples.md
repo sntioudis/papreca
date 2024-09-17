@@ -21,8 +21,7 @@ Brownian particles confined in a box [1], [2].
 As far as the LAMMPS input file (i.e., in_kmc.lmp)  is concerned, note that:
 
 - The create_atoms command is deployed to create a cluster of atoms of type 1 in the middle of the simulation box.
-- This simulation is a pure kMC simulation. The choice of pair_style does not make any difference at all. We simply use a hybrid/overlay of
-two interatomic potentials to produce a half neighbor list (generated from the "lj/cut" potential) as well as a full list (obtained from the "zero" potential).
+- This simulation is a pure kMC simulation. The choice of pair_style does not make any difference at all.
 - The pair_coeff 1 1 for the "lj/cut" potential is defined to set the sigma value (i.e., 2.84642 Angstroms). Such value is used to perform collision searches for the diffusion event (see \ref createDiff, \ref sigoptions, and \ref insigma).
 
 For more information regarding the used LAMMPS commands consider visiting the relevant [documentation pages](https://docs.lammps.org/commands_list.html#).
@@ -227,7 +226,7 @@ export files at the end of the run (i.e., heightVtime.log after 12000 %PAPRECA s
 
 \section solvents Organic solvents
 
-The TCP and Toluenene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl phosphate (mmm-TCP) molecules, and 2) a system of mmm-TCP molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performance comparisons between solvated and unsolvated systems. 
+The TCP and Toluene subdirectory in the Examples folder contains the input files for 1) a system comprising solely tri-m-cresyl phosphate (mmm-TCP) molecules, and 2) a system of mmm-TCP molecules in a toluene solvent. Both examples are hybrid kMC/MD runs and include a set of (dummy) bond-formation and bond-breaking events. These examples showcase the capabilities of %PAPRECA when it comes to capturing solvent/solute interactions. Furthermore, the examples allow for performance comparisons between solvated and unsolvated systems. 
 
 \image html ./images/solvents.png width=60%
 

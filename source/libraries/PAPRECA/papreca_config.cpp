@@ -282,10 +282,11 @@ namespace PAPRECA{
 	const bool PaprecaConfig::predefinedCatalogHasBondBreakEvents( ) const{ return( !predefined_catalog.bond_breaks_map.empty( ) ? true : false ); }
 	const bool PaprecaConfig::predefinedCatalogHasBondFormEvents( ) const{ return( !predefined_catalog.bond_forms_map.empty( ) ? true : false ); }
 	const bool PaprecaConfig::predefinedCatalogHasDiffusionHopEvents( ) const{ return( !predefined_catalog.diffusions_map.empty( ) ? true :  false ); }
-	const bool PaprecaConfig::predefinedCatalogHasDepositionEvents( ) const{ return( !predefined_catalog.depositions_map.empty( ) ? true : false ); }		
+	const bool PaprecaConfig::predefinedCatalogHasDepositionEvents( ) const{ return( !predefined_catalog.depositions_map.empty( ) ? true : false ); }
+	const bool PaprecaConfig::predefinedCatalogHasMonoDesEvents( ) const{ return( !predefined_catalog.monodes_map.empty( ) ? true : false ); }		
 	const bool PaprecaConfig::predefinedCatalogIsEmpty( ) const{
 		
-		return( ( !predefinedCatalogHasBondBreakEvents( ) && !predefinedCatalogHasBondFormEvents( ) && !predefinedCatalogHasDiffusionHopEvents( ) && !predefinedCatalogHasDepositionEvents( ) ) ? true : false );
+		return( ( !predefinedCatalogHasBondBreakEvents( ) && !predefinedCatalogHasBondFormEvents( ) && !predefinedCatalogHasDiffusionHopEvents( ) && !predefinedCatalogHasDepositionEvents( ) && !predefinedCatalogHasMonoDesEvents( ) ) ? true : false );
 		
 	}
 	

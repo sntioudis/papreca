@@ -2,7 +2,7 @@
 dimension 3
 units           real
 atom_style      full
-pair_style 		hybrid/overlay lj/cut 10 zero 10 full
+pair_style 		lj/cut 10
 bond_style      harmonic
 
 #---------------------------Processors----------------------------------------
@@ -13,6 +13,9 @@ boundary p p p
 #--------------------------Create simulation--------------------------------
 region simulation_box block -50 50 -50 50 -50 50
 create_box 2 simulation_box bond/types 2 extra/bond/per/atom 2 extra/special/per/atom 6
+
+#--------------------------PAPRECA fix--------------------------------
+fix papreca all papreca
 
 #---------------------------Atom masses-----------------------------------
 mass 1   15.9994
@@ -25,14 +28,11 @@ create_atoms 1 single -5.0 0.0 0.0
 create_atoms 2 single 2.5 0.0 0.0
 create_atoms 1 single 5.0 0.0 0.0
 #----------------------Pair coeffs -------------------------
-pair_coeff 1 1 lj/cut 0.0957 3.03315
+pair_coeff 1 1 0.0957 3.03315 10.0
  
-pair_coeff 2 2 lj/cut 0.32 3.69723
+pair_coeff 2 2 0.32 3.69723 10.0
 
-pair_coeff 1 2 lj/cut 0.20785 3.34877
-pair_coeff 2 1 lj/cut 0.20785 3.34877
-
-pair_coeff * * zero
+pair_modify mix geometric
 #---------------------------Bond coeffs-----------------------------------
 bond_coeff   1    0.00000000      0.000000    #DUMMY TYPE USED FOR BOND DELETIONS.
 bond_coeff   2    350.000000      3    # type1 - type2 bond (USED IN KMC BREAKS/FORMS).
