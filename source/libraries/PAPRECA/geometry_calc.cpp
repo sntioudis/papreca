@@ -206,8 +206,8 @@ namespace PAPRECA{
 		
 		double sigma = papreca_config.getSigmaFromAtomTypes( atom1_type , atom2_type );
 		if( sigma == 0 ){ 
-			const std::string warn_message = "Sigma between types " + atom1_type + " and " + atom2_type + " is zero! Collisions might not be checked correctly! Please ensure that all sigmas are initialized properly. ";
-			warnALL( MPI_COMM_WORLD , warn_message.c_str( ) );
+			const std::string warn_message = "Sigma between types " + std::to_string( atom1_type ) + " and " + std::to_string( atom2_type ) + " is zero! Collisions might not be checked correctly! Please ensure that all sigmas are initialized properly. ";
+			warnAll( MPI_COMM_WORLD , warn_message.c_str( ) );
 		}
 		double dist_sqr = get3DSqrDistWithPBC( lmp , atom1_xyz , atom2_xyz );
 		if( dist_sqr < sigma * sigma ){
