@@ -11,14 +11,14 @@ of systems with atomic-level resolution by performing a series of elementary pro
 %PAPRECA can be relevant to scientists conducting research in the broad field of Materials Science and Engineering.
 Example applications of %PAPRECA include but are not limited to catalysts, amorphous thin films (e.g., phosphate films, solid electrolyte interphases, oxide layers), modeling self-diffusion of gases.
 
-A typical %PAPRECA step comprises two distinct parts: a kMC stage and an MD stage [1].
-During the kMC stage, system sites are scanned to detect atomistic events. Then, a single event is stochastically selected (based on a rejection-free kMC scheme), executed, and finally, the simulation clock is advanced [2].
+A typical %PAPRECA step comprises two distinct parts: a kMC stage and an MD stage [1], [2].
+During the kMC stage, system sites are scanned to detect atomistic events. Then, a single event is stochastically selected (based on a rejection-free kMC scheme), executed, and finally, the simulation clock is advanced [3].
 The kMC stage of the code is completely lattice-free and does not simulate events on "fixed lattice sites". Rather, all particles (e.g., atoms) in the simulation box are treated as "mobile event sites".
 Furthermore, a predefined catalog approach is implemented, i.e., kMC events  are selected from event templates defined before the start of the simulation.
 The kMC stage is usually followed by the MD stage that allows for the relaxation of interatomic forces or/and the equilibration of the system to the target ambient conditions (i.e., temperature, pressure, etc.).
 Of course, by choosing not to invoke the MD stage, %PAPRECA can be used as a pure off-lattice kMC simulator.
 
-%PAPRECA is an extension of the [Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS)](https://docs.lammps.org/Manual.html#) [3]. Native LAMMPS functions as well as %PAPRECA wrappers around LAMMPS functions are utilized for
+%PAPRECA is an extension of the [Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS)](https://docs.lammps.org/Manual.html#) [4]. Native LAMMPS functions as well as %PAPRECA wrappers around LAMMPS functions are utilized for
 domain decomposition, treatment of periodic boundaries, update of neighbors lists, addition/deletion of particles/bonds, and modification of particle properties (e.g., positions, velocities, charges).
 Also, the MD stage is simulated entirely using the LAMMPS library. Finally, detection, selection, and execution of predefined kMC events, system clock advancement, and communication of event data among the MPI processes and between the kMC and MD stages 
 is performed by the %PAPRECA library and the %PAPRECA driver code (papreca.cpp).
@@ -53,12 +53,14 @@ Additionally, enquiries can be directed to the main developer of this software, 
 
 \section citations Acknowledgments and citations
 
-If you use %PAPRECA for your research, kindly give credits to the %PAPRECA as well as LAMMPS project authors by citing [1] and [3].
+If you use %PAPRECA for your research, kindly give credits to the %PAPRECA as well as LAMMPS project authors by citing [1], [2], and [4].
 
 \section bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
 
-[2] Fichthorn, K.A. and Weinberg, W.H. "Theoretical foundations of dynamic Monte Carlo simulations." Journal of Chemical Physics, vol. 95, 1991
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
-[3] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Communications, vol. 272 2022
+[3] Fichthorn, K.A. and Weinberg, W.H. "Theoretical foundations of dynamic Monte Carlo simulations." Journal of Chemical Physics, vol. 95, 1991
+
+[4] Thompson, A.P. et al. "LAMMPS - a flexible simulation tool for particle-based materials modeling at the atomic, meso, and continuum scales." Computer Physics Communications, vol. 272 2022

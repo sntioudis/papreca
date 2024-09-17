@@ -1,7 +1,10 @@
 name: Documentation
 
 on:
-  workflow_dispatch: #Only trigger manually
+  workflow_dispatch: #Trigger manually (from main branch) OR whenever there are pushes on the release branch
+  push:
+    branches:
+        -release
 
 jobs:
   build-documentation:

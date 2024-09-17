@@ -148,7 +148,7 @@ sigmas_options manual mix arithm
 \subsection sigoptions_description Description
 
 Defines the options related to the initialization of "sigma" (as in the Lennard-Jones potential, see [here](https://en.wikipedia.org/wiki/Lennard-Jones_potential) ) values for the %PAPRECA simulation. Note that, for events requiring collision tests (e.g., deposition events)
-the sigma value defines the maximum acceptable distance between two species (i.e., if d &le; sigma %PAPRECA assumes that an interference exists and that atom collides) [1].
+the sigma value defines the maximum acceptable distance between two species (i.e., if d &le; sigma %PAPRECA assumes that an interference exists and that atom collides) [1] , [2].
 
 For style manual, the sigma values have to be manually declared in the %PAPRECA input file (using sequential \ref insigma) for all types.
 
@@ -162,7 +162,9 @@ define the diagonal sigma terms. See this [LAMMPS documentation](https://docs.la
 
 \subsection sigoptions_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 <hr>
 
@@ -188,7 +190,7 @@ init_sigma 2 5 5.5
 \subsection insigma_description Description
 
 Defines a "sigma" value (as in the Lennard-Jones potential, see [here](https://en.wikipedia.org/wiki/Lennard-Jones_potential) ). Note that, for events requiring collision tests (e.g., deposition events)
-the sigma value defines the maximum acceptable distance between two species (i.e., if d &le sigma %PAPRECA assumes that an interference exists and that atom collides) [1].
+the sigma value defines the maximum acceptable distance between two species (i.e., if d &le sigma %PAPRECA assumes that an interference exists and that atom collides) [1], [2].
 
 > **Note 1:**
 > The sigma values for all pairs of atom types (diagonal and cross-terms) have to be defined before the start of a %PAPRECA run.  The %PAPRECA run will start normally even if the sigmas of all pairs of atom types have not been defined. However, the %PAPRECA run will abort as soon as an interference check is performed for pairs of atom types of unknown sigma values.
@@ -204,7 +206,9 @@ the sigma value defines the maximum acceptable distance between two species (i.e
 
 \subsection insigma_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 
 <hr>
@@ -421,7 +425,7 @@ minimize_prior no
 
 \subsection minprior_description Description
 
-Defines a minimization command to be executed within the MD stage of the %PAPRECA run and before simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
+Defines a minimization command to be executed within the MD stage of the %PAPRECA run and before simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1], [2] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
 When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
@@ -436,7 +440,9 @@ No minimization prior to the MD trajectory is performed if this command is not i
 
 \subsection minprior_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 <hr>
 
@@ -465,7 +471,7 @@ minimize_after no
 
 \subsection minafter_description Description
 
-Defines a minimization command to be executed within the MD stage of the %PAPRECA run and right after simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
+Defines a minimization command to be executed within the MD stage of the %PAPRECA run and right after simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1], [2] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
 When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
@@ -480,7 +486,9 @@ No minimization after the MD trajectory is performed if this command is not incl
 
 \subsection minafter_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 
 <hr>
@@ -734,7 +742,7 @@ Molecules are inserted in the system by calling the PAPRECA::insertMolecule() LA
 coincide with the geometric center of the molecule (as defined in the LAMMPS input file).
 
 For sticking_coeff = constant the user must select a constant sticking coefficient value. The sticking coefficient value will remain unchanged (as set) throughout the simulation.
-Conversely, if sticking_coeff = variable, then the sticking coefficient is dynamically calculated by dividing the number of available (collision-free) deposition sites by the total number of sites (occupied and collision-free) [1].
+Conversely, if sticking_coeff = variable, then the sticking coefficient is dynamically calculated by dividing the number of available (collision-free) deposition sites by the total number of sites (occupied and collision-free) [1] , [2].
 Note that, if you have defined multiple deposition events with the same adsorbate_name (e.g., mmmTCP), then %PAPRECA will assume that the adsorption sites of all such events are identical and will assign/calculate an identical sticking coefficient.
 
 You can provide the deposition rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
@@ -750,7 +758,9 @@ If the sticking_coeff keyword is not used, then the predefined deposition event 
 
 \subsection createDepo_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 <hr>
 
@@ -880,7 +890,7 @@ If the custom template "Fe_4PO4neib" is used (see example above for syntax), the
 A PO4 structure consists of Phosphorus atom which is bonded (with an explicit bonded interaction) to four Oxygen atoms.
 The "Fe_4PO4neib" custom template performs searches on the neighbor list of the parent atom. Also, note that the diffusion probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer PO4 structures will be in the neighborhood of the parent atom. The "Fe_4PO4neib" custom template was created to cover the needs of a very specific application related
-to the formation and growth of thin film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1].
+to the formation and growth of thin film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1] , [2].
 
 You can provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
@@ -889,7 +899,9 @@ You can provide the diffusion rate manually or input the activation energy, atte
 
 \subsection createDiff_bibliography Bibliography
 
-[1] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth." Computational Materials Science, vol. 229, 2023
+[1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
+
+[2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
 
 <hr>
 
