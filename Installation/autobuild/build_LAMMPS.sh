@@ -24,4 +24,4 @@ make -j
 
 #Delete unwanted installation files (keep only build and src folders required for PAPRECA installation)
 cd ..
-rm -rf ./bench/ ./cmake/ ./doc/ ./examples/ ./fortran/ ./.git/ ./.github/ ./lib/ ./potentials/ ./python/ ./tools ./unittest/ ./CITATION.cff ./.gitattributes ./.gitignore ./.lgtm.yml ./LICENSE ./README ./SECURITY.md
+rm -rf ./bench/ ./cmake/ ./doc/ ./examples/ ./fortran/ ./.git/ ./.github/ ./lib/ ./python/ ./tools ./unittest/ ./CITATION.cff ./.gitattributes ./.gitignore ./.lgtm.yml ./LICENSE ./README ./SECURITY.md
