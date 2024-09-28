@@ -847,9 +847,6 @@ namespace PAPRECA{
 		
 		double velocity = string2Double( commands[2] );
 		if( velocity < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "velocity in " + commands[0] + " command has to be non-negative."); }
-		
-		double distance = string2Double( commands[3] );
-		if( distance < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "diffusion_distance in " + commands[0] + " command has to be non-negative."); }
 				
 		bool is_displacive = string2Bool( commands[4] );
 		
