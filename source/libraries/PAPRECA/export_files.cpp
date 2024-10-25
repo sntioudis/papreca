@@ -51,7 +51,12 @@ namespace PAPRECA{
 		time_t start_time_t = std::chrono::system_clock::to_time_t( start_time );
 		
 		file << "LOG FILE. PAPRECA kMC/MD Run started on " << ctime(  &start_time_t ) << " (MACHINE TIME) \n"; //Date/time
-		file << "PLEASE CITE: https://doi.org/10.1016/j.commatsci.2023.112421 \n\n"; //Citations
+		file << "PLEASE CITE: https://doi.org/10.1016/j.commatsci.2023.112421 \n \n"; //Citations
+		file << "For Deposition events events: site_pos (x,y,z) , rot_pos(x,y,z) , rot_theta , insertion_vel , mol_name \n";
+		file << "For Bond-formation events: atom1_id , atom2_id , bond_type \n";
+		file << "For Bond-breaking events: atom1_id , atom2_id , bond_type \n";
+		file << "For Diffusion events: vac_pos (x,y,z) , parent_id , parent_type , insertion_vel , is_displacive , diffused_type \n";
+		file << "For Monoatomic desorption events: parent_id , parent_type \n \n";
 		
 		
 		file << std::fixed << "Step"
@@ -60,12 +65,64 @@ namespace PAPRECA{
 
 	};
 	
-	void Log::append( const int &KMC_loopid , const double &time , const char *event_type ){
+	void Log::appendDeposition( const int &KMC_loopid , const double &time , const double *site_pos , const double *rot_pos , const double &rot_theta , const double &insertion_vel , const char *mol_name ){
 		
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
-			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << event_type
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time << std::endl;
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Deposition"
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[2]
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[2]
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_theta
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << mol_name << std::endl;
 	}
+
+	void Log::appendBondForm( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type){
+		
+		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-form"
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << atom1_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << atom2_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << bond_type << std::endl;
+	}
+
+	void Log::appendBondBreak( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type){
+		
+		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << atom1_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << atom2_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << bond_type << std::endl;
+	}
+
+	void Log::appendDiffusion( const int &KMC_loopid , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type ){
+		
+		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[2]
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_type
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << is_displacive
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << diffused_type << std::endl;
+
+
+	}
+
+	//file << "For Monoatomic desorption events: parent_id , parent_type \n \n";
+	void Log::appendMonoatomicDesorption( const int &KMC_loopid , const double &time , const int &parent_id , const int &parent_type ){
+		
+		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_id
+			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_type << std::endl;
+	}
+
+
 	//--------------------------------------------------End of Log File --------------------------------------------------	
 	
 	//--------------------------------------------------HeightVTime Files--------------------------------------------------
