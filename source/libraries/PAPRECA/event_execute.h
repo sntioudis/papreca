@@ -58,14 +58,14 @@ namespace PAPRECA{
 	//Deposition events
 	void fillDepoDataTransfArr( double *depo_data , Deposition *depo );
 	void deserializeDepoTransfData( double *depo_data , double *site_pos , double *rot_pos , double &rot_theta , double &insertion_vel );
-	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Diffusion events
 	void fillIntegerDiffDataTransfArray( int *diff_intdata , Diffusion *diff );
 	void fillDoubleDiffDataTransfArray( double *diff_doubledata , Diffusion *diff );
 	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &is_displacive , int &diffused_type );
 	void deserializeDoubleDiffDataArr( double *diff_doubledata , double *vac_pos , double &insertion_vel );
-	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Monoatomic desorption events
 	void executeMonoatomicDesorption( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );

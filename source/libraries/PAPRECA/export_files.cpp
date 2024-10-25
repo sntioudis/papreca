@@ -52,6 +52,7 @@ namespace PAPRECA{
 		
 		file << "LOG FILE. PAPRECA kMC/MD Run started on " << ctime(  &start_time_t ) << " (MACHINE TIME) \n"; //Date/time
 		file << "PLEASE CITE: https://doi.org/10.1016/j.commatsci.2023.112421 \n \n"; //Citations
+		file << "Information about output data... \n";
 		file << "For Deposition events events: site_pos (x,y,z) , rot_pos(x,y,z) , rot_theta , insertion_vel , mol_name \n";
 		file << "For Bond-formation events: atom1_id , atom2_id , bond_type \n";
 		file << "For Bond-breaking events: atom1_id , atom2_id , bond_type \n";
@@ -70,11 +71,11 @@ namespace PAPRECA{
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
 			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Deposition"
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[2]
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[2]
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_theta
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << mol_name << std::endl;
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[2]
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[2]
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_theta
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << mol_name << std::endl;
 	}
 
 	void Log::appendBondForm( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type){
@@ -102,12 +103,12 @@ namespace PAPRECA{
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
 			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[2]
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_id
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_type
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << is_displacive
-			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << diffused_type << std::endl;
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[2]
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_id
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_type
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << is_displacive
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << diffused_type << std::endl;
 
 
 	}
