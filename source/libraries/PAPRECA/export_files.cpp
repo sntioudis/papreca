@@ -71,11 +71,11 @@ namespace PAPRECA{
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
 			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Deposition"
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << site_pos[2]
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_pos[2]
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << rot_theta
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << mol_name << std::endl;
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << site_pos[0] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << site_pos[1] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << site_pos[2]
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << rot_pos[0] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << rot_pos[1] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << rot_pos[2]
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << rot_theta
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << insertion_vel
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << mol_name << std::endl;
 	}
 
 	void Log::appendBondForm( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type){
@@ -101,12 +101,12 @@ namespace PAPRECA{
 	void Log::appendDiffusion( const int &KMC_loopid , const double &time , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type ){
 		
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
-			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Diffusion"
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[0] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[1] << std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << vac_pos[2]
+			<< std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << vac_pos[0] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << vac_pos[1] << std::setw( 10 ) << std::setprecision( 4 ) << std::fixed << vac_pos[2]
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_id
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_type
-			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << std::scientific << insertion_vel
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << insertion_vel
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << is_displacive
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << diffused_type << std::endl;
 
@@ -117,12 +117,11 @@ namespace PAPRECA{
 	void Log::appendMonoatomicDesorption( const int &KMC_loopid , const double &time , const int &parent_id , const int &parent_type ){
 		
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
-			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
+			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "MonoDesorption"
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << std::scientific << time
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_id
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << parent_type << std::endl;
 	}
-
 
 	//--------------------------------------------------End of Log File --------------------------------------------------	
 	
