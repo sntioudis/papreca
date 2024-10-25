@@ -97,7 +97,7 @@ namespace PAPRECA{
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << bond_type << std::endl;
 	}
 
-	void Log::appendDiffusion( const int &KMC_loopid , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type ){
+	void Log::appendDiffusion( const int &KMC_loopid , const double &time , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type ){
 		
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
 			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Bond-break"
