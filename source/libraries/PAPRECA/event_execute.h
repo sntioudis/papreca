@@ -50,25 +50,25 @@ namespace PAPRECA{
 	//Formation events
 	void fillFormTransferDataArr( BondForm *bond_form , int *form_data );
 	void deserializeFormTransferDataArr( int *form_data , int &bond_type , int &delete_atoms );
-	void executeBondForm( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeBondForm( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Bond-breaking events
-	void executeBondBreak( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event , ATOM2BONDS_MAP &atomID2bonds );
+	void executeBondBreak( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event , ATOM2BONDS_MAP &atomID2bonds );
 	
 	//Deposition events
 	void fillDepoDataTransfArr( double *depo_data , Deposition *depo );
 	void deserializeDepoTransfData( double *depo_data , double *site_pos , double *rot_pos , double &rot_theta , double &insertion_vel );
-	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Diffusion events
 	void fillIntegerDiffDataTransfArray( int *diff_intdata , Diffusion *diff );
 	void fillDoubleDiffDataTransfArray( double *diff_doubledata , Diffusion *diff );
 	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &is_displacive , int &diffused_type );
 	void deserializeDoubleDiffDataArr( double *diff_doubledata , double *vac_pos , double &insertion_vel );
-	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Monoatomic desorption events
-	void executeMonoatomicDesorption( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
+	void executeMonoatomicDesorption( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//General event execution functions
 	void printStepInfo( PaprecaConfig &papreca_config , const int &KMC_loopid , const double &time , const double &film_height , const double &proc_rates_sum );
