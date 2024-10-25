@@ -52,7 +52,7 @@ namespace PAPRECA{
 		
 	}
 	
-	void executeBondForm( LAMMPS_NS::LAMMPS *lmp , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
+	void executeBondForm( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
 		
 		/// Executes PAPRECA::BondForm event. This is done by 1) communicating information from the MPI process that detected the event to all other MPI processes, and 2) calling formBond() and potentially deleteAtoms() after the appropriate data have been communicated.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -86,6 +86,7 @@ namespace PAPRECA{
 		deserializeFormTransferDataArr( form_data , bond_type , delete_atoms );
 
 		formBond( lmp , atom_ids[0] , atom_ids[1] , bond_type ); //Now we can safely call this on all procs, since all procs know the important event details (i.e., atom1id, atom2id, bond_type )
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendBondForm( KMC_loopid , time , atoms_ids[0] , atoms_ids[1] , bond_type ); }
 		
 		if( delete_atoms ){ //This means that we have to deal with the bond formation even between 2 lone oxygens
 		
@@ -96,7 +97,7 @@ namespace PAPRECA{
 	}
 	
 	//Bond-breaking events
-	void executeBondBreak( LAMMPS_NS::LAMMPS *lmp , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event , ATOM2BONDS_MAP &atomID2bonds ){
+	void executeBondBreak( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event , ATOM2BONDS_MAP &atomID2bonds ){
 		
 		/// Executes PAPRECA::Bondbreak event. This is done by 1) communicating information from the MPI process that detected the event to all other MPI processes, and 2) calling deleteBond() after the appropriate data have been communicated.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -119,13 +120,17 @@ namespace PAPRECA{
 			
 			atom_ids[0] = bond_break->getAtom1ID( );
 			atom_ids[1] = bond_break->getAtom2ID( );
-			printf( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~EVENTS INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n Executing bond break event from proc %d, bond_type=%d , atom1_id = %d , atom2_id = %d \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n \n" , proc_id , bond_break->getBondType( ) , atom_ids[0] , atom_ids[1] );
+			bond_type = bond_break->getBondType( );
+			printf( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~EVENTS INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n Executing bond break event from proc %d, bond_type=%d , atom1_id = %d , atom2_id = %d \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n \n" , proc_id , bond_type , atom_ids[0] , atom_ids[1] );
 		}
 		
 		MPI_Bcast( atom_ids , 2 , MPI_LMP_TAGINT , event_proc , MPI_COMM_WORLD ); //Proc selection was done on proc event_proc so now we need to communicate the event_proc to all procs
+		MPI_Bcast( &bond_type , 1 , MPI_INT , event_proc , MPI_COMM_WORLD ); //Cast bond type separately to avoid data type runtime errors
 		
 		//Breakbond is part of lammps_wrappers
 		deleteBond( lmp , atom_ids[0] , atom_ids[1] , 1 ); //Now we can safely call this on all procs, since all procs know the important event details (i.e., atom1id, atom2id ). Delete special if you are using fix_shake and/or you want to recompute the pairwise lists.
+
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendBondBreak( KMC_loopid , time , atoms_ids[0] , atoms_ids[1] , bond_type ); }
 		
 	}
 
@@ -183,7 +188,7 @@ namespace PAPRECA{
 		
 	}
 	
-	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
+	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
 		
 		/// Executes PAPRECA::Deposition event. This is done by 1) communicating information from the MPI process that detected the event to all other MPI processes, and 2) calling insertMolecule() after the appropriate data have been communicated.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -229,6 +234,8 @@ namespace PAPRECA{
 		
 		//Now we are ready to call the insertMolecule function from the lammps_wrappers header, on all procs.
 		insertMolecule( lmp , site_pos , rot_pos , rot_theta , 0 , mol_name );
+		
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendDeposition( KMC_loopid , time , site_pos , rot_pos , rot_theta , insertion_vel , mol_name ); }
 
 		if( insertion_vel != 0.0 ){
 			lmp->input->one( "group new_mol subtract all fluid frozen" ); //This method is used to "select" all newly inserted atoms to a group. This allows to assign velocities. Since the newly inserted atom IS NOT IN ANY GROUP AT THIS MOMENT, you can subtract  fluid+frozen from all to get the new molecule atoms.
@@ -295,7 +302,7 @@ namespace PAPRECA{
 		insertion_vel = diff_doubledata[3];
 	}
 
-	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
+	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
 		
 		/// Executes PAPRECA::Diffusion event. This is done by 1) communicating information from the MPI process that detected the event to all other MPI processes, and 2) calling diffuseAtom() after the appropriate data have been communicated.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -336,6 +343,7 @@ namespace PAPRECA{
 		
 		//Now safely call the relevant lammps_wrappers function
 		diffuseAtom( lmp , vac_pos , parent_id , parent_type , is_displacive , diffused_type );
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendDiffusion( KMC_loopid , time , vac_pos , parent_id , parent_type , insertion_vel , is_displacive , diffused_type ); }
 		
 		if( insertion_vel != 0.0 ){
 			lmp->input->one( "group new_atom subtract all fluid frozen" ); //Same as deposition insertion velocities. Probably an overkill to select a single atom using a subtract group. Can be made faster/better in future versions.
@@ -348,7 +356,7 @@ namespace PAPRECA{
 	}
 	
 	//Monoatomic desorption events
-	void executeMonoatomicDesorption( LAMMPS_NS::LAMMPS *lmp , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
+	void executeMonoatomicDesorption( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event ){
 		
 		/// Executes PAPRECA::MonoatomicDesorption event. This is done by 1) communicating information from the MPI process that detected the event to all other MPI processes, and 2) calling deleteAtoms() after the appropriate data have been communicated.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -361,20 +369,23 @@ namespace PAPRECA{
 		
 		LAMMPS_NS::tagint atom_ids[1];
 		atom_ids[0] = -1;
+		int parent_type = -2;
 		
 		if( proc_id == event_proc ){ //retrieve information in event_proc !EXTRA CAUTION HERE: The selected_event pointer is NULL for all other procs EXCEPT for the event proc
 		
 			MonoatomicDesorption *monodes = dynamic_cast<MonoatomicDesorption*>( selected_event ); //Cast as BondForm to access member variables of bond form
 			atom_ids[0] = monodes->getParentId( );
-			const int parent_type = monodes->getParentType( );
+			parent_type = monodes->getParentType( );
 			
 			printf( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~EVENTS INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  \n Executing monoatomic desorption event from proc %d, PARENT_TYPE=%d , ATOM_ID=%d \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n \n" , proc_id , parent_type , atom_ids[0] );
 		}
 		
 		MPI_Bcast( atom_ids , 1 , MPI_LMP_TAGINT , event_proc , MPI_COMM_WORLD );
+		MPI_Bcast( &parent_type , 1 , MPI_INT , event_proc , MPI_COMM_WORLD );
 		
 		//In this version all detected MonoAtomicDesorption events involve lone (non-bonded) atoms. This means that we can now simply delete the atomID to perform a "desorption" event.
 		deleteAtoms( lmp , atom_ids , 1 , "no" , "no" );
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendMonoatomicDesorption( KMC_loopid , time , atom_ids[0] , parent_type ); }
 		
 	}
 	
@@ -399,7 +410,7 @@ namespace PAPRECA{
 		
 	}
 
-	void executeEvent( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , const int &event_num , char *event_type , std::vector< Event* > &events_local , ATOM2BONDS_MAP &atomID2bonds ){
+	void executeEvent( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , const int &event_num , char *event_type , std::vector< Event* > &events_local , ATOM2BONDS_MAP &atomID2bonds ){
 		
 		/// Casts event type from parent MPI process to all other processes and then executes event. Currently, only PAPRECA::BondForm, PAPRECA::BondBreak, PAPRECA::Deposition, PAPRECA::Diffusion, PAPRECA::MonoatomicDesorption events are supported.
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -432,15 +443,15 @@ namespace PAPRECA{
 		//We pass selected event in the function so careful!!
 		
 		if( !strcmp( event_type , "RXN-FORM" ) ){ //call proper function for execution depending on the event type. strcmp compares 2 strings and gives 0 if they are equal.
-			executeBondForm( lmp , proc_id , nprocs , event_proc , selected_event );	
+			executeBondForm( lmp , KMC_loopid , time , proc_id , nprocs , event_proc , selected_event );	
 		}else if( !strcmp( event_type , "RXN-BREAK" ) ){
-			executeBondBreak( lmp , proc_id , nprocs , event_proc , selected_event , atomID2bonds );
+			executeBondBreak( lmp , KMC_loopid , time , proc_id , nprocs , event_proc , selected_event , atomID2bonds );
 		}else if( !strcmp( event_type , "DEPO" ) ){
-			executeDeposition( lmp , papreca_config , proc_id , nprocs , event_proc , selected_event );
+			executeDeposition( lmp , KMC_loopid , time , papreca_config , proc_id , nprocs , event_proc , selected_event );
 		}else if( !strcmp( event_type , "DIFF" ) ){
-			executeDiffusion( lmp , papreca_config , proc_id , nprocs , event_proc , selected_event );
+			executeDiffusion( lmp , KMC_loopid , time , papreca_config , proc_id , nprocs , event_proc , selected_event );
 		}else if( !strcmp( event_type , "MONO-DES" ) ){
-			executeMonoatomicDesorption( lmp , proc_id , nprocs , event_proc , selected_event );
+			executeMonoatomicDesorption( lmp , , KMC_loopid , time , proc_id , nprocs , event_proc , selected_event );
 		}else{
 			std::string unknown_type( event_type );
 			allAbortWithMessage( MPI_COMM_WORLD , "Unknown event type " + unknown_type + " in executeEvent function in papreca.cpp." );
@@ -520,7 +531,7 @@ namespace PAPRECA{
 			
 		}
 		
-		executeEvent( lmp , papreca_config , proc_id , nprocs , event_proc , event_num , event_type , events_local , atomID2bonds );
+		executeEvent( lmp , KMC_loopid , time , papreca_config , proc_id , nprocs , event_proc , event_num , event_type , events_local , atomID2bonds );
 		
 		//Because time is advanced on the master proc, the time value has to be BCasted to all other procs now, before exiting (if the rate is zero you don't have to bcast and the function will exit on the previous return
 		MPI_Bcast( &time , 1 , MPI_DOUBLE , 0 , MPI_COMM_WORLD );
