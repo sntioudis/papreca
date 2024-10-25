@@ -538,7 +538,7 @@ namespace PAPRECA{
 	
 		if( proc_id == 0 ){
 			
-			log_file.append( KMC_loopid , time , event_type );
+			//Append to all files except for papreca.log (contains event specific information and is appended in the event_execute.cpp file)
 			if( heightVtime_file.isActive( ) && ( KMC_loopid % heightVtime_file.getPrintFreq( ) == 0 ) ){ heightVtime_file.append( time , film_height ); }
 			if( surfcoverage_file.isActive( ) && ( KMC_loopid % surfcoverage_file.getPrintFreq( ) == 0 ) ){ surfcoverage_file.append( time , surface_coverage ); } //surf_coverage here is a member variable of the papreca_config object. 
 			if( execTime_file.isActive( ) && ( KMC_loopid % execTime_file.getPrintFreq( ) == 0 ) ){ 
