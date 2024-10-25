@@ -84,7 +84,7 @@ namespace PAPRECA{
 			void appendDeposition( const int &KMC_loopid , const double &time , const double *site_pos , const double *rot_pos , const double &rot_theta , const double &insertion_vel , const char *mol_name );
 			void appendBondForm( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type);
 			void appendBondBreak( const int &KMC_loopid , const double &time , const LAMMPS_NS::tagint &atom1_id , const LAMMPS_NS::tagint &atom2_id , const int &bond_type);
-			void appendDiffusion( const int &KMC_loopid , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type );
+			void appendDiffusion( const int &KMC_loopid , const double &time , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type );
 			void appendMonoatomicDesorption( const int &KMC_loopid , const double &time , const int &parent_id , const int &parent_type );
 	};
 	
