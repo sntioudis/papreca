@@ -1,0 +1,5 @@
+<map id="PAPRECA::Deposition" name="PAPRECA::Deposition">
+<area shape="rect" id="node1" title="Child of PAPRECA::Event dedicated to monoatomic or molecular adsorption." alt="" coords="87,95,238,121"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1Event.html" title="Parent class for PAPRECA events." alt="" coords="5,5,128,32"/>
+<area shape="rect" id="node3" href="$classPAPRECA_1_1PredefinedDeposition.html" title="class associated with deposition events. This is a Predefined template for PAPRECA::Deposition events..." alt="" coords="153,5,365,32"/>
+</map>

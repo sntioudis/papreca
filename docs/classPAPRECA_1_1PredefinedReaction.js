@@ -1,0 +1,28 @@
+var classPAPRECA_1_1PredefinedReaction =
+[
+    [ "PredefinedReaction", "classPAPRECA_1_1PredefinedReaction.html#adec6abec402740aa5fe628fd91308ca7", null ],
+    [ "PredefinedReaction", "classPAPRECA_1_1PredefinedReaction.html#a6079f7880c319e9e64f0ea766b2122a3", null ],
+    [ "~PredefinedReaction", "classPAPRECA_1_1PredefinedReaction.html#a846c1db199f533de019d45b28388e344", null ],
+    [ "getAtom1Type", "classPAPRECA_1_1PredefinedReaction.html#ab5c3728d607ab2ffdd969707f6538021", null ],
+    [ "getAtom2Type", "classPAPRECA_1_1PredefinedReaction.html#a09e6ad624b0d09502614b0f5f75df40e", null ],
+    [ "getBondType", "classPAPRECA_1_1PredefinedReaction.html#ac98c69453cf0b9fd4f24fbf8d5fa4882", null ],
+    [ "getCatalyzingTypes", "classPAPRECA_1_1PredefinedReaction.html#a2368d24315b46a6371e4f541bfd1684e", null ],
+    [ "getLengthEquil", "classPAPRECA_1_1PredefinedReaction.html#a2905d9b7d83804c9d3d3147bf7af18c5", null ],
+    [ "getLimitHighSqr", "classPAPRECA_1_1PredefinedReaction.html#a906f7d4740997be9c61c4c93fb23a7e0", null ],
+    [ "getLimitLowSqr", "classPAPRECA_1_1PredefinedReaction.html#ad290c69fe4416ceda41767ac7153956e", null ],
+    [ "getRate", "classPAPRECA_1_1PredefinedReaction.html#a9641013d1da571f0e6491d60f6e2a5de", null ],
+    [ "isForm", "classPAPRECA_1_1PredefinedReaction.html#afccf08b4c9cbe85e8689e61f99e09890", null ],
+    [ "setLengthEquil", "classPAPRECA_1_1PredefinedReaction.html#aee98d505737f20e0b0d85d46989fafcf", null ],
+    [ "setLimitHighSqr", "classPAPRECA_1_1PredefinedReaction.html#a43c4e7c6c5f4ea376664253f09cca9da", null ],
+    [ "setLimitLowSqr", "classPAPRECA_1_1PredefinedReaction.html#a0a91d21d30c3292ed64f541e580aa44a", null ],
+    [ "setSqrLimits", "classPAPRECA_1_1PredefinedReaction.html#ad2c34283be96cd86d6e7def2b2e70cfe", null ],
+    [ "atom1_type", "classPAPRECA_1_1PredefinedReaction.html#a50a04d15b2ff90779f1691e308173880", null ],
+    [ "atom2_type", "classPAPRECA_1_1PredefinedReaction.html#a377be82ac269b34fb116a4abe8b0a933", null ],
+    [ "bond_type", "classPAPRECA_1_1PredefinedReaction.html#ad04bdebae6bfe466a449f1403bc8b04b", null ],
+    [ "catalyzing_types", "classPAPRECA_1_1PredefinedReaction.html#aa62ba5c8a915cc526d1de67336697b8e", null ],
+    [ "is_form", "classPAPRECA_1_1PredefinedReaction.html#a85d84083fc5ce573d18687b9b558ac34", null ],
+    [ "length_equil", "classPAPRECA_1_1PredefinedReaction.html#a56f226be84bdad4a0739ddbadb27f446", null ],
+    [ "limit_high_sqr", "classPAPRECA_1_1PredefinedReaction.html#a3d94639c0989cb64f6ad81f5d78784a2", null ],
+    [ "limit_low_sqr", "classPAPRECA_1_1PredefinedReaction.html#a7654b4f81bececbd7c59e434e3754bc7", null ],
+    [ "rate", "classPAPRECA_1_1PredefinedReaction.html#a91a406d9d085c797589b12f8ffeaa55f", null ]
+];

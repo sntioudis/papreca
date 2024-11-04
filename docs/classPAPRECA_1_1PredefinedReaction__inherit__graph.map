@@ -1,0 +1,4 @@
+<map id="PAPRECA::PredefinedReaction" name="PAPRECA::PredefinedReaction">
+<area shape="rect" id="node1" title="class associated with reaction events. This is a Predefined template for PAPRECA::BondBreak and PAPRE..." alt="" coords="9,5,212,32"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1PredefinedBondForm.html" title="child class of PAPRECA::PredefinedReaction associated with bond formation events. This is a Predefine..." alt="" coords="5,80,216,107"/>
+</map>

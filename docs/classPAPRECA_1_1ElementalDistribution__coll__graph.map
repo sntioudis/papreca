@@ -1,0 +1,4 @@
+<map id="PAPRECA::ElementalDistribution" name="PAPRECA::ElementalDistribution">
+<area shape="rect" id="node1" title="Child class of File, manages distribution.log files." alt="" coords="5,80,217,107"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1File.html" title="General parent file class. Any PAPRECA export file should be a child to this class." alt="" coords="56,5,167,32"/>
+</map>

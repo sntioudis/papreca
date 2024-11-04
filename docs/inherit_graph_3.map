@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classPAPRECA_1_1File.html" title="General parent file class. Any PAPRECA export file should be a child to this class." alt="" coords="5,107,116,133"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1ElementalDistribution.html" title="Child class of File, manages distribution.log files." alt="" coords="164,5,376,32"/>
+<area shape="rect" id="node3" href="$classPAPRECA_1_1ExecTime.html" title="Child class of File, manages execTimes.log files." alt="" coords="197,56,343,83"/>
+<area shape="rect" id="node4" href="$classPAPRECA_1_1HeightVtime.html" title="Child class of File, manages heightVtime.log files." alt="" coords="189,107,351,133"/>
+<area shape="rect" id="node5" href="$classPAPRECA_1_1Log.html" title="Child class of File, manages papreca.log files." alt="" coords="214,157,326,184"/>
+<area shape="rect" id="node6" href="$classPAPRECA_1_1SurfaceCoverage.html" title="Child class of File, manages surface_coverage.log files." alt="" coords="175,208,365,235"/>
+</map>
