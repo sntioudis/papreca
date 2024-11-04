@@ -498,6 +498,38 @@ namespace PAPRECA{
 				
 	}
 	
+	const bool bondLengthIsWithinBreakLimits( LAMMPS_NS::LAMMPS *lmp , PredefinedReaction *break_template , const int &iatom , const LAMMPS_NS::tagint &jatom_id ){
+		
+		/// Checks if the current length of the bond is within the user-defined limits for bond-breaking.
+		
+		/// @param[in] lmp pointer to LAMMPS object.
+		/// @param[in] break_template pointer to predefined bond-breaking object
+		/// @param[in] iatom local index of atom i
+		/// @param[in] jatom_id id of bonded atom to atom i
+		/// @return true if distance between bonded atoms is within user-defined limits for bond-breaking. False otherwise.
+		
+		const double &length_equil = break_template->getLengthEquil( );
+		if( length_equil == 0.0 ){
+			return true; //This means that the length_equil and length_limit are unset in the input file and there is no need to perform a distance check
+		}
+		
+		//For any other case we need to check for distances
+		double **atom_xyz = ( double **)lammps_extract_atom( lmp , "x" );//extract atom positions
+		const int &jatom = lmp->atom->map( jatom_id ); //atom->map() maps id to local index or returns -1 if the atom is not found locally.
+		if( jatom == -1 ) {allAbortWithMessage( MPI_COMM_WORLD , "Could not index bonded atom ID to local index in getBondBreakingEventsFromAtom function (event_detect.cpp)"); }
+		double *atom1_xyz = atom_xyz[iatom];
+		double *atom2_xyz = atom_xyz[jatom];
+		const double distance_sqr = get3DSqrDistWithPBC( lmp , atom1_xyz , atom2_xyz );
+				
+		if( distance_sqr <= break_template->getLimitHighSqr( ) && distance_sqr >= break_template->getLimitLowSqr( ) ){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	
+		
 	void getBondBreakingEventsFromAtom( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &iatom , int *neighbors , int &neighbors_num , std::vector<Event*> &events_local , ATOM2BONDS_MAP &atomID2bonds ){
 
 		/// Scans all atoms in the current MPI process for PAPRECA::BondBreak (a.k.a. PAPRECA::PredefinedReaction) events. Discovered events are inserted in the events_local vector of PAPRECA::Event objects (storing all events of the current MPI process).
@@ -531,10 +563,15 @@ namespace PAPRECA{
 				if( break_template ){ //So, if break_template==NULL you will not enter this part
 					if( headAtomIsCatalyzed( break_template , atom_types , neighbors , neighbors_num ) ){
 						
-						const double rate = break_template->getRate( );
-						BondBreak *bond_break = new BondBreak( rate , iatom_id , bond.getBondAtom( ) , bond.getBondType( ) , break_template );
-						events_local.push_back( bond_break ); //Polymorphism allows pushing back of children of Event class.
-						//But, we definitely need pointers to correctly manage the memory of the general events_local container, since Event children can have different sizes and this would create slicing issues
+						const int &jatom_id = bond.getBondAtom( );
+						
+						if( bondLengthIsWithinBreakLimits( lmp , break_template , iatom , jatom_id ) ){
+						
+							const double rate = break_template->getRate( );
+							BondBreak *bond_break = new BondBreak( rate , iatom_id , jatom_id , bond_type , break_template );
+							events_local.push_back( bond_break ); //Polymorphism allows pushing back of children of Event class.
+							//But, we definitely need pointers to correctly manage the memory of the general events_local container, since Event children can have different sizes and this would create slicing issues
+						}
 						
 					}
 					
@@ -639,6 +676,7 @@ namespace PAPRECA{
 		
 		return false; //This can happen if we've scanned all bonds and did not exceed the bond limit or if the MaxBondTypes mapping returned -1 (which means that no mapping was se int the PAPRECA input file.
 	}
+	
 	
 	void getBondFormEventsFromAtom( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &iatom , int *neighbors , int &neighbors_num , std::vector<Event*> &events_local , ATOM2BONDS_MAP &atomID2bonds ){
 

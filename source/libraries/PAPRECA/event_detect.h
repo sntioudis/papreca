@@ -65,6 +65,7 @@ namespace PAPRECA{
 	
 	//Bond-Breaking and formation events
 	const bool headAtomIsCatalyzed( PredefinedReaction *reaction_template , int *atom_types , int *neighbors , int &neighbors_num );
+	const bool bondLengthIsWithinBreakLimits( LAMMPS_NS::LAMMPS *lmp , PredefinedBondForm *bonding_template , const int &iatom , const LAMMPS_NS::tagint &jatom_id );
 	void getBondBreakingEventsFromAtom( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &iatom , int *neighbors , int &neighbors_num , std::vector<Event*> &events_local , ATOM2BONDS_MAP &atomID2bonds );
 	const bool atomsBelong2TheSameMol( const LAMMPS_NS::tagint &iatom_mol , const LAMMPS_NS::tagint &jneib_mol );
 	const bool atomHasMaxBonds( PaprecaConfig &papreca_config , ATOM2BONDS_MAP &atomID2bonds , const LAMMPS_NS::tagint &atom_id , const int atom_type );

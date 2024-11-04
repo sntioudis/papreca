@@ -67,6 +67,13 @@ namespace PAPRECA{
 			const int &getAtom1Type( ) const;
 			const int &getAtom2Type( ) const;
 			const int &getBondType( ) const;
+			void setLengthEquil( const double &length_equil_in );
+			const double &getLengthEquil( ) const;
+			void setLimitLowSqr( const double &limit_low_sqr_in );
+			const double &getLimitLowSqr( ) const;
+			void setLimitHighSqr( const double &limit_high_sqr_in );
+			const double &getLimitHighSqr( ) const;
+			void setSqrLimits( const double &length_equil_in , const double &length_perc_in );
 			const double &getRate( ) const;
 			const std::vector< int > &getCatalyzingTypes( ) const;
 			const bool &isForm( ) const;
@@ -75,9 +82,13 @@ namespace PAPRECA{
 			int atom1_type = -1;
 			int atom2_type = -2;
 			int bond_type = -3;
+			double length_equil = 0.0; //Optional:  Equilibrium bond length
+			double limit_low_sqr = 0.0; //Optional: Acceptable event only if bond length>= length_limit
+			double limit_high_sqr = 0.0;
 			double rate = 0.0;
 			std::vector< int > catalyzing_types; ///< these types of atoms have to be present in the neighborhood of atom1 or atom2. Otherwise, the reaction event is invalid. If the catalyzing_types vector is empty, the neighborhood of atom1 and atom2 is not scanned for catalyzing types.
 			bool is_form = false; ///< this variable allows us to differentiate between the parent class PAPRECA::PredefinedReaction and the child class PAPRECA::PredefinedBondForm
+			
 			
 	};
 	

@@ -26,6 +26,6 @@ lammps_src_path=$(realpath "$lammps_src_path")
 mkdir PAPRECA; cd PAPRECA
 
 #Install PAPRECA on top of LAMMPS
-cmake ../../Installation/CMake -DLAMMPS_SRC_DIR="${lammps_src_path}" -DLAMMPS_LIB_DIR="${lammps_lib_path}"
+cmake ../../Installation/CMake -DLAMMPS_SRC_DIR="${lammps_src_path}" -DLAMMPS_LIB_DIR="${lammps_lib_path}" -DBUILD_DEBUG=ON
 make -j
 

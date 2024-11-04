@@ -128,7 +128,8 @@ namespace PAPRECA{
 		
 	}
 	
-	void PaprecaConfig::initPredefinedReaction( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &rate , const std::vector< int > &catalyzing_types ){
+	
+	void PaprecaConfig::initPredefinedReaction( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_perc ){
 		
 		PredefinedReaction *reaction = NULL;
 		
@@ -138,6 +139,8 @@ namespace PAPRECA{
 			
 			reaction = new PredefinedReaction( atom1_type , atom2_type , bond_type , rate , catalyzing_types );
 		}
+		
+		if( length_equil != 0.0 ){ reaction->setSqrLimits( length_equil , length_perc ); }
 
 		predefined_catalog.bond_breaks_set.insert( bond_type );
 		predefined_catalog.bond_breaks_map[bond_type] = reaction;
@@ -145,7 +148,8 @@ namespace PAPRECA{
 	}
 	
 	
-	void PaprecaConfig::initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate , const std::vector< int > &catalyzing_types ){
+	void PaprecaConfig::initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_perc ){
+		
 		
 		PredefinedBondForm *bond_form = NULL;
 	
@@ -156,6 +160,8 @@ namespace PAPRECA{
 		}else{
 			bond_form = new PredefinedBondForm( atom1_type , atom2_type , bond_type , rate , bond_dist_sqr , delete_atoms , lone_candidates , same_mol , catalyzing_types );
 		}
+		
+		if( length_equil != 0.0 ){  bond_form->setSqrLimits( length_equil , length_perc ); }
 		
 		INT_PAIR type_pair( atom1_type , atom2_type );
 		INT_PAIR type_pair_reverse( atom2_type , atom1_type );

@@ -187,6 +187,16 @@ namespace PAPRECA{
 		
 	}
 	
+	void processBondLimitOption( std::vector< std::string > &commands , int &current_pos , double &length_equil , double &length_perc ){
+		
+		length_equil = string2Double( commands[current_pos+1] );
+		length_perc = string2Double( commands[current_pos+2] );
+		
+		if( length_perc >= 1.0 || length_perc <= 0.0 ){ allAbortWithMessage( MPI_COMM_WORLD , "length percentage for bonding events has to be between 0.0 and 1.0 (exclusive on both ends). Check input file!"); }
+		
+		current_pos += 3;
+	}
+	
 	void processSigmaMixOptions( std::vector< std::string > &commands , PaprecaConfig &papreca_config , int &current_pos ){
 		
 		/// Sets the sigma mix variable of the PAPRECA::PaprecaConfig object (based on the input command-line).
@@ -751,7 +761,7 @@ namespace PAPRECA{
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
-		std::string error_message = "Invalid create_BondBreak command. Must be create_BondBreak atom1_type atom2_type bond_type rate_(valid rate calc option). Optional argument(s): 1) catalyzed Ntypes types(1-Ntypes) (separate types by spaces:e.g., catalyzed 3 7 8 10).";
+		std::string error_message = "Invalid create_BondBreak command. Must be create_BondBreak atom1_type atom2_type bond_type rate_(valid rate calc option). Optional argument(s): 1) catalyzed Ntypes types(1-Ntypes) (separate types by spaces:e.g., catalyzed 3 7 8 10), limit length_equil length_perc";
 		
 		
 		if( commands.size( ) < 6 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
@@ -767,21 +777,28 @@ namespace PAPRECA{
 		double rate = getRateFromInputRateOptions( commands , current_pos );
 		
 		std::vector< int > catalyzing_types;
+		double length_equil = 0.0;
+		double length_perc = 0.0;
 		
 		//Optional Commands update the current_pos value. Exit when current_pos reached the end of the command line (or if an error occurs).
 		if( current_pos != commands.size( ) ){ //Exit immediately if there are no optional keywords
+		
+			std::unordered_set< std::string > processed; //Initialize set to keep track of processed optional commands
+			
 			do{
-				if( commands[current_pos] == "catalyzed" ){	
+				if( !elementIsInUnorderedSet( processed , std::string( "catalyzed" ) ) && commands[current_pos] == "catalyzed" ){	
 					processCatalyzedOption( commands , current_pos , catalyzing_types ); //If no catalyzing types are detected the size of catalyzing_types is 0. initReaction (from PaprecaConfig) takes this into account when initializing the event
-					
-				}else{
-					allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." );
-				}
+					processed.insert( std::string( "catalyzed" ) );
+				}else if( !elementIsInUnorderedSet( processed , std::string( "limit" ) ) && commands[current_pos] == "limit" ){
+					processBondLimitOption( commands , current_pos , length_equil , length_perc );
+					processed.insert( std::string( "limit" ) );
+				}else if( commands[current_pos] != "catalyzed" && commands[current_pos] != "limit" ){ allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." ); }
+				
 			}while( commands.size( ) > current_pos );
 		}
 		
 		
-		papreca_config.initPredefinedReaction( atom1_type , atom2_type , bond_type , rate , catalyzing_types );
+		papreca_config.initPredefinedReaction( atom1_type , atom2_type , bond_type , rate , catalyzing_types , length_equil , length_perc );
 
 	
 	}
@@ -812,21 +829,29 @@ namespace PAPRECA{
 		const bool same_mol = string2Bool( commands[7] );
 		int current_pos = 8;
 		double rate = getRateFromInputRateOptions( commands , current_pos );
+		
 		std::vector< int > catalyzing_types;
+		double length_equil = 0.0;
+		double length_perc = 0.0;
 		
 		//Optional Commands update the current_pos value. Exit when current_pos reached the end of the command line (or if an error occurs).
 		if( current_pos != commands.size( ) ){ //Exit immediately if there are no optional keywords
+		
+			std::unordered_set< std::string > processed; //Initialize set to keep track of processed optional commands
+			
 			do{
-				if( commands[current_pos] == "catalyzed" ){	
+				if( !elementIsInUnorderedSet( processed , std::string( "catalyzed" ) ) && commands[current_pos] == "catalyzed" ){	
 					processCatalyzedOption( commands , current_pos , catalyzing_types ); //If no catalyzing types are detected the size of catalyzing_types is 0. initReaction (from PaprecaConfig) takes this into account when initializing the event
-					
-				}else{
-					allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." );
-				}
-			}while( current_pos < commands.size( ) );
+					processed.insert( std::string( "catalyzed" ) );
+				}else if( !elementIsInUnorderedSet( processed , std::string( "limit" ) ) && commands[current_pos] == "limit" ){
+					processBondLimitOption( commands , current_pos , length_equil , length_perc );
+					processed.insert( std::string( "limit" ) );
+				}else if( commands[current_pos] != "catalyzed" && commands[current_pos] != "limit" ){ allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." ); }
+				
+			}while( commands.size( ) > current_pos );
 		}
 	
-		papreca_config.initPredefinedBondForm( atom1_type , atom2_type , bond_type , bond_dist , delete_atoms , lone_candidates , same_mol , rate , catalyzing_types );
+		papreca_config.initPredefinedBondForm( atom1_type , atom2_type , bond_type , bond_dist , delete_atoms , lone_candidates , same_mol , rate , catalyzing_types , length_equil , length_perc );
 
 		
 		

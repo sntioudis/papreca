@@ -35,6 +35,23 @@ namespace PAPRECA{
 	const int &PredefinedReaction::getAtom1Type( ) const{ return atom1_type; }
 	const int &PredefinedReaction::getAtom2Type( ) const{ return atom2_type; }
 	const int &PredefinedReaction::getBondType( ) const{ return bond_type; }
+	void PredefinedReaction::setLengthEquil( const double &length_equil_in ){ length_equil = length_equil_in; }
+	const double &PredefinedReaction::getLengthEquil( ) const { return length_equil; }
+	void PredefinedReaction::setLimitLowSqr( const double &limit_low_sqr_in ){ limit_low_sqr = limit_low_sqr_in; }
+	const double &PredefinedReaction::getLimitLowSqr( ) const { return limit_low_sqr; }
+	void PredefinedReaction::setLimitHighSqr( const double &limit_high_sqr_in ){ limit_high_sqr = limit_high_sqr_in; }
+	const double &PredefinedReaction::getLimitHighSqr( ) const { return limit_high_sqr; }
+	void PredefinedReaction::setSqrLimits( const double &length_equil_in , const double &length_perc_in ){
+	
+		length_equil = length_equil_in; //Set square distances for easier distance comparisons
+			
+		const double limit_high = (1+length_perc_in) * length_equil_in;
+		limit_high_sqr = limit_high * limit_high;
+		const double limit_low = (1-length_perc_in) * length_equil_in;
+		limit_low_sqr = limit_low * limit_low;
+
+	
+	}
 	const double &PredefinedReaction::getRate( ) const{ return rate; }
 	const std::vector< int > &PredefinedReaction::getCatalyzingTypes( ) const{ return catalyzing_types; }
 	const bool &PredefinedReaction::isForm( ) const{ return is_form; }

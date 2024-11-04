@@ -53,6 +53,7 @@ namespace PAPRECA{
 	void checkForAcceptableKeywordsUsedMultipleTimes( std::vector< std::string > &commands , const std::string &keyword );
 	void check4AcceptableKeywords( std::vector< std::string > &commands , const int &start , std::unordered_set< std::string > &acceptable_keywords , const bool &accept_bool );
 	void processCatalyzedOption( std::vector< std::string > &commands , int &current_pos , std::vector< int > &catalyzing_types );
+	void processBondLimitOption( std::vector< std::string > &commands , int &current_pos , double &length_equil , double &length_perc );
 	void processSigmaMixOptions( std::vector< std::string > &commands , int &current_pos );
 	double getBinWidthFromElementalDistributions( std::vector< std::string > &commands , int &current_pos );
 	double getStickingCoeffFromDepositionEventOptions( std::vector< std::string > &commands , int &current_pos );
