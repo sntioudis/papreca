@@ -543,12 +543,15 @@ rate_arrhenius values = energy frequency temperature
 	frequency = attempt frequency in 1/s (Hz).
 	temperature = temperature in K.
 ```
-- (OPTIONAL) keyword = catalyzed
+- (OPTIONAL) keyword = **catalyzed** or/and **limit**
 
 ```bash
 catalyzed values = N type1 type2 ... typeN
 	N = total number of catalyzing types
 	type = atom type that catalyzes the bond-breaking event.
+limit values = length_equil length_perc
+	length_equil = User-defined assumed equilibrium bond length for that specific bond-breaking event.
+	length_perc = Percentage over length_equil ( 0.0 < length_perc < 1.0 )
 ```
 
 \subsection createBreak_examples Example(s)
@@ -572,6 +575,8 @@ When the catalyzed keyword is used, the bond-breaking event can be selected and 
 in the full neighbor list of the parent atom (i.e., the atom on which the bond-breaking was discovered). Note that, %PAPRECA will not check if the provided catalyzing atom type is valid (i.e., exists in your simulation and has been defined in the LAMMPS input file).
 Also, note that the bond-breaking probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer "catalyzing" types will be in the neighborhood of the parent atom.
+
+When the limit keyword is used, bond-breaking events are only valid if the current distance between bonded atoms obeys the following inequality: (1-length_perc) * length_equil <= (1+length_perc) * length_equil. Careful, to avoid bond-missing errors it is suggested that the length_equil variable is set to the equilibrium bond length as defined in the LAMMPS input file.
 
 > **Note 1:**
 > In the current version each pair of atom types (e.g., type 1 and type 2) and their corresponding bond (e.g., bond type 5 for atom types 1 and 2) are allowed to be associated with only one predefined bond-breaking template.
@@ -608,6 +613,14 @@ rate_arrhenius values = energy frequency temperature
 	temperature = temperature in K.
 ```
 
+- (OPTIONAL) keyword = **catalyzed**
+
+```bash
+catalyzed values = N type1 type2 ... typeN
+	N = total number of catalyzing types
+	type = atom type that catalyzes the bond-breaking event.
+```
+
 \subsection createForm_examples Example(s)
 
 ```bash
@@ -626,6 +639,8 @@ On every kMC stage, %PAPRECA will attempt to create the bond (as defined in the 
 Bonds are created by calling PAPRECA::formBond() LAMMPS wrapper function and the executeBondForm() function of the papreca.cpp driver code.
 
 You can provide the bond-formation rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
+
+For more information regarding the catalyzed option please see \ref createBreak.
 
 > **Note:**
 > In the current version each pair of atom types (e.g., type 1 and type 2) and their corresponding bond (e.g., bond type 5 for atom types 1 and 2) are allowed to be associated with only one predefined bond-forming template.
