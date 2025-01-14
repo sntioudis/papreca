@@ -373,8 +373,8 @@ max values = N
 ```bash
 desorption 20 gather_local
 desorption 40 gather_local max 200
-desorption 50 gather_global
-desorption 50 gather_global max 100
+desorption 50 gather_all
+desorption 50 gather_all max 100
 desorption 100 LAMMPS_region
 ```
 
