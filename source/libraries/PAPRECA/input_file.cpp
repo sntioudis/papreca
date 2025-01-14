@@ -921,7 +921,6 @@ namespace PAPRECA{
 		if( depo_offset < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "depo_offset in " + commands[0] + " command has to be non-negative."); }
 		
 		double insertion_velocity = string2Double( commands[3] );
-		if( insertion_velocity < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "insertion_velocity in " + commands[0] + " command has to be non-negative."); }
 		
 		std::string adsorbate_name = commands[4];
 		int current_pos = 5;
