@@ -1,0 +1,5 @@
+<map id="PAPRECA::MonoatomicDesorption" name="PAPRECA::MonoatomicDesorption">
+<area shape="rect" id="node1" title="child of PAPRECA::Event dedicated to monoatomic desorption events (i.e., where a single atom is eject..." alt="" coords="54,109,277,136"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1Event.html" title="Parent class for PAPRECA events." alt="" coords="5,13,128,39"/>
+<area shape="rect" id="node3" href="$classPAPRECA_1_1PredefinedMonoatomicDesorption.html" title="associated with monoatomic desorption events. This is a Predefined template for PAPRECA::MonoatomicDe..." alt="" coords="153,5,375,47"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="PAPRECA::PaprecaConfig" name="PAPRECA::PaprecaConfig">
+<area shape="rect" id="node1" title="Class storing settings and global variables for the PAPRECA run." alt="" coords="551,128,725,155"/>
+<area shape="rect" id="node2" href="$classPAPRECA_1_1Log.html" title="Child class of File, manages papreca.log files." alt="" coords="215,5,327,32"/>
+<area shape="rect" id="node3" href="$classPAPRECA_1_1File.html" title="General parent file class. Any PAPRECA export file should be a child to this class." alt="" coords="5,107,116,133"/>
+<area shape="rect" id="node4" href="$classPAPRECA_1_1ExecTime.html" title="Child class of File, manages execTimes.log files." alt="" coords="198,56,345,83"/>
+<area shape="rect" id="node5" href="$classPAPRECA_1_1SurfaceCoverage.html" title="Child class of File, manages surface_coverage.log files." alt="" coords="176,107,367,133"/>
+<area shape="rect" id="node6" href="$classPAPRECA_1_1HeightVtime.html" title="Child class of File, manages heightVtime.log files." alt="" coords="190,157,353,184"/>
+<area shape="rect" id="node8" href="$classPAPRECA_1_1ElementalDistribution.html" title="Child class of File, manages distribution.log files." alt="" coords="165,208,377,235"/>
+<area shape="rect" id="node7" href="$classPAPRECA_1_1PredefinedEventsCatalog.html" title="General class that stores ALL the predefined events in the system. You can consider this as the Prede..." alt="" coords="176,259,367,301"/>
+</map>

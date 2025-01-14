@@ -1,0 +1,6 @@
+<map id="rates_calc.h" name="rates_calc.h">
+<area shape="rect" id="node1" title="Includes functions used to calculate the rates of predefined events. All functions return rates in Hz..." alt="" coords="67,5,159,32"/>
+<area shape="rect" id="node2" href="$input__file_8h.html" title="Declarations of functions related to the reading of the PAPRECA input file, and the initialization of..." alt="" coords="13,80,95,107"/>
+<area shape="rect" id="node4" href="$rates__calc_8cpp.html" title="Function definitions for rates_calc.h." alt="" coords="119,80,226,107"/>
+<area shape="rect" id="node3" href="$input__file_8cpp.html" title="Definitions for input_file.h." alt="" coords="5,155,103,181"/>
+</map>

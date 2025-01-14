@@ -1,0 +1,34 @@
+<map id="mpi_wrappers.h" name="mpi_wrappers.h">
+<area shape="rect" id="node1" title="Wrapper functions of MPI protocol functions." alt="" coords="534,5,647,32"/>
+<area shape="rect" id="node2" href="$mpi__wrappers_8cpp.html" title="Definitions for mpi_wrappers.h." alt="" coords="457,80,583,107"/>
+<area shape="rect" id="node3" href="$papreca__error_8h.html" title="Functions that enable the communication of error/warning messages to the terminal and coordinate the ..." alt="" coords="607,80,718,107"/>
+<area shape="rect" id="node4" href="$event__execute_8h.html" title="Declarations for functions that execute events." alt="" coords="1297,453,1413,480"/>
+<area shape="rect" id="node6" href="$geometry__calc_8h.html" title="Header for geometry calculation functions (e.g., film height, interference)." alt="" coords="381,379,497,405"/>
+<area shape="rect" id="node10" href="$input__file_8h.html" title="Declarations of functions related to the reading of the PAPRECA input file, and the initialization of..." alt="" coords="23,379,105,405"/>
+<area shape="rect" id="node12" href="$lammps__wrappers_8h.html" title="Declarations for LAMMPS wrapper functions." alt="" coords="460,229,599,256"/>
+<area shape="rect" id="node28" href="$papreca__error_8cpp.html" title="Definitions for papreca_error.h." alt="" coords="747,155,872,181"/>
+<area shape="rect" id="node29" href="$utilities_8h.html" title="Utility functions (e.g., for arrays, strings etc.) and typedefs used in papreca.cpp main and in the o..." alt="" coords="649,155,722,181"/>
+<area shape="rect" id="node5" href="$event__execute_8cpp.html" title="Definitions for event_detect.h." alt="" coords="1289,528,1420,555"/>
+<area shape="rect" id="node7" href="$event__detect_8h.html" title="Declarations for functions that detect predefined events." alt="" coords="583,453,689,480"/>
+<area shape="rect" id="node9" href="$geometry__calc_8cpp.html" title="Definitions for geometry_calc.h." alt="" coords="373,453,504,480"/>
+<area shape="rect" id="node8" href="$event__detect_8cpp.html" title="Definitions for event_detect.h." alt="" coords="575,528,697,555"/>
+<area shape="rect" id="node11" href="$input__file_8cpp.html" title="Definitions for input_file.h." alt="" coords="15,453,113,480"/>
+<area shape="rect" id="node13" href="$bond_8h.html" title="Declarations for PAPRECA::Bond." alt="" coords="487,304,547,331"/>
+<area shape="rect" id="node17" href="$equilibration_8h.html" title="Declarations for functions equilibrate the system (i.e., Molecular Dynamics runs, system minimization..." alt="" coords="241,453,343,480"/>
+<area shape="rect" id="node19" href="$event_8h.html" title="Declarations for PAPRECA:Event class and its children classes." alt="" coords="1220,304,1284,331"/>
+<area shape="rect" id="node23" href="$lammps__wrappers_8cpp.html" title="Definitions for LAMMPS wrapper functions." alt="" coords="260,304,412,331"/>
+<area shape="rect" id="node24" href="$papreca__config_8h.html" title="Declarations for PAPRECA::PaprecaConfig class storing settings and global variables." alt="" coords="674,304,793,331"/>
+<area shape="rect" id="node14" href="$bond_8cpp.html" title="Definitions for PAPRECA::Bond." alt="" coords="180,379,255,405"/>
+<area shape="rect" id="node15" href="$debug_8h.html" title="Functions that can potentially be useful for debugging purposes. These function are not used in the m..." alt="" coords="1148,379,1215,405"/>
+<area shape="rect" id="node16" href="$debug_8cpp.html" title="Definitions for debug.h." alt="" coords="1141,453,1222,480"/>
+<area shape="rect" id="node18" href="$equilibration_8cpp.html" title="Definitions for equilibration.h." alt="" coords="235,528,349,555"/>
+<area shape="rect" id="node20" href="$event_8cpp.html" title="Definitions for PAPRECA:Event class and its children classes." alt="" coords="1341,379,1419,405"/>
+<area shape="rect" id="node21" href="$event__select_8h.html" title="Declarations for functions that (stochastically) select events for execution." alt="" coords="1495,379,1601,405"/>
+<area shape="rect" id="node22" href="$event__select_8cpp.html" title="Definitions for event_detect.h." alt="" coords="1488,453,1608,480"/>
+<area shape="rect" id="node25" href="$papreca__config_8cpp.html" title="Definitions for the PAPRECA::PaprecaConfig class." alt="" coords="889,379,1023,405"/>
+<area shape="rect" id="node26" href="$sim__clock_8h.html" title="Declarations for functions that (stochastically) advance the simulation time." alt="" coords="724,379,815,405"/>
+<area shape="rect" id="node27" href="$sim__clock_8cpp.html" title="Definitions for sim_clock.h." alt="" coords="717,453,822,480"/>
+<area shape="rect" id="node30" href="$event__list_8h.html" title="Declarations of PredefinedEvent classes." alt="" coords="1016,229,1104,256"/>
+<area shape="rect" id="node32" href="$utilities_8cpp.html" title="Definitions for utilities.h." alt="" coords="1129,229,1215,256"/>
+<area shape="rect" id="node31" href="$event__list_8cpp.html" title="Definitions of PredefinedEvent classes." alt="" coords="1378,304,1481,331"/>
+</map>
