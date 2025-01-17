@@ -425,7 +425,7 @@ namespace PAPRECA{
 		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid KMC_per_MD command in PAPRECA input file. Correct formatting: KMC_per_MD N (where N is the frequency: N KMC steps per 1 MD step )." ); }
 		
 		unsigned long int KMC_per_MD = string2UnsignedLongInt( commands[1] );
-		if( KMC_per_MD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per MD has to be non-negative." ); }
+		if( KMC_per_MD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per MD has to be a positive integer" ); }
 		
 		papreca_config.setKMCperMD( KMC_per_MD );
 		
@@ -442,11 +442,11 @@ namespace PAPRECA{
 		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid KMC_per_longMD command in PAPRECA input file. Correct formatting: KMC_per_longMD N (where N is the frequency: N KMC steps per 1 long MD step )." ); }
 		
 		
-		if( papreca_config.getKMCperMD( ) == 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_MD has to be set before setting KMC_per_longMD." ); }
+		if( papreca_config.getKMCperMD( ) == std::numeric_limits< unsigned long int >::max( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_MD has to be set before setting KMC_per_longMD." ); }
 		
 		unsigned long int KMC_per_longMD = string2UnsignedLongInt( commands[1] );
-		if( KMC_per_longMD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be non-negative." ); }
-		if( KMC_per_longMD <= papreca_config.getKMCperMD( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be greater than KMC per MD" ); }
+		if( KMC_per_longMD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be a positive integer" ); }
+		if( KMC_per_longMD <= papreca_config.getKMCperMD( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be greater than KMC per MD." ); }
 		
 		papreca_config.setKMCperLongMD( KMC_per_longMD );
 		
@@ -1307,7 +1307,7 @@ namespace PAPRECA{
 		/// @param[in] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 	
 		if( papreca_config.predefinedCatalogIsEmpty( ) ){ warnAll( MPI_COMM_WORLD , "No predefined events were defined!" ); }
-		if( papreca_config.getKMCperMD( ) !=0 && papreca_config.getTrajDuration( ) == 0 && papreca_config.getMinimize1( ).empty( ) && papreca_config.getMinimize2( ).empty( ) ){ warnAll( MPI_COMM_WORLD , "KMC per MD defined but no equilibration scheme set (i.e., trajectory duration is 0, and no prior or after minimization commands were set" ); }
+		if( papreca_config.getKMCperMD( ) != std::numeric_limits< unsigned long int >::max( ) && papreca_config.getTrajDuration( ) == 0 && papreca_config.getMinimize1( ).empty( ) && papreca_config.getMinimize2( ).empty( ) ){ warnAll( MPI_COMM_WORLD , "KMC per MD defined but no equilibration scheme set (i.e., trajectory duration is 0, and no prior or after minimization commands were set" ); }
 	
 	}
 	
@@ -1319,6 +1319,8 @@ namespace PAPRECA{
 		
 		//Basic settings aborts
 		if( papreca_config.getKMCsteps( ) == 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "PAPRECA KMC steps were not set (or set to zero)." ); }
+		if( papreca_config.getKMCperMD( ) != std::numeric_limits< unsigned long int >::max( ) && papreca_config.getTrajDuration( ) <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_MD is set but the trajectory duration is not set (or set to zero)." ); }
+		if( papreca_config.getKMCperLongMD( ) != std::numeric_limits< unsigned long int >::max( ) && papreca_config.getLongTrajDuration( ) <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_longMD is set but the long trajectory duration is not set (or set to zero)." ); }
 		
 		//Random number generator aborts
 		if( !papreca_config.ranNumGeneratorIsInitialized( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Random number generator was not initialized properly. This typically indicates that the random seed WAS NOT provided in the PAPRECA input file." ); }
