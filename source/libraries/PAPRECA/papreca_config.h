@@ -222,8 +222,8 @@ namespace PAPRECA{
 			//The user can pass valid LAMMPS commands to minimize the configuration before the LAMMPS trajectory (minimize1) and after (minimize2)
 			std::string minimize1 = ""; ///< stores a valid LAMMPS minimization command to be executed before the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
 			std::string minimize2 = ""; ///< stores a valid LAMMPS minimization command to be executed after the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
-			int traj_duration = 0; ///< This control the duration of the LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
-			int longtraj_duration = 0; ///<This controls the duration of the LONG LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
+			int traj_duration = -1; ///< This control the duration of the LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
+			int longtraj_duration = -1; ///<This controls the duration of the LONG LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
 			double c_time_convert = -1; ///< This variable is initialized from lmp->update->unit_style to allow conversion of time units to second. The constant is also pre-multiplied with the LAMMPS timestep to allow easy conversion of timesteps (i.e., traj_duration) to time interval (in seconds).
 			
 			//Neighbor lists
