@@ -727,7 +727,7 @@ namespace PAPRECA{
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 
-		if( papreca_config.getKMCperLongMD( ) == std::numeric_limits< unsigned long int >::max( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_MD must be set before setting a trajectory duration." ); }
+		if( papreca_config.getKMCperLongMD( ) == std::numeric_limits< unsigned long int >::max( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_longMD must be set before setting a long trajectory duration." ); }
 		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid long_trajectory_duration command. Must be long_trajectory_duration N (where N is an integer denoting the long trajectory duration)."); }
 		
 		if( papreca_config.getTrajDuration( ) == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid use of trajectory_duration and long_trajectory_duration commands. The trajectory_duration has to be set before setting the long_trajectory_duration."); }
