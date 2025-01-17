@@ -537,7 +537,7 @@ Sets the duration of the MD stage of the %PAPRECA run. This represents how many 
 
 \subsection trajdur_default Default
 
-trajectory_duration = 0.
+trajectory_duration = -1.
 
 <hr>
 
@@ -565,7 +565,7 @@ Sets the long duration of the MD stage of the %PAPRECA run. This represents how 
 
 \subsection trajdur_default Default
 
-long_trajectory_duration = 0.
+long_trajectory_duration = -1.
 
 <hr>
 
