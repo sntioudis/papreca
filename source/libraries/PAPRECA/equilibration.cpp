@@ -283,7 +283,7 @@ namespace PAPRECA{
 	}
 
 	//Equilibration
-	void equilibrateFluidAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time ){
+	void equilibrateFluidAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time , const unsigned long int &trajectory_duration ){
 		
 		/// Performs a LAMMPS simulation on the fluid atom types (as defined in the PAPRECA input). Then, updates the simulation clock by timestep*trajectory_duration (as defined by the user in the LAMMPS and PAPRECA inputs). Additionally, might perform minimizations before/after the LAMMPS trajectory (if an appropriate LAMMPS minimization command is defined by the user).
 		/// @param[in,out] lmp pointer to LAMMPS object.
@@ -296,7 +296,7 @@ namespace PAPRECA{
 		if( !papreca_config.getMinimize1( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize1( ).c_str( ) ); } //Only call the minimize functions IF a minimize LAMMPS command is defined! otherwise you will get a runtime error in LAMMPS
 		
 		//Run trajectory
-		runLammps( lmp , papreca_config.getTrajDuration( )  );
+		runLammps( lmp , trajectory_duration );
 		
 		//Minimization (after trajectory)
 		if( !papreca_config.getMinimize2( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize2( ).c_str( ) ); }
@@ -320,15 +320,26 @@ namespace PAPRECA{
 		/// @see PAPRECA::equilibrateFluidAtoms(), PAPRECA::deleteDesorbedAtoms()
 		/// @note The function also calculates the execution times during the LAMMPS (MD) step (if the executionTimes file has been activated in the PAPRECA input file).
 		
-		if( KMC_loopid % papreca_config.getKMCperMD( ) == 0 || zero_rate ){
 			
+		if( KMC_loopid % papreca_config.getKMCperLongMD( ) == 0 ){
+		
 			papreca_config.setMDTimeStamp4ExecTimeFile( KMC_loopid );
-			equilibrateFluidAtoms( lmp , papreca_config , time );
+			equilibrateFluidAtoms( lmp , papreca_config , time , papreca_config.getLongTrajDuration( ) );
 			papreca_config.calcMDTime4ExecTimeFile( nprocs , KMC_loopid );
 			
 			deleteDesorbedAtoms( lmp , papreca_config , proc_id , nprocs , film_height , atomID2bonds );
+		
+		}else if( KMC_loopid % papreca_config.getKMCperMD( ) == 0 || zero_rate ){
+		
+			papreca_config.setMDTimeStamp4ExecTimeFile( KMC_loopid );
+			equilibrateFluidAtoms( lmp , papreca_config , time , papreca_config.getTrajDuration( ) );
+			papreca_config.calcMDTime4ExecTimeFile( nprocs , KMC_loopid );
 			
+			deleteDesorbedAtoms( lmp , papreca_config , proc_id , nprocs , film_height , atomID2bonds );
+		
 		}
+		
+		
 
 	}
 	

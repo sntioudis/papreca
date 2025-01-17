@@ -63,6 +63,7 @@ namespace PAPRECA{
 	//ACCEPTABLE COMMANDS
 	void executeKMCstepsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeKMCperMDCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
+	void executeKMCperLongMDCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeTimeEndCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomSeedCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeFluidAtomTypesCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
@@ -74,6 +75,7 @@ namespace PAPRECA{
 	void executeMinimizePriorCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeMinimizeAfterCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeTrajectoryDurationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
+	void executeLongTrajectoryDurationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeDepoheightsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomDepovecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomDiffvecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );

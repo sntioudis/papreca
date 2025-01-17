@@ -418,7 +418,7 @@ namespace PAPRECA{
 	
 	void executeKMCperMDCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 		
-		/// Sets the frequency of MD (LAMMPS) steps (i.e., how many KMC stages are performed for every MD stages) in the PAPRECA::PaprecaConfig object.
+		/// Sets the frequency of MD (LAMMPS) steps (i.e., how many KMC stages are performed for every MD stage) in the PAPRECA::PaprecaConfig object.
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
@@ -428,6 +428,27 @@ namespace PAPRECA{
 		if( KMC_per_MD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per MD has to be non-negative." ); }
 		
 		papreca_config.setKMCperMD( KMC_per_MD );
+		
+		
+		
+	}
+	
+	void executeKMCperLongMDCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
+		
+		/// Sets the frequency of long MD (LAMMPS) steps (i.e., how many KMC stages are performed for every long MD stage) in the PAPRECA::PaprecaConfig object.
+		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
+		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
+		
+		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid KMC_per_longMD command in PAPRECA input file. Correct formatting: KMC_per_longMD N (where N is the frequency: N KMC steps per 1 long MD step )." ); }
+		
+		
+		if( papreca_config.getKMCperMD( ) == 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC_per_MD has to be set before setting KMC_per_longMD." ); }
+		
+		unsigned long int KMC_per_longMD = string2UnsignedLongInt( commands[1] );
+		if( KMC_per_longMD <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be non-negative." ); }
+		if( KMC_per_longMD <= papreca_config.getKMCperMD( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "KMC per long MD has to be greater than KMC per MD" ); }
+		
+		papreca_config.setKMCperLongMD( KMC_per_longMD );
 		
 		
 		
@@ -692,11 +713,33 @@ namespace PAPRECA{
 		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid trajectory_duration command. Must be trajectory_duration N (where N is an integer denoting the trajectory duration)."); }
 		
 		int traj_duration = string2Int( commands[1] );
-		if( traj_duration <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "The trajectory duration in " + commands[0] + " command has to be a positive integer number." ); }
+		if( traj_duration < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "The trajectory duration in " + commands[0] + " command has to be a non-negative." ); }
 		
 		papreca_config.setTrajDuration( traj_duration );
 	
 	}
+	
+
+	void executeLongTrajectoryDurationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
+	
+		/// Sets the LAMMPS long trajectory duration in the PAPRECA::PaprecaConfig object.
+		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
+		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
+		
+		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid long_trajectory_duration command. Must be long_trajectory_duration N (where N is an integer denoting the long trajectory duration)."); }
+		
+		if( papreca_config.getTrajDuration( ) == -1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid use of trajectory_duration and long_trajectory_duration commands. The trajectory_duration has to be set before setting the long_trajectory_duration."); }
+		
+		
+		
+		int long_traj_duration = string2Int( commands[1] );
+		if( long_traj_duration < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "The long trajectory duration in " + commands[0] + " command has to be a non-negative integer number" ); }
+		if( long_traj_duration <= papreca_config.getTrajDuration( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "The long trajectory duration has to be longer than the trajectory duration." ); }
+		
+		papreca_config.setLongTrajDuration( long_traj_duration );
+	
+	}
+	
 	
 	void executeDepoheightsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 		
@@ -1167,6 +1210,8 @@ namespace PAPRECA{
 			executeKMCstepsCommand( commands , papreca_config );
 		}else if( command_class == "KMC_per_MD" ){ 
 			executeKMCperMDCommand( commands , papreca_config );
+		}else if( command_class == "KMC_per_longMD" ){
+			executeKMCperLongMDCommand( commands , papreca_config );
 		}else if( command_class == "time_end" ){
 			executeTimeEndCommand( commands , papreca_config );
 		}else if( command_class == "random_seed" ){
@@ -1189,6 +1234,8 @@ namespace PAPRECA{
 			executeMinimizeAfterCommand( commands , papreca_config );
 		}else if( command_class == "trajectory_duration" ){
 			executeTrajectoryDurationCommand( commands , papreca_config );
+		}else if( command_class == "long_trajectory_duration" ){
+			executeLongTrajectoryDurationCommand( commands , papreca_config );
 		}else if( command_class == "depoheights" ){
 			executeDepoheightsCommand( commands , papreca_config );
 		}else if( command_class == "random_depovecs" ){
@@ -1260,7 +1307,7 @@ namespace PAPRECA{
 		/// @param[in] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 	
 		if( papreca_config.predefinedCatalogIsEmpty( ) ){ warnAll( MPI_COMM_WORLD , "No predefined events were defined!" ); }
-		if( papreca_config.getKMCperMD( ) !=0 && papreca_config.getTrajDuration( ) == 0 && papreca_config.getMinimize1( ).empty( ) && papreca_config.getMinimize2( ).empty( ) ){ warnAll( MPI_COMM_WORLD , "KMC per MD defined but not equilibration scheme set (i.e., trajectory duration is 0, and no prior or after minimization commands were set" ); }
+		if( papreca_config.getKMCperMD( ) !=0 && papreca_config.getTrajDuration( ) == 0 && papreca_config.getMinimize1( ).empty( ) && papreca_config.getMinimize2( ).empty( ) ){ warnAll( MPI_COMM_WORLD , "KMC per MD defined but no equilibration scheme set (i.e., trajectory duration is 0, and no prior or after minimization commands were set" ); }
 	
 	}
 	

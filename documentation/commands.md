@@ -57,10 +57,7 @@ Sets the total number of kMC stages for the %PAPRECA run.
 > This is a mandatory command. The %PAPRECA simulation will not start unless the total number of kMC stages is set.
 
 
-
-
 <hr>
-
 
 
 \section KMC_per_MD KMC_per_MD command
@@ -85,6 +82,29 @@ Sets the total number of kMC stages per MD stage for the %PAPRECA run.
 
 > **Note:**
 > This is a mandatory command. The %PAPRECA simulation will not start unless the total number of kMC stages per MD stage is set.
+
+
+<hr>
+
+\section KMC_per_longMD KMC_per_longMD command
+
+\subsection KMC_per_longMD_syntax Syntax
+
+```bash
+KMC_per_longMD N
+```
+
+- N = Natural number denoting the number of KMC stages per long MD stage. This number has to be greater than KMC_per_MD as set in \ref KMC_per_MD.
+
+\subsection KMC_per_longMD_examples Example(s)
+
+```bash
+KMC_per_longMD 5 #This means that a long MD stage will be simulated every 5 kMC stages.
+```
+
+\subsection KMC_per_MD_description Description
+
+Sets the total number of kMC stages per long MD stage for the %PAPRECA run.
 
 
 <hr>
@@ -520,6 +540,35 @@ Sets the duration of the MD stage of the %PAPRECA run. This represents how many 
 trajectory_duration = 0.
 
 <hr>
+
+\section longtrajdur long_trajectory_duration command
+
+\subsection trajdur_syntax Syntax
+
+```bash
+long_trajectory_duration N
+```
+
+- N = double number denoting the duration of the MD stage. This number has to be greater than the trajectory duration number as set in \ref trajdur.
+
+\subsection longtrajdur_examples Example(s)
+
+```bash
+trajectory_duration 1000
+
+trajectory_duration 0
+```
+
+\subsection longtrajdur_description Description
+
+Sets the long duration of the MD stage of the %PAPRECA run. This represents how many MD timesteps will be simulated by LAMMPS during each MD stage.
+
+\subsection trajdur_default Default
+
+long_trajectory_duration = 0.
+
+<hr>
+
 
 \section createBreak create_BondBreak command
 

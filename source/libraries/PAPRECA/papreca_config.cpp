@@ -31,6 +31,8 @@ namespace PAPRECA{
 	const unsigned long int &PaprecaConfig::getKMCsteps( ) const{ return KMC_steps; }
 	void PaprecaConfig::setKMCperMD( const unsigned long int &KMC_per_MD_in ){ KMC_per_MD = KMC_per_MD_in; }
 	const unsigned long int &PaprecaConfig::getKMCperMD( ) const{ return KMC_per_MD; }
+	void PaprecaConfig::setKMCperLongMD( const unsigned long int &KMC_per_longMD_in ){ KMC_per_longMD = KMC_per_longMD_in; }
+	const unsigned long int &PaprecaConfig::getKMCperLongMD( ) const{ return KMC_per_longMD; }
 	void PaprecaConfig::setTimeEnd( const double &time_end_in ){ time_end = time_end_in; }
 	const double &PaprecaConfig::getTimeEnd( ){ return time_end; }
 	
@@ -431,6 +433,8 @@ namespace PAPRECA{
 	const std::string &PaprecaConfig::getMinimize2( ) const{ return minimize2; }
 	void PaprecaConfig::setTrajDuration( const int &traj_duration_in ){ traj_duration = traj_duration_in; }
 	const int &PaprecaConfig::getTrajDuration( ) const{ return traj_duration; }
+	void PaprecaConfig::setLongTrajDuration( const int &longtraj_duration_in ){ longtraj_duration = longtraj_duration_in; }
+	const int &PaprecaConfig::getLongTrajDuration( ) const{ return longtraj_duration; }
 	void PaprecaConfig::setCtimeConvert( const double &c_convert_in ){ c_time_convert = c_convert_in; }
 	const double &PaprecaConfig::getCtimeConvert( ){ return c_time_convert; }
 	

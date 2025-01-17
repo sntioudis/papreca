@@ -63,6 +63,8 @@ namespace PAPRECA{
 			const unsigned long int &getKMCsteps( ) const;
 			void setKMCperMD( const unsigned long int &KMC_per_MD_in );
 			const unsigned long int &getKMCperMD( ) const;
+			void setKMCperLongMD( const unsigned long int &KMC_per_longMD_in );
+			const unsigned long int &getKMCperLongMD( ) const;
 			void setTimeEnd( const double &time_end_in );
 			const double &getTimeEnd( );
 			
@@ -148,6 +150,8 @@ namespace PAPRECA{
 			const std::string &getMinimize2( ) const;
 			void setTrajDuration( const int &traj_duration_in );
 			const int &getTrajDuration( ) const;
+			void setLongTrajDuration( const int &longtraj_duration_in );
+			const int &getLongTrajDuration( ) const;
 			void setCtimeConvert( const double &c_convert_in );
 			const double &getCtimeConvert( );
 			
@@ -183,7 +187,8 @@ namespace PAPRECA{
 			
 			//Essential parameters
 			unsigned long int KMC_steps = 0; ///< perform that many PAPRECA steps.
-			unsigned long int KMC_per_MD = 0; ///< Perform that many KMC(PAPRECA) steps for every MD(LAMMPS) step.
+			unsigned long int KMC_per_MD = std::numeric_limits< unsigned long int >::max( ); ///< Perform that many KMC(PAPRECA) steps for every MD(LAMMPS) step. If not set it stays at limits of max and MD stages are never called.
+			unsigned long int KMC_per_longMD = std::numeric_limits< unsigned long int >::max( ); ///< Perform that many KMC(PAPRECA) steps for every long MD(LAMMPS) step. If not set it stays at limits of max and long MD stages are never called.
 			double time_end = std::numeric_limits< double >::max( ); ///< Optional parameter. The user can define an ending simulation time. If not set it stays at limits of max, so you effectively never go beyond time_end;
 			
 			//Atom groups
@@ -217,7 +222,8 @@ namespace PAPRECA{
 			//The user can pass valid LAMMPS commands to minimize the configuration before the LAMMPS trajectory (minimize1) and after (minimize2)
 			std::string minimize1 = ""; ///< stores a valid LAMMPS minimization command to be executed before the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
 			std::string minimize2 = ""; ///< stores a valid LAMMPS minimization command to be executed after the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
-			int traj_duration = 0; ///< This control the duration of the LAMMPS minimization. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
+			int traj_duration = 0; ///< This control the duration of the LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
+			int longtraj_duration = 0; ///<This controls the duration of the LONG LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
 			double c_time_convert = -1; ///< This variable is initialized from lmp->update->unit_style to allow conversion of time units to second. The constant is also pre-multiplied with the LAMMPS timestep to allow easy conversion of timesteps (i.e., traj_duration) to time interval (in seconds).
 			
 			//Neighbor lists
