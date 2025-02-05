@@ -9,7 +9,7 @@ cd ../../
 mkdir build; cd build
 
 #Pull LAMMPS from LAMMPS repository
-git clone --depth 1 --branch patch_29Aug2024 https://github.com/lammps/lammps.git LAMMPS #clone LAMMPS with tag patch_17Apr2024
+git clone --depth 1 --branch patch_29Aug2024 https://github.com/lammps/lammps.git LAMMPS
 
 #Copy source files for fix PAPRECA
 cd LAMMPS
