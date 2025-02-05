@@ -54,7 +54,7 @@ cmake --build . #make -j N (where N is the number of processes) can also be used
 
 &bull; The current version of %PAPRECA (1.0) runs only on LINUX-based systems. Cross-platform compatibility will be available in future versions. At the moment, non-LINUX users can run %PAPRECA on a virtual machine (e.g., [VirtualBox](https://www.virtualbox.org/) or Windows Subsystem for Linux).
 
-&bull; An MPI/C++ compiler (e.g., mpicxx or mpiCC) that is at least compatible with the C++11 standard is required to build %PAPRECA.
+&bull; An MPI/C++ compiler (e.g., mpicxx or mpiCC) that is at least compatible with the C++17 standard is required to build %PAPRECA.
 
 &bull; After configuring the LAMMPS build, kindly ensure that the MPI package has been correctly configured. If the MPI package is not configured, cmake will build a non-MPI LAMMPS version which will lead to %PAPRECA linkage errors. If the installed MPI compiler in your system is not detected by cmake, you should add the following argument to your cmake configuration command: -DCMAKE_CXX_COMPILER=/path/to/your/cxx/compiler. Hint: the relevant cxx compiler path can be obtained by running: 'which compiler_name' (e.g., 'which mpicxx'). It is advised that the same flag (i.e., -DCMAKE_CXX_COMPILER) is also used for the configuration of LAMMPS.
 
