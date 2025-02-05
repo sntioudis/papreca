@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 project(source_tests)
 
 #Set minimum C++ required and CXX compiler options
-set(CMAKE_CXX_STANDARD 11)
-if(CMAKE_CXX_STANDARD LESS 11)
-  message(FATAL_ERROR "C++ standard must be set to at least 11")
+set(CMAKE_CXX_STANDARD 17)
+if(CMAKE_CXX_STANDARD LESS 17)
+  message(FATAL_ERROR "C++ standard must be set to at least 117")
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Use compiler extensions")
