@@ -5,9 +5,9 @@ project(papreca)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Modules")
 
 #Set minimum C++ required and CXX compiler options
-set(CMAKE_CXX_STANDARD 11)
-if(CMAKE_CXX_STANDARD LESS 11)
-  message(FATAL_ERROR "C++ standard must be set to at least 11")
+set(CMAKE_CXX_STANDARD 17)
+if(CMAKE_CXX_STANDARD LESS 17)
+  message(FATAL_ERROR "C++ standard must be set to at least 17")
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF CACHE BOOL "Use compiler extensions")
