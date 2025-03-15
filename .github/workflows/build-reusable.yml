@@ -52,7 +52,7 @@ jobs:
        
     - name: Cache LAMMPS library
       id: cache-lammps-repo
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: lammps_artifacts_${{ inputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
@@ -115,7 +115,7 @@ jobs:
         
     - name: Restore LAMMPS cache
       id: cache-lammps
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: lammps_artifacts_${{ inputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
