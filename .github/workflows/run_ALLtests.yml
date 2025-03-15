@@ -69,7 +69,7 @@ jobs:
         
     - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
       id: cache-lammps
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
@@ -125,7 +125,7 @@ jobs:
         
     - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
       id: cache-lammps
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
@@ -193,7 +193,7 @@ jobs:
         
     - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
       id: cache-lammps
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
         #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
