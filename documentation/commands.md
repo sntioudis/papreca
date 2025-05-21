@@ -649,7 +649,7 @@ create_BondForm atom1_type atom2_type bond_dist delete_atoms lone_candidates sam
 - bond_dist = bonding distance (in length units as defined in LAMMPS). The bonding event is valid if the distance between the two atoms is equal to or smaller than bond_dist.
 - delete_atoms = **yes** (delete both atoms after the bond-formation event is executed) or **no**.
 - lone_candidates = **yes** (the bond-formation event is valid only if bond candidates have no bonds with other atoms in the system) or **no**.
-- same_mol = **yes** (the bond-formation event is valid only if both atoms are associated with different mol IDs).
+- same_mol = **yes** (the bond-formation event is valid only if both atoms are associated with different mol IDs) or **no**.
 
 - (REQUIRED) arg = **rate_manual** or **rate_arrhenius**
 
