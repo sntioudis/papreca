@@ -132,7 +132,7 @@ namespace PAPRECA{
 		
 		//Configure internal nve/limit integrator if selected by user in the PAPRECA input file
 		
-		if( papreca_config.getNveLimSteps( ) != - 1 ){ //Meaning that the nve limit option was set in the input file
+		if( papreca_config.nveLimGroupsAreActive( ) ){ //Meaning that the nve limit option was set in the input file
 				papreca_config.insertEventAtomIDs2NveLimGroup( {atom_ids[0] , atom_ids[1]} ); //Initialize a TAGINT_VEC from the two communicated tagints for current breaking event
 		}
 		
