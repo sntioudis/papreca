@@ -115,7 +115,6 @@ namespace PAPRECA{
 			lmp->input->one( "group nve_limited clear" );
 			std::string input_str1 = "group nve_limited id ";
 			input_str1 += papreca_config.exportNveLimIDs2String( );
-			std::cout << input_str1 << std::endl;
 			lmp->input->one( input_str1.c_str( ) ); //Now that the nve_limited group is defined, we need to subtract the limited atoms from the fluid group
 			
 			std::string input_str2 = "group fluid_temp type ";
