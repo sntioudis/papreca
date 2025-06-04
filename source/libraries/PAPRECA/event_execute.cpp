@@ -129,6 +129,14 @@ namespace PAPRECA{
 		
 		//Breakbond is part of lammps_wrappers
 		deleteBond( lmp , atom_ids[0] , atom_ids[1] , 1 ); //Now we can safely call this on all procs, since all procs know the important event details (i.e., atom1id, atom2id ). Delete special if you are using fix_shake and/or you want to recompute the pairwise lists.
+		
+		//Configure internal nve/limit integrator if selected by user in the PAPRECA input file
+		
+		if( papreca_config.getNveLimSteps( ) != - 1 ){ //Meaning that the nve limit option was set in the input file
+				papreca_config.insertEventAtomIDs2NveLimGroup( {atom_ids[0] , atom_ids[1]} ); //Initialize a TAGINT_VEC from the two communicated tagints for current breaking event
+		}
+		
+		
 
 		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendBondBreak( KMC_loopid , time , atom_ids[0] , atom_ids[1] , bond_type ); }
 		
@@ -242,7 +250,7 @@ namespace PAPRECA{
 			std::string input_str = "velocity new_mol set NULL NULL " + std::to_string(insertion_vel) + " units box"; //NULL for x-y velocities means that we only the vertical velocities are set.
 			lmp->input->one( input_str.c_str( ) );
 			lmp->input->one( "group new_mol delete" ); //delete that group otherwise you will get a LAMMPS error in the next deposition (because of redefinition of new_mol group).
-			resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) ); //Reset atom groups immediately so you'll be ready for the next LAMMPS run.
+			resetMobileAtomsGroups( lmp , papreca_config ); //Reset atom groups immediately so you'll be ready for the next LAMMPS run.
 		}
 		
 	}
@@ -350,7 +358,7 @@ namespace PAPRECA{
 			std::string input_str = "velocity new_atom set NULL NULL " + std::to_string(insertion_vel) + " units box";
 			lmp->input->one( input_str.c_str( ) );
 			lmp->input->one( "group new_atom delete" );
-			resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+			resetMobileAtomsGroups( lmp , papreca_config );
 		}
 		
 	}

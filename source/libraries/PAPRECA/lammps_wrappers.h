@@ -49,16 +49,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /// \endcond
 
 //kMC Headers
+#include "papreca_config.h"
 #include "papreca_error.h"
 #include "utilities.h"
 
 
 namespace PAPRECA{
-
+	class PaprecaConfig; //Forward declaration to resolve compiler errors due to circular dependencies
+	
 	//Initialize LAMMPS
 	void initializeLMP( LAMMPS_NS::LAMMPS **lmp );
 	void readLMPinput( const std::string &lmp_input , LAMMPS_NS::LAMMPS *lmp );
 		
+	//Setup integrators
+	void setupNveLimIntegrator( LAMMPS_NS::LAMMPS *lmp ,  PaprecaConfig &papreca_config );
+	void removeNveLimIntegrator( LAMMPS_NS::LAMMPS *lmp ,  PaprecaConfig &papreca_config );
+	
 	//Execute LAMMPS
 	void runLammps( LAMMPS_NS::LAMMPS *lmp , const int &timesteps_num );
 	void MPIBcastAndExecuteCommand( LAMMPS_NS::LAMMPS *lmp , std::string &command ); //This function gets a line command (std::string), casts it to all other procs, and executes the command
@@ -73,7 +79,7 @@ namespace PAPRECA{
 	void createAtom( LAMMPS_NS::LAMMPS *lmp , const double atom_pos[3] , const int &atom_type );
 	void deleteBond( LAMMPS_NS::LAMMPS *lmp , const LAMMPS_NS::tagint &atom1id , const LAMMPS_NS::tagint &atom2id , const bool special );
 	void formBond( LAMMPS_NS::LAMMPS *lmp , const LAMMPS_NS::tagint &atom1id , const LAMMPS_NS::tagint &atom2id , const int &bond_type );
-	void resetMobileAtomsGroups( LAMMPS_NS::LAMMPS *lmp , const std::vector< int > &fluid_atomtypes );
+	void resetMobileAtomsGroups( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void insertMolecule( LAMMPS_NS::LAMMPS *lmp , const double site_pos[3] , const double rot_pos[3] , const double &rot_theta , const int &mol_id , const char *mol_name );
 	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const int &is_displacive , const int &diffused_type );
 	

@@ -252,7 +252,7 @@ namespace PAPRECA{
 				gatherAndTrimDelIdsOnDriverProc( proc_id , nprocs , delids_local , delids_global );
 				if( delids_global.size( ) <= papreca_config.getDesorbDelMax( ) ){ //Only delete atoms if the number of delids is smaller than the permitted (by the used) maximum number of atoms that can be deleted at once.
 					deleteAtoms( lmp , delids_global , "no" , "no" );
-					resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+					resetMobileAtomsGroups( lmp , papreca_config );
 				}
 			}
 			
@@ -266,14 +266,14 @@ namespace PAPRECA{
 				broadcastDelidsFromMasterProc( lmp , proc_id , delids_num , delids );
 				if( delids_num <= papreca_config.getDesorbDelMax( ) ){
 					deleteAtoms( lmp , delids , "no" , "no" );
-					resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+					resetMobileAtomsGroups( lmp , papreca_config );
 				}
 			}
 		}else if( papreca_config.getDesorptionStyle( ) == "LAMMPS_region" ){
 			
 			if( desorb_cut < lmp->domain->boxhi[2] ){
 				deleteAtomsInBoxRegion( lmp , lmp->domain->boxlo[0] , lmp->domain->boxhi[0] , lmp->domain->boxlo[1] , lmp->domain->boxhi[1] , desorb_cut , lmp->domain->boxhi[2] , "yes" , "no" );
-				resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+				resetMobileAtomsGroups( lmp , papreca_config );
 			}
 		
 		}else if( !papreca_config.getDesorptionStyle( ).empty( ) ){
@@ -290,13 +290,21 @@ namespace PAPRECA{
 		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
 		/// @param[in,out] time current time.
 		/// @see PAPRECA::runLammps()
-		resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) ); //Reset mobile atom groups (i.e., add/remove atoms from the fluid group so you can be ready to run LAMMPS.
+		resetMobileAtomsGroups( lmp , papreca_config ); //Reset mobile atom groups (i.e., add/remove atoms from the fluid group so you can be ready to run LAMMPS.
 		
 		//Minimization before traj
 		if( !papreca_config.getMinimize1( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize1( ).c_str( ) ); } //Only call the minimize functions IF a minimize LAMMPS command is defined! otherwise you will get a runtime error in LAMMPS
 		
+		//Set up nve limited groups if required
+		setupNveLimIntegrator( lmp , papreca_config );
+		
 		//Run trajectory
 		runLammps( lmp , trajectory_duration );
+		
+		if( papreca_config.nveLimGroupsAreActive( ) ){ 
+			papreca_config.updateNveLimGroup( ); //Increments nve limited steps for limited atoms and removes atoms from relevant group if required
+			if( !papreca_config.nveLimGroupIsEmpty( ) ){ removeNveLimIntegrator( lmp , papreca_config ); }
+		}
 		
 		//Minimization (after trajectory)
 		if( !papreca_config.getMinimize2( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize2( ).c_str( ) ); }

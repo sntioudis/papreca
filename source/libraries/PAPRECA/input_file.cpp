@@ -742,6 +742,27 @@ namespace PAPRECA{
 	
 	}
 	
+	void executeNveLimCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
+		
+		/// Sets an nve/lim integrator for a number of PAPRECA steps on reacted atoms after a bond-breaking event.
+		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
+		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
+		
+		if( commands.size( ) != 3 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid nve_lim command. Must be nve_lim N xmax (where N is an integer denoting the number of PAPRECA steps for nve/lim integration and xmax is a positive double number denoting the maximum distance an atom can move in one timestep: https://docs.lammps.org/fix_nve_limit.html)."); }
+		const int maxsteps = string2Int( commands[1] );
+		if( maxsteps <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid nve_lim command: N must be a positive integer number denoting the number of PAPRECA steps for nve/lim integration"); }
+		
+		const double xmax = string2Double( commands[2] );
+		if( xmax <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid nve_lim command: xmax must be a positive double number denoting the maximum distance an atom can move in one timestep: https://docs.lammps.org/fix_nve_limit.html)."); }
+		
+		papreca_config.activateNveLimGroups( );
+		papreca_config.setNveLimSteps( maxsteps );
+		papreca_config.setNveLimDist( xmax );
+		lmp->input->one( "group nve_limited empty" ); //create the nve_limited group with no atoms included
+		
+		
+	}
+	
 	
 	void executeDepoheightsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 		
@@ -1238,6 +1259,8 @@ namespace PAPRECA{
 			executeTrajectoryDurationCommand( commands , papreca_config );
 		}else if( command_class == "long_trajectory_duration" ){
 			executeLongTrajectoryDurationCommand( commands , papreca_config );
+		}else if( command_class == "nve_lim" ){
+			executeNveLimCommand( lmp , commands , papreca_config );
 		}else if( command_class == "depoheights" ){
 			executeDepoheightsCommand( commands , papreca_config );
 		}else if( command_class == "random_depovecs" ){

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 //Papreca Library headers
 /// \cond
+#include "papreca_config.h"
 #include "papreca_error.h"
 
 #include "rates_calc.h"
@@ -44,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "sim_clock.h"
 
-#include "papreca_config.h"
 #include "input_file.h"
 #include "export_files.h"
 

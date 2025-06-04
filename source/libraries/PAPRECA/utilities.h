@@ -183,6 +183,8 @@ namespace PAPRECA{
 	typedef std::unordered_set< int > INT_SET;
 	
 	typedef std::unordered_set< LAMMPS_NS::tagint > TAGINT_SET;
+	typedef std::unordered_map< LAMMPS_NS::tagint , int > TAGINT2INT_MAP;
+	typedef std::vector< LAMMPS_NS::tagint > TAGINT_VEC;
 	
 	//Typedef for modern c++ containers of 3xdouble arrays
 	typedef std::array< double , 3 > ARRAY3D;

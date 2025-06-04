@@ -154,6 +154,19 @@ namespace PAPRECA{
 			const int &getLongTrajDuration( ) const;
 			void setCtimeConvert( const double &c_convert_in );
 			const double &getCtimeConvert( );
+			void activateNveLimGroups( );
+			const bool &nveLimGroupsAreActive( ) const;
+			void setNveLimSteps( const int &nvelim_steps_in );
+			const int &getNveLimSteps( ) const;
+			void setNveLimDist( const double &nvelim_dist_in );
+			const double &getNveLimDist( ) const;
+			int &getNveStepCount4EventAtom( ) const;
+			void insertEventAtomIDs2NveLimGroup( const TAGINT_VEC &ids_limatoms );
+			void updateNveLimGroup( );
+			const bool nveLimGroupIsEmpty( ) const;
+			const std::string exportNveLimIDs2String( ) const;
+			
+			
 			
 			//Neighbor lists
 			void setNeibLists( const std::string &neiblist_half_in , const std::string &neiblist_full_in );
@@ -223,8 +236,12 @@ namespace PAPRECA{
 			std::string minimize1 = ""; ///< stores a valid LAMMPS minimization command to be executed before the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
 			std::string minimize2 = ""; ///< stores a valid LAMMPS minimization command to be executed after the LAMMPS trajectory. See: https://docs.lammps.org/minimize.html.
 			int traj_duration = -1; ///< This control the duration of the LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
-			int longtraj_duration = -1; ///<This controls the duration of the LONG LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
+			int longtraj_duration = -1; ///< This controls the duration of the LONG LAMMPS equilibration. The specific LAMMPS fixes have to be defined in the LAMMPS input file.
 			double c_time_convert = -1; ///< This variable is initialized from lmp->update->unit_style to allow conversion of time units to second. The constant is also pre-multiplied with the LAMMPS timestep to allow easy conversion of timesteps (i.e., traj_duration) to time interval (in seconds).
+			bool nvelim_active = false; ///< To check if nve lim operations have to be performed
+			int nvelim_steps = -1; ///<Number of PAPRECA steps for which event atoms are integrated internally via an nve/limit command. See https://docs.lammps.org/fix_nve_limit.html
+			double nvelim_dist = -1.0; ///<Acceptable distance for atoms to move during nve/lim
+			TAGINT2INT_MAP limids2limsteps; ///<Maps event atom IDs to the number of steps intergrated via nve/limit
 			
 			//Neighbor lists
 			std::string neiblist_half = ""; ///< Name of LAMMPS half neighbors list.

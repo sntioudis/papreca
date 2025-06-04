@@ -437,7 +437,72 @@ namespace PAPRECA{
 	const int &PaprecaConfig::getLongTrajDuration( ) const{ return longtraj_duration; }
 	void PaprecaConfig::setCtimeConvert( const double &c_convert_in ){ c_time_convert = c_convert_in; }
 	const double &PaprecaConfig::getCtimeConvert( ){ return c_time_convert; }
+	void PaprecaConfig::activateNveLimGroups( ){ nvelim_active = true; }
+	const bool &PaprecaConfig::nveLimGroupsAreActive( ) const{ return nvelim_active; }
+	void PaprecaConfig::setNveLimSteps( const int &nvelim_steps_in ){ nvelim_steps = nvelim_steps_in; }
+	const int &PaprecaConfig::getNveLimSteps( ) const{ return nvelim_steps; }
+	void PaprecaConfig::setNveLimDist( const double &nvelim_dist_in ){ nvelim_dist = nvelim_dist_in; }
+	const double &PaprecaConfig::getNveLimDist( ) const{ return nvelim_dist; }
 	
+	void PaprecaConfig::insertEventAtomIDs2NveLimGroup( const TAGINT_VEC &ids_limatoms ){
+		
+		for (auto &id : ids_limatoms ){
+			
+			limids2limsteps[id] = 0; //Always start the nve limit step count at 0; If mapping exists already the count is just zeroed
+		}
+		
+		
+		
+	}
+	
+	void PaprecaConfig::updateNveLimGroup( ){
+		for ( auto it = limids2limsteps.begin(); it != limids2limsteps.end(); ){ //Need iterator because we want to safely remove items from the map during the loop
+			
+			//Get count and ID from map
+			LAMMPS_NS::tagint id = it->first;
+			int &count = it->second;
+	
+			//Increment count
+			++count;
+
+			//Safely remove items from map if nve limit loop limit is reached for specific id
+			if ( count % nvelim_steps == 0 ){
+				it = limids2limsteps.erase( it ); // returns next valid iterator
+			}else{
+				++it;
+			}
+			
+		}
+		
+	}
+	
+	const bool PaprecaConfig::nveLimGroupIsEmpty( ) const{
+			
+			if( limids2limsteps.empty( ) ){ return true; }
+			
+			return false;
+		
+		
+	}
+	
+	const std::string PaprecaConfig::exportNveLimIDs2String( ) const{
+		
+		std::string ids_limatoms;
+		
+		for( const auto &pair : limids2limsteps ){
+			const LAMMPS_NS::tagint id = pair.first;
+			ids_limatoms += std::to_string( id );
+			ids_limatoms += " ";
+		}
+		
+		if( ids_limatoms.empty( ) ){
+			allAbortWithMessage( MPI_COMM_WORLD , "Requested export of atoms limited by nve/lim but there are no atoms in such group. In exportNveLimIDs2String function of papreca_config.cpp." );
+		}
+		
+		//You reach this point only if there is no abort above
+		return ids_limatoms;
+		
+	}
 	
 	//Neighbor lists
 	void PaprecaConfig::setNeibLists( const std::string &neiblist_half_in , const std::string &neiblist_full_in ){

@@ -569,6 +569,36 @@ long_trajectory_duration = -1.
 
 <hr>
 
+\section nvelim nve_lim command
+
+\subsection nvelim_syntax Syntax
+
+```bash
+nve_lim N xmax
+```
+
+- N = positive integer number denoting the number of PAPRECA steps for nve/lim integration
+- xmax = positive double number denoting the maximum distance (in LAMMPS distance units) an atom can move in one timestep
+
+\subsection nvelim_examples Example(s)
+
+```bash
+nve_lim 10 0.1
+
+nve_lim 20 0.01
+```
+
+\subsection nvelim_description Description
+
+Applies an internal [nve/limit](https://docs.lammps.org/fix_nve_limit.html) integrator to atoms reacted through a create_BondBreak command in the kMC stage of Papreca. The (two) reacted atoms are integrated via nve/limit for a total of "N" Papreca steps and with a maximum allowed displacement of "xmax". This command can be useful to avoid instabilities due to energy release following bond-breaking events.
+
+
+\subsection nvelim_default Defaults
+
+No nve/limit integration on any atoms.
+
+<hr>
+
 
 \section createBreak create_BondBreak command
 

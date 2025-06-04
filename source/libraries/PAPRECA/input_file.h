@@ -76,6 +76,7 @@ namespace PAPRECA{
 	void executeMinimizeAfterCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeTrajectoryDurationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeLongTrajectoryDurationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
+	void executeNveLimCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeDepoheightsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomDepovecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomDiffvecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );

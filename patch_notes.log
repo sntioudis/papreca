@@ -2,5 +2,6 @@
 2) Limit option for bond-breaking events
 3) Catalyzing option for bond-formation events
 4) Long equilibration option, commands, and documentation
+5) nve/limit command added for bond-breaking events.
 
 **PREPARED CMAKE FILES FOR UPCOMING LAMMPS UPGRADE TO C++17 STANDARD**
