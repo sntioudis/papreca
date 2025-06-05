@@ -301,9 +301,9 @@ namespace PAPRECA{
 		//Run trajectory
 		runLammps( lmp , trajectory_duration );
 		
-		if( papreca_config.nveLimGroupsAreActive( ) ){ 
-			papreca_config.updateNveLimGroup( ); //Increments nve limited steps for limited atoms and removes atoms from relevant group if required
+		if( papreca_config.nveLimGroupsAreActive( ) ){
 			if( !papreca_config.nveLimGroupIsEmpty( ) ){ removeNveLimIntegrator( lmp , papreca_config ); }
+			papreca_config.updateNveLimGroup( ); //Increments nve limited steps for limited atoms and removes atoms from relevant group if required
 		}
 		
 		//Minimization (after trajectory)
