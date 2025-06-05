@@ -157,7 +157,7 @@ void testMolCoords( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pro
 	//Insert the molecule with the given center (and with no rotation).
 	double rot_pos[3] = {1.0,0.0,0.0}; //Rotation vector does not really affect deposition (because the rotation angle is zero in PAPRECA::insertMolecule())
 	insertMolecule( lmp , candidate_center , rot_pos , 0.0 , 0 , depo_template->getAdsorbateName( ).c_str( ) );
-	resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+	resetMobileAtomsGroups( lmp , papreca_config );
 	runLammps( lmp , 0 ); //Run 0 to update neighbor lists
 	
 	
@@ -248,7 +248,7 @@ void testCollisions( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pr
 	createAtom( lmp , atom4_pos , 3 );
 	
 	
-	resetMobileAtomsGroups( lmp , papreca_config.getFluidAtomTypes( ) );
+	resetMobileAtomsGroups( lmp , papreca_config );
 	runLammps( lmp , 0 ); //Run 0 to update neighbor lists
 	
 
