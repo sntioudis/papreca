@@ -51,12 +51,10 @@ namespace PAPRECA{
 		/// @param[in] papreca_config configuration variable including basic simulation information. Used to retrieved the IDs of fluid atoms.
 		/// @note This function uses this fix: https://docs.lammps.org/fix_nve_limit.html
 		
-		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){ 
-			std::string input_str = "fix nve_limited_integration nve_limited nve/limit ";
-			input_str += std::to_string( papreca_config.getNveLimDist( ) );
-			lmp->input->one( input_str.c_str( ) );
+		std::string input_str = "fix nve_limited_integration nve_limited nve/limit ";
+		input_str += std::to_string( papreca_config.getNveLimDist( ) );
+		lmp->input->one( input_str.c_str( ) );
 			
-		}
 		
 	}
 	
