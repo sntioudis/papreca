@@ -296,13 +296,13 @@ namespace PAPRECA{
 		if( !papreca_config.getMinimize1( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize1( ).c_str( ) ); } //Only call the minimize functions IF a minimize LAMMPS command is defined! otherwise you will get a runtime error in LAMMPS
 		
 		//Set up nve limited groups if required
-		setupNveLimIntegrator( lmp , papreca_config );
+		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){ setupNveLimIntegrator( lmp , papreca_config ); }
 		
 		//Run trajectory
 		runLammps( lmp , trajectory_duration );
 		
-		if( papreca_config.nveLimGroupsAreActive( ) ){
-			if( !papreca_config.nveLimGroupIsEmpty( ) ){ removeNveLimIntegrator( lmp , papreca_config ); }
+		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){
+			removeNveLimIntegrator( lmp , papreca_config );
 			papreca_config.updateNveLimGroup( ); //Increments nve limited steps for limited atoms and removes atoms from relevant group if required
 		}
 		
