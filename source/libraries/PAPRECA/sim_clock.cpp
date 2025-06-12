@@ -40,15 +40,25 @@ namespace PAPRECA{
 		
 	}
 	
-	void advanceSimClockFromLAMMPS( PaprecaConfig &papreca_config , double &time ){ 
+	void advanceSimClockFromLAMMPS( PaprecaConfig &papreca_config , double &time , const std::string &traj_type ){ 
 		
 		/// Advances the simulation clock by timestep*dt (as defined in the LAMMPS and PAPRECA inputs).
 		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
 		/// @param[in,out] time current time.
+		/// @param[in] traj_type can be either normal, long, or nve_lim to declare if LAMMPS steps are traj_duration, longtraj_duration, or nvelim_steps
 		/// @note This function should not be confused with PAPRECA::advanceSimClockFromKMC(). PAPRECA::advanceSimClockFromKMC() advances the clock forward in the KMC/N-FOLD way.
 		
-		time += papreca_config.getCtimeConvert( ) * papreca_config.getTrajDuration( );
+		if( traj_type == "normal" ){
+			time += papreca_config.getCtimeConvert( ) * papreca_config.getTrajDuration( );
+		}else if( traj_type == "long" ){
+			time += papreca_config.getCtimeConvert( ) * papreca_config.getLongTrajDuration( );
+		}else if( traj_type == "nve_lim" ){
+			time += papreca_config.getCtimeConvert( ) * papreca_config.getNveLimSteps( );
+		}else{
+			allAbortWithMessage( MPI_COMM_WORLD , "Unrecognized traj_type in advanceSimClockFromLAMMPS function in sim_clock.cpp)." );
+		}
 		
 	}
+
 	
 } //End of PAPRECA Namespace

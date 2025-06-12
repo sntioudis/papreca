@@ -443,45 +443,15 @@ namespace PAPRECA{
 	const int &PaprecaConfig::getNveLimSteps( ) const{ return nvelim_steps; }
 	void PaprecaConfig::setNveLimDist( const double &nvelim_dist_in ){ nvelim_dist = nvelim_dist_in; }
 	const double &PaprecaConfig::getNveLimDist( ) const{ return nvelim_dist; }
+	const bool PaprecaConfig::nveLimGroupIsEmpty( ) const{ return nvelim_ids.empty( ); }
+	const TAGINT_VEC &PaprecaConfig::getNveLimIdsVec( ) const{ return nvelim_ids; }
+	void PaprecaConfig::clearNveLimGroup( ){ nvelim_ids.clear( ); }
 	
-	void PaprecaConfig::insertEventAtomIDs2NveLimGroup( const TAGINT_VEC &ids_limatoms ){
+	void PaprecaConfig::insertAtomIDs2NveLimGroup( const TAGINT_VEC &ids_limatoms ){
 		
 		for (auto &id : ids_limatoms ){
-			
-			limids2limsteps[id] = 0; //Always start the nve limit step count at 0; If mapping exists already the count is just zeroed
+			nvelim_ids.push_back( id );
 		}
-		
-		
-		
-	}
-	
-	void PaprecaConfig::updateNveLimGroup( ){
-		for ( auto it = limids2limsteps.begin(); it != limids2limsteps.end(); ){ //Need iterator because we want to safely remove items from the map during the loop
-			
-			//Get count and ID from map
-			LAMMPS_NS::tagint id = it->first;
-			int &count = it->second;
-	
-			//Increment count
-			++count;
-
-			//Safely remove items from map if nve limit loop limit is reached for specific id
-			if ( count % nvelim_steps == 0 ){
-				it = limids2limsteps.erase( it ); // returns next valid iterator
-			}else{
-				++it;
-			}
-			
-		}
-		
-	}
-	
-	const bool PaprecaConfig::nveLimGroupIsEmpty( ) const{
-			
-			if( limids2limsteps.empty( ) ){ return true; }
-			
-			return false;
-		
 		
 	}
 	
@@ -489,8 +459,7 @@ namespace PAPRECA{
 		
 		std::string ids_limatoms;
 		
-		for( const auto &pair : limids2limsteps ){
-			const LAMMPS_NS::tagint id = pair.first;
+		for( const auto &id: nvelim_ids ){
 			ids_limatoms += std::to_string( id );
 			ids_limatoms += " ";
 		}

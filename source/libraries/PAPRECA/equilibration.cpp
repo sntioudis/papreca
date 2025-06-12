@@ -283,33 +283,99 @@ namespace PAPRECA{
 	}
 
 	//Equilibration
-	void equilibrateFluidAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time , const unsigned long int &trajectory_duration ){
+	void collectBondedAtoms4NveLimitedGroup( PaprecaConfig &papreca_config , ATOM2BONDS_MAP &atomID2bonds ){
+		
+		/// Collects (implicitly) bonded atoms to IDs already located in the nvelim_ids TAGINT_VEC
+		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
+		/// @note Here, all procs do identical operations to collect bonded atoms. The alternative would be to collect bonded atoms on master proc and then communicate information to remaining procs. This is not necessarily faster, but could be tested in the future.
+		/// @note This function occasionally collects the same atom ID twice. This does not lead to any errors since LAMMPS discards ID duplicates during group creation (i.e., nve_limited). However, would be nice to test in the future and understand why we collect certain IDs twice
+		
+		//Collect bonded atoms
+		std::vector< LAMMPS_NS::tagint > ids_local;
+		TAGINT_SET ids_set; //This is to refrain from collecting the same id twice on the same proc (we use it in the recursive function that collects bonded atoms)
+		for( auto id : papreca_config.getNveLimIdsVec( ) ){
+				
+					
+			if( !elementIsInUnorderedSet( ids_set , id ) ){ //Avoid collecting atoms twice
+						
+				ids_set.insert( id ); //Only insert to set but not to the vector. This way we only collect the bonded atoms AND NOT the bonded plus the parent atom
+				PAPRECA::Bond::recursiveCollectBondedAtoms( id , ids_local , ids_set , atomID2bonds ); //Collect all bonded atoms of inserted atom.
+			}
+			
+				
+		}
+			
+			
+		papreca_config.insertAtomIDs2NveLimGroup( ids_local );
+		
+	}
+	
+	void equilibrateNveLimitedAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time , ATOM2BONDS_MAP &atomID2bonds ){
+		
+		/// Performs a LAMMPS simulation on the fluid atom types (as defined in the PAPRECA input) with a separate nve/limit integration on specific (reacted atoms).
+		/// @param[in,out] lmp pointer to LAMMPS object.
+		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		/// @param[in,out] time current time.
+		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
+		/// @see PAPRECA::runLammps()
+
+		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){
+			
+			
+			//Prepare for run
+			collectBondedAtoms4NveLimitedGroup( papreca_config , atomID2bonds );
+			resetMobileAtomsGroups4NveLimIntegration( lmp , papreca_config );
+			setupNveLimIntegrator( lmp , papreca_config );
+			
+			//Run for given steps
+			runLammps( lmp , papreca_config.getNveLimSteps( ) );
+			
+			
+			//Post run operations
+			removeNveLimIntegrator( lmp , papreca_config );
+			papreca_config.clearNveLimGroup( ); //Clears atom IDs from PAPRECA's internal TAGINT_VEC and NOT from the actual group in LAMMPS
+			resetMobileAtomsGroups( lmp , papreca_config ); //We now call the normal reset atoms function that places all mobile atoms in group fluid.
+															//Note that, atoms will remain in the nve_limited group. However, since the nve/limit integrator is removed
+															//all fluid atoms will be normally integrated (with the integrator/thermostat as set in the LAMMPS input file)
+															
+			advanceSimClockFromLAMMPS( papreca_config , time , "nve_lim" );
+			
+		}
+		
+	}
+	
+	void equilibrateFluidAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time , const std::string &traj_type ,  ATOM2BONDS_MAP &atomID2bonds ){
 		
 		/// Performs a LAMMPS simulation on the fluid atom types (as defined in the PAPRECA input). Then, updates the simulation clock by timestep*trajectory_duration (as defined by the user in the LAMMPS and PAPRECA inputs). Additionally, might perform minimizations before/after the LAMMPS trajectory (if an appropriate LAMMPS minimization command is defined by the user).
 		/// @param[in,out] lmp pointer to LAMMPS object.
-		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
 		/// @param[in,out] time current time.
+		/// @param[in] traj_type denoting type of trajectory to decide how many steps will be run in the LAMMPS MD run. Can either be "normal" or "long".
+		/// @param[in] atomID2bonds PAPRECA::ATOM2BONDS_MAP container (i.e., std::unordered_map< LAMMPS_NS::tagint parent_atomID , std::vector< PAPRECA::Bond > >). The atomID2bonds container provides direct access to all the bonds of the parent atom.
 		/// @see PAPRECA::runLammps()
+		
+		
 		resetMobileAtomsGroups( lmp , papreca_config ); //Reset mobile atom groups (i.e., add/remove atoms from the fluid group so you can be ready to run LAMMPS.
 		
 		//Minimization before traj
 		if( !papreca_config.getMinimize1( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize1( ).c_str( ) ); } //Only call the minimize functions IF a minimize LAMMPS command is defined! otherwise you will get a runtime error in LAMMPS
 		
-		//Set up nve limited groups if required
-		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){ setupNveLimIntegrator( lmp , papreca_config ); }
+		//Set up nve limited groups and run limited trajectory if required
+		equilibrateNveLimitedAtoms( lmp , papreca_config , time , atomID2bonds );
 		
-		//Run trajectory
-		runLammps( lmp , trajectory_duration );
-		
-		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){
-			removeNveLimIntegrator( lmp , papreca_config );
-			papreca_config.updateNveLimGroup( ); //Increments nve limited steps for limited atoms and removes atoms from relevant group if required
+		//Run trajectory based on trajectory type and advance simulation clock
+		if( traj_type == "long" ){
+			runLammps( lmp , papreca_config.getLongTrajDuration( ) );
+		}else if( traj_type == "normal" ){
+			runLammps( lmp , papreca_config.getTrajDuration( ) );
+		}else{
+			allAbortWithMessage( MPI_COMM_WORLD , "Unrecognized traj_type in equilibrateFluidAtoms function in equilibration.cpp)." );
 		}
-		
+		advanceSimClockFromLAMMPS( papreca_config , time , traj_type );
+
 		//Minimization (after trajectory)
 		if( !papreca_config.getMinimize2( ).empty( ) ){ lmp->input->one( papreca_config.getMinimize2( ).c_str( ) ); }
-		
-		advanceSimClockFromLAMMPS( papreca_config , time );
 		
 	}
 	
@@ -320,7 +386,7 @@ namespace PAPRECA{
 		/// @param[in] proc_id ID of current MPI process.
 		/// @param[in] nprocs total number of MPI processes.
 		/// @param[in,out] time current PAPRECA simulation time.
-		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
 		/// @param[in] film_height current PAPRECA simulation height.
 		/// @param[in] zero_rate 0 if the total event rate at the current step is zero, or 1 otherwise.
 		/// @param[in] KMC_loopid current PAPRECA simulation step.
@@ -328,27 +394,29 @@ namespace PAPRECA{
 		/// @see PAPRECA::equilibrateFluidAtoms(), PAPRECA::deleteDesorbedAtoms()
 		/// @note The function also calculates the execution times during the LAMMPS (MD) step (if the executionTimes file has been activated in the PAPRECA input file).
 		
-			
-		if( KMC_loopid % papreca_config.getKMCperLongMD( ) == 0 ){
 		
-			papreca_config.setMDTimeStamp4ExecTimeFile( KMC_loopid );
-			equilibrateFluidAtoms( lmp , papreca_config , time , papreca_config.getLongTrajDuration( ) );
-			papreca_config.calcMDTime4ExecTimeFile( nprocs , KMC_loopid );
-			
-			deleteDesorbedAtoms( lmp , papreca_config , proc_id , nprocs , film_height , atomID2bonds );
-		
+		std::string traj_type;
+		if( KMC_loopid % papreca_config.getKMCperLongMD( ) == 0 ){ 
+			traj_type = "long";
 		}else if( KMC_loopid % papreca_config.getKMCperMD( ) == 0 || zero_rate ){
-		
-			papreca_config.setMDTimeStamp4ExecTimeFile( KMC_loopid );
-			equilibrateFluidAtoms( lmp , papreca_config , time , papreca_config.getTrajDuration( ) );
-			papreca_config.calcMDTime4ExecTimeFile( nprocs , KMC_loopid );
-			
-			deleteDesorbedAtoms( lmp , papreca_config , proc_id , nprocs , film_height , atomID2bonds );
-		
+			traj_type = "normal";
+		}else{
+			traj_type = "none"; //No equilibration at all for this traj_type
 		}
 		
+		if( traj_type == "none" ){ 
+			return;
+		}else if( traj_type != "long" && traj_type != "normal" ){
+			allAbortWithMessage( MPI_COMM_WORLD , "Unrecognized traj_type in equilibrate function in equilibration.cpp)." );
+		}
 		
-
+		//If we did not exit with traj_type "none", perform equilibration
+		papreca_config.setMDTimeStamp4ExecTimeFile( KMC_loopid );
+		equilibrateFluidAtoms( lmp , papreca_config , time , traj_type , atomID2bonds );
+		papreca_config.calcMDTime4ExecTimeFile( nprocs , KMC_loopid );
+		deleteDesorbedAtoms( lmp , papreca_config , proc_id , nprocs , film_height , atomID2bonds );
+		
 	}
+
 	
 } //End of PAPRECA Namespace

@@ -92,6 +92,13 @@ namespace PAPRECA{
 		
 			deleteAtoms( lmp , atom_ids , 2 , "no" , "no" );
 		
+		}else{
+			//Configure internal nve/limit integrator if selected by user in the PAPRECA input file
+			//Only do that if the atoms are not deleted
+			if( papreca_config.nveLimGroupsAreActive( ) ){ //Meaning that the nve limit option was set in the input file
+				papreca_config.insertAtomIDs2NveLimGroup( {atom_ids[0] , atom_ids[1]} ); //Initialize a TAGINT_VEC from the two communicated tagints for current breaking event
+			}
+			
 		}
 		
 	}
@@ -131,9 +138,8 @@ namespace PAPRECA{
 		deleteBond( lmp , atom_ids[0] , atom_ids[1] , 1 ); //Now we can safely call this on all procs, since all procs know the important event details (i.e., atom1id, atom2id ). Delete special if you are using fix_shake and/or you want to recompute the pairwise lists.
 		
 		//Configure internal nve/limit integrator if selected by user in the PAPRECA input file
-		
 		if( papreca_config.nveLimGroupsAreActive( ) ){ //Meaning that the nve limit option was set in the input file
-				papreca_config.insertEventAtomIDs2NveLimGroup( {atom_ids[0] , atom_ids[1]} ); //Initialize a TAGINT_VEC from the two communicated tagints for current breaking event
+				papreca_config.insertAtomIDs2NveLimGroup( {atom_ids[0] , atom_ids[1]} ); //Initialize a TAGINT_VEC from the two communicated tagints for current breaking event
 		}
 		
 		

@@ -52,6 +52,7 @@ namespace PAPRECA{
 	void broadcastDelidsFromMasterProc( LAMMPS_NS::LAMMPS *lmp , const int &proc_id , int &delids_num , std::vector< LAMMPS_NS::tagint > &delids );
 		
 	//Equilibration
+	void equilibrateNveLimitedAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time );
 	void equilibrateFluidAtoms( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double &time , const unsigned long int &trajectory_duration);
 	void equilibrate( LAMMPS_NS::LAMMPS *lmp , int &proc_id , const int &nprocs , double &time , PaprecaConfig &papreca_config , double &film_height , int &zero_rate , const int &KMC_loopid , ATOM2BONDS_MAP &atomID2bonds );
 	

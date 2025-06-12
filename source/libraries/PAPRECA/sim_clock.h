@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 namespace PAPRECA{
 	
 	void advanceSimClockFromKMC( PaprecaConfig &papreca_config , const double &proc_rates_sum , double &time );
-	void advanceSimClockFromLAMMPS( PaprecaConfig &papreca_config , double &time );
+	void advanceSimClockFromLAMMPS( PaprecaConfig &papreca_config , double &time , const std::string &traj_type );
 	
 }//end of PAPRECA namespace 
 

@@ -79,6 +79,7 @@ namespace PAPRECA{
 	void createAtom( LAMMPS_NS::LAMMPS *lmp , const double atom_pos[3] , const int &atom_type );
 	void deleteBond( LAMMPS_NS::LAMMPS *lmp , const LAMMPS_NS::tagint &atom1id , const LAMMPS_NS::tagint &atom2id , const bool special );
 	void formBond( LAMMPS_NS::LAMMPS *lmp , const LAMMPS_NS::tagint &atom1id , const LAMMPS_NS::tagint &atom2id , const int &bond_type );
+	void resetMobileAtomsGroups4NveLimIntegration( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void resetMobileAtomsGroups( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void insertMolecule( LAMMPS_NS::LAMMPS *lmp , const double site_pos[3] , const double rot_pos[3] , const double &rot_theta , const int &mol_id , const char *mol_name );
 	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const int &is_displacive , const int &diffused_type );
@@ -93,7 +94,7 @@ namespace PAPRECA{
 	void initAndGatherBondsList( LAMMPS_NS::LAMMPS *lmp , LAMMPS_NS::tagint **bonds_list , LAMMPS_NS::bigint &bonds_num );
 	
 	//Molecules
-	static inline const int getMolIndexFromMolName( LAMMPS_NS::LAMMPS *lmp , std::string mol_name );
+	static const int getMolIndexFromMolName( LAMMPS_NS::LAMMPS *lmp , std::string mol_name );
 	void computeMolCenter( LAMMPS_NS::LAMMPS *lmp , std::string mol_name );
 	
 	//Files

@@ -96,37 +96,43 @@ namespace PAPRECA{
 	
 	
 	//kMC operations
+	void resetMobileAtomsGroups4NveLimIntegration( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config ){
+		
+		/// Creates two mobile atom groups: one used for nve/limit integration and the "fluid" which contains all the mobile atoms minus those included in the nve/limit group
+		/// @param[in,out] lmp pointer to previously instantiated LAMMPS object.
+		/// @param[in] papreca_config configuration variable including basic simulation information. Used to retrieved the IDs of fluid atoms.
+		/// @note This function is a wrapper of this LAMMPS command: https://docs.lammps.org/group.html.
+		
+		lmp->input->one( "group fluid clear" );
+		lmp->input->one( "group nve_limited clear" );
+		
+		//Reset nve_limited group
+		std::string input_str1 = "group nve_limited id ";
+		input_str1 += papreca_config.exportNveLimIDs2String( );
+		lmp->input->one( input_str1.c_str( ) ); //Now that the nve_limited group is defined, we need to subtract the limited atoms from the fluid group
+		
+		//Reset fluid group by subtracting nve_limited atoms from the fluid group
+		std::string input_str2 = "group fluid_temp type ";
+		for( auto &type : papreca_config.getFluidAtomTypes( ) ){ input_str2 += std::to_string( type ) + " "; }
+		lmp->input->one( input_str2.c_str( ) );
+		lmp->input->one( "group fluid subtract fluid_temp nve_limited");
+		lmp->input->one( "group fluid_temp delete");
+		
+	}
+	
 	void resetMobileAtomsGroups( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config ){
 		
 		/// Clears the fluid group (containing the fluid atom types, as defined in the PAPRECA input file) and redefines it to. This ensures that all atoms of fluid types are included in the fluid group.
 		/// @param[in,out] lmp pointer to previously instantiated LAMMPS object.
-		/// @param[in] papreca_config configuration variable including basic simulation information. Used to retrieved the IDs of fluid atoms and nve limited atoms.
+		/// @param[in] papreca_config configuration variable including basic simulation information. Used to retrieved the IDs of fluid atoms.
 		/// @note This function is a wrapper of this LAMMPS command: https://docs.lammps.org/group.html.
 		/// @note This operation is necessary each time you add/remove atoms. This ensures that the correct group of atoms will keep moving in the simulation.
 	
-		
 		lmp->input->one( "group fluid clear" );
+		std::string input_str1 = "group fluid type ";
+		for( auto &type : papreca_config.getFluidAtomTypes( ) ){ input_str1 += std::to_string( type ) + " "; }
+		lmp->input->one( input_str1.c_str( ) );
 		
-		
-		//Handle fluid group if nve limited groups are active
-		if( papreca_config.nveLimGroupsAreActive( ) && !papreca_config.nveLimGroupIsEmpty( ) ){ 
-			lmp->input->one( "group nve_limited clear" );
-			std::string input_str1 = "group nve_limited id ";
-			input_str1 += papreca_config.exportNveLimIDs2String( );
-			lmp->input->one( input_str1.c_str( ) ); //Now that the nve_limited group is defined, we need to subtract the limited atoms from the fluid group
-			
-			std::string input_str2 = "group fluid_temp type ";
-			for( auto &type : papreca_config.getFluidAtomTypes( ) ){ input_str2 += std::to_string( type ) + " "; }
-			lmp->input->one( input_str2.c_str( ) );
-			lmp->input->one( "group fluid subtract fluid_temp nve_limited");
-			
-		}else{ //Handle fluid group if nve limited groups are inactive
-			
-			std::string input_str3 = "group fluid type ";
-			for( auto &type : papreca_config.getFluidAtomTypes( ) ){ input_str3 += std::to_string( type ) + " "; }
-			lmp->input->one( input_str3.c_str( ) );
-			
-		}
 		
 	}
 	

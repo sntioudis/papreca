@@ -83,7 +83,8 @@ Before you start, it is very important that you familiarize yourself with LAMMPS
 \section unsupfeaut Unsupported Features and illegal commands in LAMMPS input files.
 
 - The current version of %PAPRECA supports only 3D applications (i.e., no 2D applications are supported).
-- The following group names are reserved by %PAPRECA and **cannot** be used in the LAMMPS input file: del_atoms, delete_atoms, deletion, new_mol, fluid, frozen.
+- The following group names are reserved by %PAPRECA and **cannot** be used in the LAMMPS input file: del_atoms, delete_atoms, deletion, new_mol, fluid, frozen, nve_limited.
+- The following fix names are reserved by %PAPRECA and **cannot** be used in the LAMMPS input file: nve_limited_integrator.
 - %PAPRECA uses a dummy group with id=1 to perform bond deletions (see this LAMMPS wrapper function for more information PAPRECA::deleteBond()), which means that you should **NOT** use this bond id to define some another bonded interaction. Please see the "kmc.lmp" file located in ./Examples/Phosphate Film Growth from TCP on Fe110/ for an example demonstrating how you can define multiple bond types.
 
 \section loglammps Dealing with large log.lammps files
