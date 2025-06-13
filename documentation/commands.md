@@ -590,7 +590,7 @@ nve_lim 20 0.01
 
 \subsection nvelim_description Description
 
-Applies an internal [nve/limit](https://docs.lammps.org/fix_nve_limit.html) integrator to atoms reacted through a create_BondBreak or create_BondForm commands in the kMC stage of Papreca. Bonded atoms of reacted atoms are also collected through a recursive bond-collection operation. The (parent and collected) reacted atoms are integrated via nve/limit for a total of "N" time steps and with a maximum allowed displacement of "xmax". This command can be useful to avoid instabilities due to energy release following reaction events.
+Applies an internal [nve/limit](https://docs.lammps.org/fix_nve_limit.html) integrator to atoms reacted through a create_BondBreak or create_BondForm commands in the kMC stage of %PAPRECA. Bonded atoms of reacted atoms are also collected through a recursive bond-collection operation. This guarantees that clusters of bonded atoms (e.g., molecules) are also considered to avoid further instabilities. The (parent and collected) reacted atoms are integrated via nve/limit for a total of "N" time steps and with a maximum allowed displacement of "xmax". This command can be useful to avoid instabilities due to energy release following reaction events.
 
 
 \subsection nvelim_default Defaults
