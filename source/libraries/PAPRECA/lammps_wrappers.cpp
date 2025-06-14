@@ -486,7 +486,7 @@ namespace PAPRECA{
 		double dy = x1[1] - x2[1];
 		double dz = x1[2] - x2[2];
 		
-		lmp->domain->minimum_image( "" , 0 , dx , dy , dz ); //Use minimum_image to account for PBCs in the system
+		lmp->domain->minimum_image( "get3DSqrDistWithPBC func in lammps_wrappers.cpp of PAPRECA namespace" , 489 , dx , dy , dz ); //Use minimum_image to account for PBCs in the system
 	
 		return dx * dx + dy * dy + dz * dz;
 		
