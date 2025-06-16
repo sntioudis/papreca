@@ -107,9 +107,11 @@ namespace PAPRECA{
 		lmp->input->one( "group nve_limited clear" );
 		
 		//Reset nve_limited group
-		std::string input_str1 = "group nve_limited id ";
+		std::string input_str1 = "group nve_limited_temp id ";
 		input_str1 += papreca_config.exportNveLimIDs2String( );
 		lmp->input->one( input_str1.c_str( ) ); //Now that the nve_limited group is defined, we need to subtract the limited atoms from the fluid group
+		lmp->input->one( "group nve_limited subtract nve_limited_temp frozen" ); //Needed if recursive bonded atoms collection collects frozen (e.g., substrate) atoms
+		lmp->input->one( "group nve_limited_temp delete" );
 		
 		//Reset fluid group by subtracting nve_limited atoms from the fluid group
 		std::string input_str2 = "group fluid_temp type ";
