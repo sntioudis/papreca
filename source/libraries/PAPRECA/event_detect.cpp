@@ -87,20 +87,20 @@ namespace PAPRECA{
 			const double rnum1 = papreca_config.getUniformRanNum( );
 			const double rnum2 = papreca_config.getUniformRanNum( );
 			
-			double theta = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI
-			double phi = 0.0;
+			double phi = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI
+			double theta = 0.0;
 			
 			if( papreca_config.getRandomDiffVecsStyle( ) == "2D" ){
-				phi = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2. This means that the random diffvec can only be above the parent type.
+				theta = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2. This means that the random diffvec can only be above the parent type.
 			}else if( papreca_config.getRandomDiffVecsStyle( ) == "3D" ){
-				phi = M_PI * rnum2;
+				theta = M_PI * rnum2;
 			}else{
 				allAbortWithMessage( MPI_COMM_WORLD , "Unkown random diffvecs style " + papreca_config.getRandomDiffVecsStyle( ) );
 			}
 			
-			candidate_xyz[0] = iatom_xyz[0] + diff_dist * sin( phi ) * cos( theta );
-			candidate_xyz[1] = iatom_xyz[1] + diff_dist * sin( phi ) * sin( theta );
-			candidate_xyz[2] = iatom_xyz[2] + diff_dist * cos( phi );
+			candidate_xyz[0] = iatom_xyz[0] + diff_dist * sin( theta ) * cos( phi );
+			candidate_xyz[1] = iatom_xyz[1] + diff_dist * sin( theta ) * sin( phi );
+			candidate_xyz[2] = iatom_xyz[2] + diff_dist * cos( theta );
 				
 		}else{
 			
@@ -236,13 +236,13 @@ namespace PAPRECA{
 			const double rnum1 = papreca_config.getUniformRanNum( );
 			const double rnum2 = papreca_config.getUniformRanNum( );
 			
-			double theta = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI.
-			double phi = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2 (for phi between pi/2 and pi negative z coords would be produced, which is unwanted for the case of thin film growth (i.e., deposition on top of current film)
+			double phi = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI.
+			double theta = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2 (for phi between pi/2 and pi negative z coords would be produced, which is unwanted for the case of thin film growth (i.e., deposition on top of current film)
 			
 			//1) Account for the mol_center, 2) offset candidate_xyz on a sphere around
-			candidate_xyz[0] = iatom_xyz[0] + mol_center[0] + depo_offset * sin( phi ) * cos( theta );
-			candidate_xyz[1] = iatom_xyz[1] + mol_center[1] + depo_offset * sin( phi ) * sin( theta );
-			candidate_xyz[2] = iatom_xyz[2] + mol_center[2] + depo_offset * cos( phi );
+			candidate_xyz[0] = iatom_xyz[0] + mol_center[0] + depo_offset * sin( theta ) * cos( phi );
+			candidate_xyz[1] = iatom_xyz[1] + mol_center[1] + depo_offset * sin( theta ) * sin( phi );
+			candidate_xyz[2] = iatom_xyz[2] + mol_center[2] + depo_offset * cos( theta );
 		
 		}else{
 			//For non-random deposition vectors the candidate sits directly above the parent atom. 
