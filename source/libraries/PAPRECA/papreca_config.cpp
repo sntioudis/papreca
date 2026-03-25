@@ -150,20 +150,15 @@ namespace PAPRECA{
 	}
 	
 	
-	void PaprecaConfig::initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_perc ){
+	void PaprecaConfig::initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate ){
 		
 		
 		PredefinedBondForm *bond_form = NULL;
 	
 		const double bond_dist_sqr = static_cast<double>( bond_dist * bond_dist );
 		
-		if( catalyzing_types.size( ) == 0 ){
-			bond_form = new PredefinedBondForm( atom1_type , atom2_type , bond_type , rate , bond_dist_sqr , delete_atoms , lone_candidates , same_mol );
-		}else{
-			bond_form = new PredefinedBondForm( atom1_type , atom2_type , bond_type , rate , bond_dist_sqr , delete_atoms , lone_candidates , same_mol , catalyzing_types );
-		}
+		bond_form = new PredefinedBondForm( atom1_type , atom2_type , bond_type , rate , bond_dist_sqr , delete_atoms , lone_candidates , same_mol );
 		
-		if( length_equil != 0.0 ){  bond_form->setSqrLimits( length_equil , length_perc ); }
 		
 		INT_PAIR type_pair( atom1_type , atom2_type );
 		INT_PAIR type_pair_reverse( atom2_type , atom1_type );
@@ -304,8 +299,10 @@ namespace PAPRECA{
 	const bool &PaprecaConfig::depoVecsAreRandom( ) const{ return random_depovecs; }
 	void PaprecaConfig::setRandomDiffVecs( const bool &random_diffvecs_in ){ random_diffvecs = random_diffvecs_in; }
 	const bool &PaprecaConfig::diffVecsAreRandom( ) const{ return random_diffvecs; }
-	void PaprecaConfig::setRandomDiffVecsStyle( const std::string &diffvecs_style_in ){ diffvecs_style = diffvecs_style_in; }
-	const std::string &PaprecaConfig::getRandomDiffVecsStyle( ) const{ return diffvecs_style; }
+	void PaprecaConfig::setRandomDiffVecsStyle( const std::string &randomdiffvecs_style_in ){ randomdiffvecs_style = randomdiffvecs_style_in; }
+	const std::string &PaprecaConfig::getRandomDiffVecsStyle( ) const{ return randomdiffvecs_style; }
+	void PaprecaConfig::setDeterministicDiffVecsStyle( const std::string &detdiffvecs_style_in ){ detdiffvecs_style = detdiffvecs_style_in; }
+	const std::string &PaprecaConfig::getDeterministicDiffVecsStyle( ) const{ return detdiffvecs_style; }
 	void PaprecaConfig::setDepoHeights( const double &height_deposcan_in , const double &height_deporeject_in ){
 		
 		height_deposcan = height_deposcan_in;

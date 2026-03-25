@@ -1,7 +1,3 @@
-1) Additional information on the papreca.log file
-2) Limit option for bond-breaking events
-3) Catalyzing option for bond-formation events
-4) Long equilibration option, commands, and documentation
-5) nve/limit command added for bond-breaking and bond-forming events WITH recursive collection of bonded atoms.
-
-**PREPARED CMAKE FILES FOR UPCOMING LAMMPS UPGRADE TO C++17 STANDARD**
+1) Added +x, -x, +y, -y, +z, -z, +x+y, -x+y, -x-y, +x-y, deterministic (i.e., "random_diffvecs no") options and updated documentation
+2) Removed catalyzed and limit options for bond-formation events. They looked like an overkill and I could not think of a realistic application where these would be required.
+I will re-introduce this later if users require it for a specific application. <--- Will need to check that nothing is broken regarding bondForms (potentially test that the Phosphates example runs smoothly).

@@ -692,14 +692,6 @@ rate_arrhenius values = energy frequency temperature
 	temperature = temperature in K.
 ```
 
-- (OPTIONAL) keyword = **catalyzed**
-
-```bash
-catalyzed values = N type1 type2 ... typeN
-	N = total number of catalyzing types
-	type = atom type that catalyzes the bond-breaking event.
-```
-
 \subsection createForm_examples Example(s)
 
 ```bash
@@ -719,7 +711,6 @@ Bonds are created by calling PAPRECA::formBond() LAMMPS wrapper function and the
 
 You can provide the bond-formation rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
-For more information regarding the catalyzed option please see \ref createBreak.
 
 > **Note:**
 > In the current version each pair of atom types (e.g., type 1 and type 2) and their corresponding bond (e.g., bond type 5 for atom types 1 and 2) are allowed to be associated with only one predefined bond-forming template.
@@ -1010,35 +1001,45 @@ random_diffvecs arg values
 - (REQUIRED) arg = **no** or **yes**
 
 ```bash
-no values = 2D or 3D
+yes values = 2D or 3D
 	2D = for diffusion sites located only directly above the parent atom.
 	3D = for diffusion sites located above as well as below the parent atom.
-yes values = 2D or 3D
+no values = +x or -x or +y or -y or +z or -z or +x+y or -x+y or -x-y or +x-y
+	+n or -n (with n being either x, y, or z) = for deterministic diffusion sites displaced by diff_dist (see \ref createDiff) along axis n and direction (+ or -)
+	+x+y = for diagonal deterministic diffusion sites on the 1st quadrant of the x-y plane
+	-x+y = for diagonal deterministic diffusion sites on the 2nd quadrant of the x-y plane
+	-x-y = for diagonal deterministic diffusion sites on the 3rd quadrant of the x-y plane
+	+x-y = for diagonal deterministic diffusion sites on the 4th quadrant of the x-y plane
 ```
 
 \subsection diffvecs_examples Example(s)
 
 ```bash
 random_diffvecs no
-random_diffvecs no 2D
+random_diffvecs no -z
+random_diffvecs no -x+y
+random_diffvecs yes
+random_diffvecs yes 2D
 random_diffvecs yes 3D
+
 ```
 
 \subsection diffvecs_description Description
 
-When the "2D" option is used diffusion sites (i.e., locations towards which the atoms migrate) can
-only be located above the parent atom (i.e., the atom on which searches for kMC events are performed). This means that atoms will solely diffuse towards the +z-direction.
-When the "3D" option is used diffusion sites can be located above as well as below the parent atom.
+This command determines whether the diffusion sites of a diffusion event will be randomly ("random_diffvecs yes") or deterministically generated ("random_diffvecs no").
+ 
+Random diffusion sites are located on the surface of a sphere (when the "yes 3D" option is used) or the northern hemisphere (when the "yes 2D" option is used). The sphere (or hemisphere) has a radius of diff_dist (see \ref createDiff)
+and is centered on the parent atom of the diffusion event. Note that the exact location of the diffusion site depends on a random number (see getDiffPointCandidateCoords() for more information) and will be different for each diffusion event (i.e., it cannot be predetermined).
+Random diffusion sites can be useful when it comes to simulating random-walk-like events.
 
-When random_diffvecs are not activated (i.e., random_diffvecs = no) diffusion sites will be directly above/below (depending on whether the "2D" or "3D" options were used)
-and at a distance of diff_dist (see \ref createDiff).
-
-When random_diffvecs are activated (i.e., random_diffvecs  = yes ) diffusion sites will be located on the surface
-of a sphere centered on the parent atom. The exact position of the COM is selected randomly (by drawing a random number, see getDiffPointCandidateCoords() for more information).
+When random_diffvecs are not activated (i.e., "random_diffvecs no") the diffusion site is placed with a specific orientation on a given axis and is separated from the parent atom by diff_dist (see \ref createDiff).
+For instance, "random_diffvecs no -z" places diffusion sites below the parent atom at a distance of diff_dist. These options can be very useful to simulate diffusion  on/in crystals.
+The predetermined "xy" options allow for diagonal (i.e., rotated by 45 degrees) diffusion events. Again, this can be useful for diffusion on lattices (e.g., exchange events on FCC slabs). 
 
 \subsection diffvecs_default Default
 
-random_diffvecs = no
+random_diffvecs defaults to "no +z", If the command is not used at all. "+z" is the default deterministic diffusion option if the user inputs "random_diffvecs no" (ommiting the optional value). "3D" is the default random value if the user inputs "random_diffvecs yes" (ommiting the optional value).
+
 
 <hr>
 

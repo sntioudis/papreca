@@ -804,18 +804,33 @@ namespace PAPRECA{
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
-		if( commands.size( ) != 2 && commands.size( ) != 3 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid random_diffvecs command. Must be random_diffvecs yes/no. Optional keyword(s): diffvecs_style (2D/3D). Choose 2D for random diffvecs ONLY above the parent atom or 3D for random diffvecs anywhere in the 3D space."); }
-	
+		if( commands.size( ) != 2 && commands.size( ) != 3 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid random_diffvecs command. Must be random_diffvecs yes/no. Optional keyword(s): 2D or 3D for random_diffvecs yes and +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y for random_diffvecs no. Choose 2D for random_diffvecs ONLY above the parent atom or 3D for random_diffvecs anywhere in the 3D space. For deterministic diffusion and predictable location of diffusion sites choose +-n (where n is either x, y, z, or xy) to displace atom along the relevant axis and direction."); }
+		if( commands[1] != "yes" && commands[1] != "no" ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid random_diffvecs command. Must be random_diffvecs yes/no. Optional keyword(s): 2D or 3D for random_diffvecs yes and +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y for random_diffvecs no. Choose 2D for random_diffvecs ONLY above the parent atom or 3D for random_diffvecs anywhere in the 3D space. For deterministic diffusion and predictable location of diffusion sites choose +-n (where n is either x, y, z, or xy) to displace atom along the relevant axis and direction."); }
+			
 		const bool random_diffvecs = string2Bool( commands[1] );
 		papreca_config.setRandomDiffVecs( random_diffvecs );
 		
+		
 		if( commands.size( ) == 3 ){ 
 			
-			if( commands[2] == "2D" || commands[2] == "3D" ){
-				papreca_config.setRandomDiffVecsStyle( commands[2] );
-			}else{
-				allAbortWithMessage( MPI_COMM_WORLD , "Unknown random diffvecs style: " + commands[2] + " in command: " + commands[0] + " the only supported options are 2D and 3D." );
+			if( commands[1] == "yes" ){
+				
+				if( commands[2] == "2D" || commands[2] == "3D" ){
+					papreca_config.setRandomDiffVecsStyle( commands[2] );
+				}else{
+					allAbortWithMessage( MPI_COMM_WORLD , "Unknown random diffvecs style: " + commands[2] + " in command: " + commands[0] + "! the only supported options for random diffvecs are 2D and 3D." );
+				}
+				
+			}else if( commands[1] == "no" ){
+				
+				if( commands[2] == "+x" || commands[2] == "-x" || commands[2] == "+y"  || commands[2] == "-y"  || commands[2] == "+z"  || commands[2] == "-z"  || commands[2] == "+x+y" || commands[2] == "-x+y" || commands[2] == "-x-y" || commands[2] == "+x-y"){
+					papreca_config.setDeterministicDiffVecsStyle( commands[2] );
+				}else{
+					allAbortWithMessage( MPI_COMM_WORLD , "Unknown (random or deterministic) diffvecs style: " + commands[2] + " in command: " + commands[0] + "! the only supported deterministic options are +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y." );
+				}
+				
 			}
+			
 		}
 		
 	}
@@ -895,29 +910,8 @@ namespace PAPRECA{
 		const bool same_mol = string2Bool( commands[7] );
 		int current_pos = 8;
 		double rate = getRateFromInputRateOptions( commands , current_pos );
-		
-		std::vector< int > catalyzing_types;
-		double length_equil = 0.0;
-		double length_perc = 0.0;
-		
-		//Optional Commands update the current_pos value. Exit when current_pos reached the end of the command line (or if an error occurs).
-		if( current_pos != commands.size( ) ){ //Exit immediately if there are no optional keywords
-		
-			std::unordered_set< std::string > processed; //Initialize set to keep track of processed optional commands
-			
-			do{
-				if( !elementIsInUnorderedSet( processed , std::string( "catalyzed" ) ) && commands[current_pos] == "catalyzed" ){	
-					processCatalyzedOption( commands , current_pos , catalyzing_types ); //If no catalyzing types are detected the size of catalyzing_types is 0. initReaction (from PaprecaConfig) takes this into account when initializing the event
-					processed.insert( std::string( "catalyzed" ) );
-				}else if( !elementIsInUnorderedSet( processed , std::string( "limit" ) ) && commands[current_pos] == "limit" ){
-					processBondLimitOption( commands , current_pos , length_equil , length_perc );
-					processed.insert( std::string( "limit" ) );
-				}else if( commands[current_pos] != "catalyzed" && commands[current_pos] != "limit" ){ allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." ); }
-				
-			}while( commands.size( ) > current_pos );
-		}
 	
-		papreca_config.initPredefinedBondForm( atom1_type , atom2_type , bond_type , bond_dist , delete_atoms , lone_candidates , same_mol , rate , catalyzing_types , length_equil , length_perc );
+		papreca_config.initPredefinedBondForm( atom1_type , atom2_type , bond_type , bond_dist , delete_atoms , lone_candidates , same_mol , rate );
 
 		
 		

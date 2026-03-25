@@ -100,7 +100,6 @@ namespace PAPRECA{
 		public:
 			//Constructors/Destructors
 			PredefinedBondForm( const int &atom1_type_in , const int &atom2_type_in , const int &bond_type_in , const double &rate_in , const double &bond_dist_sqr_in , const int &delete_atoms_in , const int &lone_candidates_in , const bool &same_mol_in );
-			PredefinedBondForm( const int &atom1_type_in , const int &atom2_type_in , const int &bond_type_in , const double &rate_in , const double &bond_dist_sqr_in , const int &delete_atoms_in , const int &lone_candidates_in , const bool &same_mol_in , const std::vector< int > &catalyzing_types_in );
 			~PredefinedBondForm( );
 			
 			//Functions

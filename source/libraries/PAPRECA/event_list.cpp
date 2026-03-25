@@ -62,7 +62,6 @@ namespace PAPRECA{
 	//---------------------------------------PredefinedBondForm class---------------------------------------
 	//Constructors/Destructors
 	PredefinedBondForm::PredefinedBondForm( const int &atom1_type_in , const int &atom2_type_in , const int &bond_type_in , const double &rate_in , const double &bond_dist_sqr_in , const int &delete_atoms_in , const int &lone_candidates_in , const bool &same_mol_in ) : PredefinedReaction( atom1_type_in , atom2_type_in , bond_type_in , rate_in ) , bond_dist_sqr( bond_dist_sqr_in ) , delete_atoms( delete_atoms_in ) , lone_candidates( lone_candidates_in ) , same_mol( same_mol_in ){ is_form = true; }
-	PredefinedBondForm::PredefinedBondForm( const int &atom1_type_in , const int &atom2_type_in , const int &bond_type_in , const double &rate_in , const double &bond_dist_sqr_in , const int &delete_atoms_in , const int &lone_candidates_in , const bool &same_mol_in , const std::vector< int > &catalyzing_types_in ) : PredefinedReaction( atom1_type_in , atom2_type_in , bond_type_in , rate_in , catalyzing_types_in ) , bond_dist_sqr( bond_dist_sqr_in ) , delete_atoms( delete_atoms_in ) , lone_candidates( lone_candidates_in ) , same_mol( same_mol_in ){ is_form = true; }
 	PredefinedBondForm::~PredefinedBondForm( ){ }
 	
 	
