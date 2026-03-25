@@ -3,5 +3,6 @@
 I will reintroduce this later if users require it for a specific application. <--- Will need to check that nothing is broken regarding bondForms (potentially test that the Phosphates example runs smoothly).
 3) Added limited option for bond-breaking events to restrict the bond length before removing the bond (and updated documentation accordingly)
 4) Added nve/lim option, which places atoms from bond formation/breaking events in a separate group that is integrated with nve/lim for a number of steps (updated documentation accordingly)
+5) Added short/long trajectory option for MD stage.
 
 Updated files for transition to C++17 (in accordance with LAMMPS updates).
