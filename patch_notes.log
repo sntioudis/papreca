@@ -1,3 +1,7 @@
-1) Added +x, -x, +y, -y, +z, -z, +x+y, -x+y, -x-y, +x-y, deterministic (i.e., "random_diffvecs no") options and updated documentation
-2) Removed catalyzed and limit options for bond-formation events. They looked like an overkill and I could not think of a realistic application where these would be required.
-I will re-introduce this later if users require it for a specific application. <--- Will need to check that nothing is broken regarding bondForms (potentially test that the Phosphates example runs smoothly).
+1) Added +x, -x, +y, -y, +z, -z, +x+y, -x+y, -x-y, +x-y, deterministic (i.e., "random_diffvecs no") options and updated documentation.
+2) Removed catalyzed and limit options for bond-formation events. They looked like overkill, and I could not think of a realistic application where these would be required.
+I will reintroduce this later if users require it for a specific application. <--- Will need to check that nothing is broken regarding bondForms (potentially test that the Phosphates example runs smoothly).
+3) Added limited option for bond-breaking events to restrict the bond length before removing the bond (and updated documentation accordingly)
+4) Added nve/lim option, which places atoms from bond formation/breaking events in a separate group that is integrated with nve/lim for a number of steps (updated documentation accordingly)
+
+Updated files for transition to C++17 (in accordance with LAMMPS updates).
