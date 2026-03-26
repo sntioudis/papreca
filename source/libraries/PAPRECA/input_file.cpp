@@ -798,43 +798,6 @@ namespace PAPRECA{
 		
 	}
 	
-	void executeRandomDiffvecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
-		
-		/// Sets the type of diffusion vector in the PAPRECA::PaprecaConfig object.
-		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
-		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
-		
-		if( commands.size( ) != 2 && commands.size( ) != 3 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid random_diffvecs command. Must be random_diffvecs yes/no. Optional keyword(s): 2D or 3D for random_diffvecs yes and +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y for random_diffvecs no. Choose 2D for random_diffvecs ONLY above the parent atom or 3D for random_diffvecs anywhere in the 3D space. For deterministic diffusion and predictable location of diffusion sites choose +-n (where n is either x, y, z, or xy) to displace atom along the relevant axis and direction."); }
-		if( commands[1] != "yes" && commands[1] != "no" ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid random_diffvecs command. Must be random_diffvecs yes/no. Optional keyword(s): 2D or 3D for random_diffvecs yes and +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y for random_diffvecs no. Choose 2D for random_diffvecs ONLY above the parent atom or 3D for random_diffvecs anywhere in the 3D space. For deterministic diffusion and predictable location of diffusion sites choose +-n (where n is either x, y, z, or xy) to displace atom along the relevant axis and direction."); }
-			
-		const bool random_diffvecs = string2Bool( commands[1] );
-		papreca_config.setRandomDiffVecs( random_diffvecs );
-		
-		
-		if( commands.size( ) == 3 ){ 
-			
-			if( commands[1] == "yes" ){
-				
-				if( commands[2] == "2D" || commands[2] == "3D" ){
-					papreca_config.setRandomDiffVecsStyle( commands[2] );
-				}else{
-					allAbortWithMessage( MPI_COMM_WORLD , "Unknown random diffvecs style: " + commands[2] + " in command: " + commands[0] + "! the only supported options for random diffvecs are 2D and 3D." );
-				}
-				
-			}else if( commands[1] == "no" ){
-				
-				if( commands[2] == "+x" || commands[2] == "-x" || commands[2] == "+y"  || commands[2] == "-y"  || commands[2] == "+z"  || commands[2] == "-z"  || commands[2] == "+x+y" || commands[2] == "-x+y" || commands[2] == "-x-y" || commands[2] == "+x-y"){
-					papreca_config.setDeterministicDiffVecsStyle( commands[2] );
-				}else{
-					allAbortWithMessage( MPI_COMM_WORLD , "Unknown (random or deterministic) diffvecs style: " + commands[2] + " in command: " + commands[0] + "! the only supported deterministic options are +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y." );
-				}
-				
-			}
-			
-		}
-		
-	}
-	
 	
 	void executeCreateBondBreakCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 	
@@ -923,9 +886,9 @@ namespace PAPRECA{
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
-		std::string error_message = "Invalid create_DiffusionHop command. Must be create_DiffusionHop parent_type velocity diffusion_distance is_displacive(yes/no) diffused_type rate_(valid rate calculation command).";
+		std::string error_message = "Invalid create_DiffusionHop command. Must be create_DiffusionHop parent_type velocity diffusion_distance diffvec_style is_displacive(yes/no) diffused_type rate_(valid rate calculation command).";
 		
-		if( commands.size( ) < 8 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
+		if( commands.size( ) < 9 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
 		
 		int parent_type = string2Int( commands[1] );
 		if( parent_type < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "parent_type in " + commands[0] + " command has to be a non-negative integer number."); }
@@ -934,12 +897,18 @@ namespace PAPRECA{
 		if( velocity < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "velocity in " + commands[0] + " command has to be non-negative."); }
 
 		double distance = string2Double( commands[3] );
-		bool is_displacive = string2Bool( commands[4] );
 		
-		int diffused_type = string2Int( commands[5] );
+		std::string diffvec_style = commands[4];
+		if( diffvec_style != "+x" && diffvec_style != "-x" && diffvec_style != "+y" && diffvec_style != "-y" && diffvec_style != "+z" && diffvec_style != "-z" && diffvec_style != "+x+y" && diffvec_style != "-x+y" && diffvec_style != "-x-y" && diffvec_style != "+x-y" && diffvec_style != "sphere2D" && diffvec_style != "sphere3D" ){
+			allAbortWithMessage( MPI_COMM_WORLD , "Unknown diffvec style " + commands[4] + " in " + commands[0] + " command. Must be +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y/sphere2D/sphere3D. ");
+		}
+		
+		bool is_displacive = string2Bool( commands[5] );
+		
+		int diffused_type = string2Int( commands[6] );
 		if( diffused_type < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "diffused_type in " + commands[0] + " command has to be a non-negative integer number."); }
 		
-		int current_pos = 6;
+		int current_pos = 7;
 		double rate = getRateFromInputRateOptions( commands , current_pos );
 		std::string custom_style = "NONE";
 		std::vector< int > style_atomtypes;
@@ -956,7 +925,7 @@ namespace PAPRECA{
 			}while( current_pos < commands.size( ) );
 		}
 		
-		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , is_displacive , diffused_type , rate , custom_style , style_atomtypes );
+		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , diffvec_style , is_displacive , diffused_type , rate , custom_style , style_atomtypes );
 		
 		
 		
@@ -1259,8 +1228,6 @@ namespace PAPRECA{
 			executeDepoheightsCommand( commands , papreca_config );
 		}else if( command_class == "random_depovecs" ){
 			executeRandomDepovecsCommand( commands , papreca_config );
-		}else if( command_class == "random_diffvecs" ){
-			executeRandomDiffvecsCommand( commands, papreca_config );
 		}else if( command_class == "create_BondBreak" ){
 			executeCreateBondBreakCommand( commands , papreca_config );
 		}else if( command_class == "create_BondForm" ){

@@ -77,8 +77,8 @@ namespace PAPRECA{
 	
 	//---------------------------------------PredefinedDiffusionHop class---------------------------------------
 	//Constructors/Destructors
-	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( parent_type_in ) , is_displacive( true ){ }
-	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in , const bool &is_displacive_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( diffused_type_in ) , is_displacive( is_displacive_in ){ }
+	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ), rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( parent_type_in ) , is_displacive( true ){ }
+	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in , const bool &is_displacive_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ) , rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( diffused_type_in ) , is_displacive( is_displacive_in ){ }
 	PredefinedDiffusionHop::~PredefinedDiffusionHop( ){ }
 	
 	//functions
@@ -88,6 +88,7 @@ namespace PAPRECA{
 	const bool &PredefinedDiffusionHop::isDisplacive( ) const{ return is_displacive; }
 	const double &PredefinedDiffusionHop::getDiffusionDist( ) const{ return diffusion_dist; }
 	const double &PredefinedDiffusionHop::getRate( ) const{ return rate; }
+	const std::string &PredefinedDiffusionHop::getDiffvecStyle( ) const{ return diffvec_style; }
 	const std::string &PredefinedDiffusionHop::getCustomStyle( ) const{ return custom_style; }
 	const std::vector< int > &PredefinedDiffusionHop::getStyleAtomTypes( ) const{ return style_atomtypes; }
 	//-------------------------------------End of PredefinedDiffusionHop class-------------------------------------

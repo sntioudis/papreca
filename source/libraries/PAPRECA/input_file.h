@@ -79,7 +79,6 @@ namespace PAPRECA{
 	void executeNveLimCommand( LAMMPS_NS::LAMMPS *lmp , std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeDepoheightsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeRandomDepovecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
-	void executeRandomDiffvecsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeCreateBondBreakCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeCreateBondFormCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeCreateDiffusionHopCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );

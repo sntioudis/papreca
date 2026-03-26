@@ -66,106 +66,8 @@ namespace PAPRECA{
 		
 
 	}
+		
 	
-	void getRandomDiffVecCandidateCoords( PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , const double &diff_dist ){
-		
-		/// Returns the diffusion candidate coords for random diffvecs
-		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
-		/// @param[in] iatom_xyz coordinates of parent atom.
-		/// @param[in,out] candidate_xyz coordinates of diffusion point.
-		/// @param[in] diff_dist diffusion distance as defined in the diffusion event template.
-		/// @see PAPRECA::getDiffEventsFromAtom(), getDiffPointCandidateCoords( )
-		
-		const double rnum1 = papreca_config.getUniformRanNum( );
-		const double rnum2 = papreca_config.getUniformRanNum( );
-			
-		double phi = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI
-		double theta = 0.0;
-			
-		if( papreca_config.getRandomDiffVecsStyle( ) == "2D" ){
-			theta = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2. This means that the random diffvec can only be above the parent type.
-		}else if( papreca_config.getRandomDiffVecsStyle( ) == "3D" ){
-			theta = M_PI * rnum2;
-		}else{
-			allAbortWithMessage( MPI_COMM_WORLD , "Unkown random diffvecs style " + papreca_config.getRandomDiffVecsStyle( ) );
-		}
-			
-		candidate_xyz[0] = iatom_xyz[0] + diff_dist * sin( theta ) * cos( phi );
-		candidate_xyz[1] = iatom_xyz[1] + diff_dist * sin( theta ) * sin( phi );
-		candidate_xyz[2] = iatom_xyz[2] + diff_dist * cos( theta );
-		
-	}
-	
-	void getDeterministicDiffVecCandidateCoords( PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , const double &diff_dist ){
-		
-		/// Returns the diffusion candidate coords for deterministic diffvecs
-		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
-		/// @param[in] iatom_xyz coordinates of parent atom.
-		/// @param[in,out] candidate_xyz coordinates of diffusion point.
-		/// @param[in] diff_dist diffusion distance as defined in the diffusion event template.
-		/// @see PAPRECA::getDiffEventsFromAtom(), getDiffPointCandidateCoords( )
-					
-			
-		//For random_diffvecs NO we need to address all possible combinations of plus/minus and x/y/z.
-		//Additionally, a plus xy and a minus xy event have been introduced that moves the atom on the xy plane and on a 45deg angle between x and y
-		// The default option is +z
-			
-		if( papreca_config.getDeterministicDiffVecsStyle( ) == "+x" ){
-			candidate_xyz[0] = iatom_xyz[0] + diff_dist;
-			candidate_xyz[1] = iatom_xyz[1];
-			candidate_xyz[2] = iatom_xyz[2];
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "-x" ){
-			candidate_xyz[0] = iatom_xyz[0] - diff_dist;
-			candidate_xyz[1] = iatom_xyz[1];
-			candidate_xyz[2] = iatom_xyz[2];				
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "+y" ){
-			candidate_xyz[0] = iatom_xyz[0];
-			candidate_xyz[1] = iatom_xyz[1]  + diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];	
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "-y" ){
-			candidate_xyz[0] = iatom_xyz[0];
-			candidate_xyz[1] = iatom_xyz[1]  - diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "+z" ){
-			candidate_xyz[0] = iatom_xyz[0];
-			candidate_xyz[1] = iatom_xyz[1];
-			candidate_xyz[2] = iatom_xyz[2] + diff_dist;
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "-z" ){
-			candidate_xyz[0] = iatom_xyz[0];
-			candidate_xyz[1] = iatom_xyz[1];
-			candidate_xyz[2] = iatom_xyz[2] - diff_dist;
-			
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "+x+y" ){
-			//Moves atom diagonally up and right (1st quadrant)
-			//M_SQRT1_2=cos(45deg)=sin(45deg)
-			candidate_xyz[0] = iatom_xyz[0] + M_SQRT1_2 * diff_dist;
-			candidate_xyz[1] = iatom_xyz[1] + M_SQRT1_2 * diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "-x+y" ){
-			//Moves atom diagonally up and left (2nd quadrant)
-			candidate_xyz[0] = iatom_xyz[0] - M_SQRT1_2 * diff_dist;
-			candidate_xyz[1] = iatom_xyz[1] + M_SQRT1_2 * diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "-x-y" ){
-			//Moves atom diagonally down and left (3rd quadrant)
-			candidate_xyz[0] = iatom_xyz[0] - M_SQRT1_2 * diff_dist;
-			candidate_xyz[1] = iatom_xyz[1] - M_SQRT1_2 * diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];
-		}else if( papreca_config.getDeterministicDiffVecsStyle( ) == "+x-y" ){
-			//Moves atom diagonally down and right (4th quadrant)
-			candidate_xyz[0] = iatom_xyz[0] + M_SQRT1_2 * diff_dist;
-			candidate_xyz[1] = iatom_xyz[1] - M_SQRT1_2 * diff_dist;
-			candidate_xyz[2] = iatom_xyz[2];
-		}else{
-			allAbortWithMessage( MPI_COMM_WORLD , "Unkown determinisitc diffvecs style " + papreca_config.getDeterministicDiffVecsStyle( ) );
-		}
-		
-	}
 	
 	void getDiffPointCandidateCoords( LAMMPS_NS::LAMMPS *lmp  , PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , PredefinedDiffusionHop *diff_template ){
 	
@@ -178,11 +80,83 @@ namespace PAPRECA{
 		/// @see PAPRECA::getDiffEventsFromAtom()
 		/// @see getDepoPointCandidateCoords() for definition of random_vacancy
 		
-		if( papreca_config.diffVecsAreRandom( ) ){
-			getRandomDiffVecCandidateCoords( papreca_config , iatom_xyz , candidate_xyz , diff_template->getDiffusionDist( ) );
+		
+		const double &diff_dist = diff_template->getDiffusionDist( );
+		const std::string &diffvec_style = diff_template->getDiffvecStyle( );
+			
+		if( diffvec_style == "+x" ){
+			candidate_xyz[0] = iatom_xyz[0] + diff_dist;
+			candidate_xyz[1] = iatom_xyz[1];
+			candidate_xyz[2] = iatom_xyz[2];
+			
+		}else if( diffvec_style == "-x" ){
+			candidate_xyz[0] = iatom_xyz[0] - diff_dist;
+			candidate_xyz[1] = iatom_xyz[1];
+			candidate_xyz[2] = iatom_xyz[2];				
+			
+		}else if( diffvec_style == "+y" ){
+			candidate_xyz[0] = iatom_xyz[0];
+			candidate_xyz[1] = iatom_xyz[1]  + diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];	
+			
+		}else if( diffvec_style == "-y" ){
+			candidate_xyz[0] = iatom_xyz[0];
+			candidate_xyz[1] = iatom_xyz[1]  - diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];
+			
+		}else if( diffvec_style == "+z" ){
+			candidate_xyz[0] = iatom_xyz[0];
+			candidate_xyz[1] = iatom_xyz[1];
+			candidate_xyz[2] = iatom_xyz[2] + diff_dist;
+			
+		}else if( diffvec_style == "-z" ){
+			candidate_xyz[0] = iatom_xyz[0];
+			candidate_xyz[1] = iatom_xyz[1];
+			candidate_xyz[2] = iatom_xyz[2] - diff_dist;
+			
+		}else if( diffvec_style == "+x+y" ){
+			//Moves atom diagonally up and right (1st quadrant)
+			//M_SQRT1_2=cos(45deg)=sin(45deg)
+			candidate_xyz[0] = iatom_xyz[0] + M_SQRT1_2 * diff_dist;
+			candidate_xyz[1] = iatom_xyz[1] + M_SQRT1_2 * diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];
+		}else if( diffvec_style == "-x+y" ){
+			//Moves atom diagonally up and left (2nd quadrant)
+			candidate_xyz[0] = iatom_xyz[0] - M_SQRT1_2 * diff_dist;
+			candidate_xyz[1] = iatom_xyz[1] + M_SQRT1_2 * diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];
+		}else if( diffvec_style == "-x-y" ){
+			//Moves atom diagonally down and left (3rd quadrant)
+			candidate_xyz[0] = iatom_xyz[0] - M_SQRT1_2 * diff_dist;
+			candidate_xyz[1] = iatom_xyz[1] - M_SQRT1_2 * diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];
+		}else if( diffvec_style == "+x-y" ){
+			//Moves atom diagonally down and right (4th quadrant)
+			candidate_xyz[0] = iatom_xyz[0] + M_SQRT1_2 * diff_dist;
+			candidate_xyz[1] = iatom_xyz[1] - M_SQRT1_2 * diff_dist;
+			candidate_xyz[2] = iatom_xyz[2];
+		}else if( diffvec_style == "sphere2D" || diffvec_style == "sphere3D" ){
+			
+			const double rnum1 = papreca_config.getUniformRanNum( );
+			const double rnum2 = papreca_config.getUniformRanNum( );
+				
+			double phi = 2.0 * M_PI * rnum1; //Gives a number between 0 and 2PI
+			double theta = 0.0;
+				
+			if( diffvec_style == "sphere2D" ){
+				theta = 0.5 * M_PI * rnum2; //Gives a number between 0 and pi/2. This means that the random diffvec can only be above the parent type.
+			}else if( diffvec_style == "sphere3D" ){
+				theta = M_PI * rnum2;
+			}
+			
+			candidate_xyz[0] = iatom_xyz[0] + diff_dist * sin( theta ) * cos( phi );
+			candidate_xyz[1] = iatom_xyz[1] + diff_dist * sin( theta ) * sin( phi );
+			candidate_xyz[2] = iatom_xyz[2] + diff_dist * cos( theta );
+			
 		}else{
-			getDeterministicDiffVecCandidateCoords( papreca_config , iatom_xyz , candidate_xyz , diff_template->getDiffusionDist( ) );
+			allAbortWithMessage( MPI_COMM_WORLD , "Unkown diffvec style " + diffvec_style + " in getDiffPointCandidateCoords( ) function of event_detect.cpp." );
 		}
+		
 
 		remap3DArrayInPeriodicBox( lmp , candidate_xyz );
 		

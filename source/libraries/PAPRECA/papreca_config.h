@@ -89,7 +89,7 @@ namespace PAPRECA{
 			PredefinedMonoatomicDesorption *getMonoatomicDesorptionFromAtomType( const int &atom_type );
 			void initPredefinedReaction( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_limit );
 			void initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate );
-			void initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes );
+			void initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes );
 			void initPredefinedDeposition( LAMMPS_NS::LAMMPS *lmp , const int &parent_type , const double &depo_offset , const double &insertion_vel , const std::string &adsorbate_name , const double &rate , const bool &variable_sticking , const double &sticking_coeff );
 			void initPredefinedMonoatomicDesorption( const int &parent_type , const double &rate );
 			void setSpeciesMaxBonds( const int &species , const int &bonds_max );
@@ -102,15 +102,9 @@ namespace PAPRECA{
 			const bool predefinedCatalogHasMonoDesEvents( ) const;
 			const bool predefinedCatalogIsEmpty( ) const;
 			
-			//Random Deposition and Diffusion Vectors
+			//Random Deposition Vectors
 			void setRandomDepoVecs( const bool &random_depovecs_in );
 			const bool &depoVecsAreRandom( ) const;
-			void setRandomDiffVecs( const bool &random_diffvecs_in );
-			const bool &diffVecsAreRandom( ) const;
-			void setRandomDiffVecsStyle( const std::string &randomdiffvecs_style_in );
-			const std::string &getRandomDiffVecsStyle( ) const;
-			void setDeterministicDiffVecsStyle( const std::string &detdiffvecs_style_in );
-			const std::string &getDeterministicDiffVecsStyle( ) const;
 		
 			//Deposition height settings
 			void setDepoHeights( const double &height_deposcan_in , const double &height_deporeject_in );
@@ -211,9 +205,6 @@ namespace PAPRECA{
 			//Predefined events
 			PredefinedEventsCatalog predefined_catalog; ///< stores a PAPRECA::PredefinedEventsCatalog.
 			bool random_depovecs = false; ///< Controls deposition sites. If true, the deposition sites are not directly above the parent atom, but on the surface of a sphere of radius depo_offset.
-			bool random_diffvecs = false; ///< Controls diffusion sites. If true, the diffusion site sits at the surface of a sphere (3D option) or circle (2D option) centered at the parent atom. If false, the atom is displaced deterministically along the x/y/z directions.
-			std::string randomdiffvecs_style = "3D"; ///< Type 2D means that the random diffusion vector is always ABOVE the parent type. Type 3D means that the random diffusion vector can be anywhere in 3D space. Default is 3D as it is the more general case. Note that: we do not use 2D/3D random deposition vectors as it does not really make sense to get a random vector below the parent atom type. Careful, this variable is only used if randomdiffvecs is true!
-			std::string detdiffvecs_style = "+z"; ///< Deterministic (i.e., we know exactly where the diffusion site will be located beforehand). Here, +/-n (where n is either x, y, or z) means that the diffusion site moves along that specific direction. Careful, this variable is ONLY used if randomdiffvecs is false!
 			double height_deposcan = -1;  ///< Scan for deposition events only +- above/below the current film height. Default at -1 which means scan everywhere.
 			double height_deporeject = -1; ///< Reject deposition event above height_current + height_deporeject. Default at -1 which means do not reject anything.
 			

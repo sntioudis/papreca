@@ -171,9 +171,9 @@ namespace PAPRECA{
 		
 	}
 	
-	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes ){
+	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes ){
 
-		PredefinedDiffusionHop *diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist,  rate , custom_style , custom_atomtypes , diffused_type , is_displacive );
+		PredefinedDiffusionHop *diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , rate , custom_style , custom_atomtypes , diffused_type , is_displacive );
 
 		predefined_catalog.diffusions_set.insert( parent_type );
 		predefined_catalog.diffusions_map[ parent_type ] = diffusion;
@@ -294,15 +294,9 @@ namespace PAPRECA{
 	}
 	
 	
-	//Randon deposition/diffusion vectors
+	//Randon deposition vectors
 	void PaprecaConfig::setRandomDepoVecs( const bool &random_depovecs_in ){ random_depovecs = random_depovecs_in; }
 	const bool &PaprecaConfig::depoVecsAreRandom( ) const{ return random_depovecs; }
-	void PaprecaConfig::setRandomDiffVecs( const bool &random_diffvecs_in ){ random_diffvecs = random_diffvecs_in; }
-	const bool &PaprecaConfig::diffVecsAreRandom( ) const{ return random_diffvecs; }
-	void PaprecaConfig::setRandomDiffVecsStyle( const std::string &randomdiffvecs_style_in ){ randomdiffvecs_style = randomdiffvecs_style_in; }
-	const std::string &PaprecaConfig::getRandomDiffVecsStyle( ) const{ return randomdiffvecs_style; }
-	void PaprecaConfig::setDeterministicDiffVecsStyle( const std::string &detdiffvecs_style_in ){ detdiffvecs_style = detdiffvecs_style_in; }
-	const std::string &PaprecaConfig::getDeterministicDiffVecsStyle( ) const{ return detdiffvecs_style; }
 	void PaprecaConfig::setDepoHeights( const double &height_deposcan_in , const double &height_deporeject_in ){
 		
 		height_deposcan = height_deposcan_in;

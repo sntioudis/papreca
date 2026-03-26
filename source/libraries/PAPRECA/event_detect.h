@@ -48,8 +48,6 @@ namespace PAPRECA{
 
 	//Diffusion events
 	const bool feCandidateHas4PO4Neibs( PaprecaConfig &papreca_config , PredefinedDiffusionHop *diff_template , LAMMPS_NS::tagint *atom_ids , int *atom_types , int *neighbors , int &neighbors_num , ATOM2BONDS_MAP &atomID2bonds );
-	void getRandomDiffVecCandidateCoords( PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , const double &diff_dist );
-	void getDeterministicDiffVecCandidateCoords( PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , const double &diff_dist );
 	void getDiffPointCandidateCoords( LAMMPS_NS::LAMMPS *lmp  , PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , PredefinedDiffusionHop *diff_template );
 	const bool candidateDiffHasCollisions( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int *neighbors , int &neighbors_num , double *candidate_xyz , const int &diffused_type , double *iatom_xyz , const int &iatom_type );
 	void getDiffEventsFromAtom( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const int &iatom , int *neighbors , int &neighbors_num , std::vector< Event* > &events_local , ATOM2BONDS_MAP &atomID2bonds );

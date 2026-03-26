@@ -925,12 +925,13 @@ Deposition scans are not limited to a distance above/below the current film heig
 \subsection createDiff_syntax Syntax
 
 ```bash
-create_DiffusionHop parent_type diff_vel diff_dist displacive diffused_type arg values keyword values
+create_DiffusionHop parent_type diff_vel diff_dist diffvec_style displacive diffused_type arg values keyword values
 ```
 
 - parent_type = atom type of parent atom (i.e., atom on which the event is detected).
 - diff_vel = double number denoting the velocity (in velocity units as in LAMMPS) of the diffused atom.
 - diff_dist = double number denoting the Eucledian distance (in length units as in LAMMPS) between the parent atom and the vacant site.
+- diffvec_style = **+x** or **-x** or **+y** or **-y** or **+z** or **-z** or **+x+y** or **-x+y** or **-x-y** or **+x-y** or **sphere2D** or **sphere3D**. This determines the algorithm used to set the diffusion sites (see below for more information).
 - displacive = **yes** (if the parent atom is displaced) or **no** if the parent atom remains intact and a new atom is placed on the vacant site.
 - diffused_type = atom type of diffused atom.
 
@@ -957,8 +958,8 @@ custom values = Fe_4PO4neib
 \subsection createDiff_examples Example(s)
 
 ```bash
-create_DiffusionHop 1 0.0 4.14468 no 8 rate_arrhenius 11.53 1.4e13 528.15 custom Fe_4PO4neib 1 5
-create_DiffusionHop 1 0.0 3 yes 1 rate_manual 1.0e13
+create_DiffusionHop 1 0.0 4.14468 +z no 8 rate_arrhenius 11.53 1.4e13 528.15 custom Fe_4PO4neib 1 5
+create_DiffusionHop 1 0.0 3 sphere3D yes 1 rate_manual 1.0e13
 ```
 
 \subsection createDiff_description Description
@@ -970,6 +971,13 @@ in the current version of %PAPRECA, the inserted atom has zero charge and zero v
 
 On every kMC stage, %PAPRECA will attempt to move ("displacive" templates) or insert ("non-displacive" templates) an atom in the system with a given probability (based on the chosen rate).
 Atoms are diffused in the system by calling the PAPRECA::diffuseAtom() LAMMPS wrapper function and the executeDiffusion() function of the papreca.cpp driver code.
+ 
+The diffvec_style decides the location of the diffusion site. For styles **+x**, **-x**, **+y**, **-y**, **+z**, or **-z** the diffusion site is placed with a specific orientation on the given axis and is separated from the parent atom by diff_dist.
+This can be useful to model simple diffusion hops. For styles **+x+y**, **-x+y**, **-x-y**, or **+x-y** the diffusion site is placed diagonally (i.e., rotated by 45 degrees) on the x-y plane at a distance of diff_dist and on the 1st, 2nd, 3rd, and 4th quadrants, respectively.
+Therefore, these options can be useful when it comes to modelling exchange diffusion events on surfaces (e.g., FCC100).
+When the **sphere3D** or **sphere2D** styles are used the diffusion site is placed on the surface of a sphere (**sphere3D**) or the northern (i.e., +z) hemisphere (**sphere2D**). The sphere (or hemisphere) has a radius of diff_dist and is centered on the parent atom of the diffusion event. 
+Note that the exact location of the diffusion site for styles **sphere3D** and  **sphere2D** depends on a random number (see getDiffPointCandidateCoords() for more information) and will be different for each diffusion event (i.e., it cannot be predetermined).
+Random diffusion sites can be useful when it comes to simulating random-walk-like events.
 
 If the custom template "Fe_4PO4neib" is used (see example above for syntax), then diffusion events require at least four PO4 structures in their neighborhood to be valid.
 A PO4 structure consists of Phosphorus atom which is bonded (with an explicit bonded interaction) to four Oxygen atoms.
@@ -987,59 +995,6 @@ You can provide the diffusion rate manually or input the activation energy, atte
 [1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
 
 [2] Ntioudis, S., et al. "A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth", Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
-
-<hr>
-
-\section diffvecs random_diffvecs command
-
-\subsection diffvecs_syntax Syntax
-
-```bash
-random_diffvecs arg values
-```
-
-- (REQUIRED) arg = **no** or **yes**
-
-```bash
-yes values = 2D or 3D
-	2D = for diffusion sites located only directly above the parent atom.
-	3D = for diffusion sites located above as well as below the parent atom.
-no values = +x or -x or +y or -y or +z or -z or +x+y or -x+y or -x-y or +x-y
-	+n or -n (with n being either x, y, or z) = for deterministic diffusion sites displaced by diff_dist (see \ref createDiff) along axis n and direction (+ or -)
-	+x+y = for diagonal deterministic diffusion sites on the 1st quadrant of the x-y plane
-	-x+y = for diagonal deterministic diffusion sites on the 2nd quadrant of the x-y plane
-	-x-y = for diagonal deterministic diffusion sites on the 3rd quadrant of the x-y plane
-	+x-y = for diagonal deterministic diffusion sites on the 4th quadrant of the x-y plane
-```
-
-\subsection diffvecs_examples Example(s)
-
-```bash
-random_diffvecs no
-random_diffvecs no -z
-random_diffvecs no -x+y
-random_diffvecs yes
-random_diffvecs yes 2D
-random_diffvecs yes 3D
-
-```
-
-\subsection diffvecs_description Description
-
-This command determines whether the diffusion sites of a diffusion event will be randomly ("random_diffvecs yes") or deterministically generated ("random_diffvecs no").
- 
-Random diffusion sites are located on the surface of a sphere (when the "yes 3D" option is used) or the northern hemisphere (when the "yes 2D" option is used). The sphere (or hemisphere) has a radius of diff_dist (see \ref createDiff)
-and is centered on the parent atom of the diffusion event. Note that the exact location of the diffusion site depends on a random number (see getDiffPointCandidateCoords() for more information) and will be different for each diffusion event (i.e., it cannot be predetermined).
-Random diffusion sites can be useful when it comes to simulating random-walk-like events.
-
-When random_diffvecs are not activated (i.e., "random_diffvecs no") the diffusion site is placed with a specific orientation on a given axis and is separated from the parent atom by diff_dist (see \ref createDiff).
-For instance, "random_diffvecs no -z" places diffusion sites below the parent atom at a distance of diff_dist. These options can be very useful to simulate diffusion  on/in crystals.
-The predetermined "xy" options allow for diagonal (i.e., rotated by 45 degrees) diffusion events. Again, this can be useful for diffusion on lattices (e.g., exchange events on FCC slabs). 
-
-\subsection diffvecs_default Default
-
-random_diffvecs defaults to "no +z", If the command is not used at all. "+z" is the default deterministic diffusion option if the user inputs "random_diffvecs no" (ommiting the optional value). "3D" is the default random value if the user inputs "random_diffvecs yes" (ommiting the optional value).
-
 
 <hr>
 
