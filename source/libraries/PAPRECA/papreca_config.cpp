@@ -97,25 +97,27 @@ namespace PAPRECA{
 		return -1; //In this case this means that the mapping does not exist (this is used in the atomHasMaxBondTypes function in main.cpp)
 	}
 	
-	PredefinedDiffusionHop *PaprecaConfig::getDiffusionHopFromAtomType( const int &atom_type ){
+	DIFFUSIONS_VEC *PaprecaConfig::getDiffusionHopsFromAtomType(int atom_type){
 		
-		/// Returns a PAPRECA::PredefinedDiffusionHop object as defined in the PAPRECA::PredefinedEventsCatalog.
+		/// Returns a pointer to an std::vector< PAPRECA::PredefinedDiffusionHop* > container (aka PAPRECA::DIFFUSIONS_VEC) as defined in the PAPRECA::PredefinedEventsCatalog.
+		/// The function returns a NULL if no mapping exsists for this specific atom type
 		/// @param[in] atom_type type of atom.
-		/// @return mapped PAPRECA::PredefinedDiffusionHop object.
+		/// @return mapped std::vector< PAPRECA::PredefinedDiffusionHop* > (i.e., a vector containing all valid pointers to diffusion events)
 		/// @note each atom type can only be mapped to one PAPRECA::PredefinedDiffusionHop.
 		
-		return( elementIsInUnorderedSet( predefined_catalog.diffusions_set , atom_type ) ? predefined_catalog.diffusions_map[atom_type] : NULL );
+		return( elementIsInUnorderedSet( predefined_catalog.diffusions_set , atom_type ) ? &predefined_catalog.diffusions_map[atom_type] : NULL );
 		
 	}
 	
-	PredefinedDeposition *PaprecaConfig::getDepositionFromParentAtomType( const int &atom_type ){
+	DEPOSITIONS_VEC *PaprecaConfig::getDepositionsFromParentAtomType( const int &atom_type ){
 		
-		/// Returns a PAPRECA::PredefinedDeposition object as defined in the PAPRECA::PredefinedEventsCatalog.
+		/// Returns a pointer to an std::vector< PAPRECA::PredefinedDeposition* > container (aka PAPRECA::DEPOSITIONS_VEC) as defined in the PAPRECA::PredefinedEventsCatalog.
+		/// The function returns a NULL if no mapping exsists for this specific atom type
 		/// @param[in] atom_type type of atom.
-		/// @return mapped PAPRECA::PredefinedDeposition as defined in the PAPRECA::PredefinedEventsCatalog.
+		/// @return mapped std::vector< PAPRECA::PredefinedDeposition* > (i.e., a vector containing all valid pointers to diffusion events)
 		/// @note each atom type can only be mapped to one PAPRECA::PredefinedDeposition.
 		
-		return( elementIsInUnorderedSet( predefined_catalog.depositions_set , atom_type ) ? predefined_catalog.depositions_map[atom_type] : NULL );
+		return( elementIsInUnorderedSet( predefined_catalog.depositions_set , atom_type ) ? &predefined_catalog.depositions_map[atom_type] : NULL );
 		
 	}
 	
@@ -175,8 +177,10 @@ namespace PAPRECA{
 
 		PredefinedDiffusionHop *diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , rate , custom_style , custom_atomtypes , diffused_type , is_displacive );
 
-		predefined_catalog.diffusions_set.insert( parent_type );
-		predefined_catalog.diffusions_map[ parent_type ] = diffusion;
+
+		predefined_catalog.diffusions_set.insert(parent_type); //Even if parent type is already in the set, the unordered set prevents duplicates
+		predefined_catalog.diffusions_map[parent_type].push_back(diffusion);
+		
 		
 	}
 	
@@ -192,7 +196,7 @@ namespace PAPRECA{
 		
 		if( depo ){
 			predefined_catalog.depositions_set.insert( parent_type );
-			predefined_catalog.depositions_map[ parent_type ] = depo;
+			predefined_catalog.depositions_map[ parent_type ].push_back( depo );
 		}else{
 			allAbortWithMessage( MPI_COMM_WORLD , "Improper deposition event initialization in papreca_config.cpp." );
 		}
@@ -221,27 +225,32 @@ namespace PAPRECA{
 		//Loop through all possible deposition events.
 		for( auto it = predefined_catalog.depositions_map.begin( ); it != predefined_catalog.depositions_map.end( ); ++it ){
 			
-			PredefinedDeposition *depo = it->second;
-			std::string adsorbate_name = depo->getAdsorbateName( );
+			const DEPOSITIONS_VEC &depositions = it->second;
 			
-			
-			if( depo->hasVariableStickingCoeff( ) ){
-				if( !elementIsInUnorderedSet( adsorbates , adsorbate_name ) ){
-					adsorbates.insert( adsorbate_name );
-					deposition_sites[adsorbate_name] = 0;
-					deposition_tries[adsorbate_name] = 0;
-					sticking_coeff[adsorbate_name] = -1.0; //We initialize this to 0, so there is no confusion between sticking=0 (i.e., when tries are 0) and "freshly-initialized" sticking coeffs.
+			for( PredefinedDeposition *depo : depositions ){
+				
+				std::string adsorbate_name = depo->getAdsorbateName( );
+				
+				
+				if( depo->hasVariableStickingCoeff( ) ){
+					if( !elementIsInUnorderedSet( adsorbates , adsorbate_name ) ){
+						adsorbates.insert( adsorbate_name );
+						deposition_sites[adsorbate_name] = 0;
+						deposition_tries[adsorbate_name] = 0;
+						sticking_coeff[adsorbate_name] = -1.0; //We initialize this to 0, so there is no confusion between sticking=0 (i.e., when tries are 0) and "freshly-initialized" sticking coeffs.
+						
+					}
+					
+					int depdata_global[2] = { 0 , 0 };
+					int depdata_local[2] = { depo->getDepositionSites( ) , depo->getDepositionTries( ) };
+					MPI_Allreduce( depdata_local , depdata_global , 2 , MPI_INT , MPI_SUM , MPI_COMM_WORLD ); //Different processors have different events. Hence, they should have different deptries and depsites.
+					
+					//At this point, all procs have the same deptries/depsites FOR THAT SPECIFIC PREDEFINED DEPOSITION EVENT
+					//However, the same adsorbate can have different sites and parent atoms. Hence, we collect all depsites and deptries corresponding to the same adsorbate name IN THE SAME CONTAINER
+					deposition_sites[adsorbate_name] += depdata_global[0];
+					deposition_tries[adsorbate_name] += depdata_global[1];
 					
 				}
-				
-				int depdata_global[2] = { 0 , 0 };
-				int depdata_local[2] = { depo->getDepositionSites( ) , depo->getDepositionTries( ) };
-				MPI_Allreduce( depdata_local , depdata_global , 2 , MPI_INT , MPI_SUM , MPI_COMM_WORLD ); //Different processors have different events. Hence, they should have different deptries and depsites.
-				
-				//At this point, all procs have the same deptries/depsites FOR THAT SPECIFIC PREDEFINED DEPOSITION EVENT
-				//However, the same adsorbate can have different sites and parent atoms. Hence, we collect all depsites and deptries corresponding to the same adsorbate name IN THE SAME CONTAINER
-				deposition_sites[adsorbate_name] += depdata_global[0];
-				deposition_tries[adsorbate_name] += depdata_global[1];
 				
 			}
 			
@@ -252,32 +261,35 @@ namespace PAPRECA{
 		
 		for( auto it = predefined_catalog.depositions_map.begin( ); it != predefined_catalog.depositions_map.end( ); ++it ){
 			
-			PredefinedDeposition *depo = it->second;
-			std::string adsorbate_name = depo->getAdsorbateName( );
+			const DEPOSITIONS_VEC &depositions = it->second;
 			
-			
-			if( depo->hasVariableStickingCoeff( ) ){
-			
-				if( sticking_coeff[adsorbate_name] == -1.0 ){ //This means that we haven't calculated the sticking coefficient for that specific adsorbate name yet.
-					//Hence we calculate it here...
-					if( deposition_tries[adsorbate_name] == 0 ){ //This is to prevent segmentation faults when no deposition tries are attempted at all
-						sticking_coeff[adsorbate_name] = 0;
+			for( PredefinedDeposition *depo : depositions ){
+				
+				std::string adsorbate_name = depo->getAdsorbateName( );
+				
+				
+				if( depo->hasVariableStickingCoeff( ) ){
+				
+					if( sticking_coeff[adsorbate_name] == -1.0 ){ //This means that we haven't calculated the sticking coefficient for that specific adsorbate name yet.
+						//Hence we calculate it here...
+						if( deposition_tries[adsorbate_name] == 0 ){ //This is to prevent segmentation faults when no deposition tries are attempted at all
+							sticking_coeff[adsorbate_name] = 0;
+							
+						}else{
+							sticking_coeff[adsorbate_name] = static_cast< double >( deposition_sites[adsorbate_name] ) / static_cast< double >( deposition_tries[adsorbate_name] ); //Calculate the sticking coeff which is the number of free sites divided by the number of total sites searched
+						}
 						
-					}else{
-						sticking_coeff[adsorbate_name] = static_cast< double >( deposition_sites[adsorbate_name] ) / static_cast< double >( deposition_tries[adsorbate_name] ); //Calculate the sticking coeff which is the number of free sites divided by the number of total sites searched
 					}
 					
-				}
-				
-				//Regardless, we now set the sticking coefficient properly for that event.
-				depo->setStickingCoeff( sticking_coeff[adsorbate_name] );
-				
-			}//No need to do anything if the deposition is not variable. If the deposition event has a constant sticking coeff, the relevant sticking coeff is already set properly.
-		
-			//After calculating the relevant rates make sure you reset the deposition tries and sites to prepare for the next run.
-			depo->resetDepositionTriesAndSites( ); //Reset sites regardless of whether the deopsition event has a variable sticking or not (because you might use depsites/tries to calculate the surface coverage).
-			//IMPORTANT: The calcStickingCoeff function has to be called AFTER the surface coverage function, otherwise the sites will be zeroed when you attempt to calculate the surface coverage.
-		
+					//Regardless, we now set the sticking coefficient properly for that event.
+					depo->setStickingCoeff( sticking_coeff[adsorbate_name] );
+					
+				}//No need to do anything if the deposition is not variable. If the deposition event has a constant sticking coeff, the relevant sticking coeff is already set properly.
+			
+				//After calculating the relevant rates make sure you reset the deposition tries and sites to prepare for the next run.
+				depo->resetDepositionTriesAndSites( ); //Reset sites regardless of whether the deopsition event has a variable sticking or not (because you might use depsites/tries to calculate the surface coverage).
+				//IMPORTANT: The calcStickingCoeff function has to be called AFTER the surface coverage function, otherwise the sites will be zeroed when you attempt to calculate the surface coverage.
+			}
 		}
 		
 	}
@@ -486,10 +498,14 @@ namespace PAPRECA{
 		
 		for( auto it = predefined_catalog.depositions_map.begin( ); it != predefined_catalog.depositions_map.end( ); ++it ){
 			
-			//Loop through all deposition events. Sum all deposition tries and sites of a single proc.
-			PredefinedDeposition *depo = it->second;
-			depdata_local[0] += depo->getDepositionSites( );
-			depdata_local[1] += depo->getDepositionTries( );
+			const DEPOSITIONS_VEC &depositions = it->second;
+			
+			for( PredefinedDeposition *depo : depositions ){
+				
+				depdata_local[0] += depo->getDepositionSites( );
+				depdata_local[1] += depo->getDepositionTries( );
+				
+			}
 			
 		}
 		

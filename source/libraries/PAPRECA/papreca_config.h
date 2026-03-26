@@ -84,8 +84,8 @@ namespace PAPRECA{
 			PredefinedBondForm *getBondFormFromAtomTypesPair( const INT_PAIR &types_pair );
 			int getMaxBondsFromSpecies( const int &atom_type );
 			int getMaxBondTypesOfSpecies( const int &atom_type , const int &bond_type );
-			PredefinedDiffusionHop *getDiffusionHopFromAtomType( const int &atom_type );
-			PredefinedDeposition *getDepositionFromParentAtomType( const int &atom_type );
+			DIFFUSIONS_VEC *getDiffusionHopsFromAtomType(int atom_type);
+			DEPOSITIONS_VEC *getDepositionsFromParentAtomType( const int &atom_type );
 			PredefinedMonoatomicDesorption *getMonoatomicDesorptionFromAtomType( const int &atom_type );
 			void initPredefinedReaction( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_limit );
 			void initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate );

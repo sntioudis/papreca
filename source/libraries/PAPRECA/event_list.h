@@ -225,9 +225,16 @@ namespace PAPRECA{
 	//Typedefs
 	typedef std::unordered_map< int , PredefinedReaction* > TYPE2REACTION_MAP;
 	typedef std::unordered_map< INT_PAIR , PredefinedBondForm* , PairHash > PAIR2BONDFORM_MAP;
-						 
+	
+	typedef std::vector< PredefinedDiffusionHop* > DIFFUSIONS_VEC;
+	typedef std::unordered_map< int , DIFFUSIONS_VEC > TYPE2DIFFUSIONSVEC_MAP;
 	typedef std::unordered_map< int , PredefinedDiffusionHop* > TYPE2DIFFUSION_MAP;
+	
+	
+	typedef std::vector< PredefinedDeposition* > DEPOSITIONS_VEC;
+	typedef std::unordered_map< int , DEPOSITIONS_VEC > TYPE2DEPOSITIONSVEC_MAP;
 	typedef std::unordered_map< int , PredefinedDeposition* > TYPE2DEPOSITION_MAP;
+	
 	typedef std::unordered_map< int , PredefinedMonoatomicDesorption* > TYPE2MONODES_MAP;
 	
 	
@@ -268,12 +275,11 @@ namespace PAPRECA{
 			
 			//Predefined diffusions
 			INT_SET diffusions_set; ///< Set of diffusable types.
-			TYPE2DIFFUSION_MAP diffusions_map; ///<Mapping diffusable type to corresponding diffusion event.
-			
+			TYPE2DIFFUSIONSVEC_MAP diffusions_map; ///<Mapping diffusable type to corresponding diffusion events.
 			
 			//Predefined depositions
 			INT_SET depositions_set; ///< Set of atom types (ints) that can be parents to deposition events.
-			TYPE2DEPOSITION_MAP depositions_map; ///< Mapping atom type to corresponding deposition event.
+			TYPE2DEPOSITIONSVEC_MAP depositions_map; ///< Mapping atom type to corresponding deposition event.
 			
 			//Predefined Monoatomic Desorptions
 			INT_SET monodes_set; ///< Set of atom types (ints) that can be parents to monoatomic desorption events.

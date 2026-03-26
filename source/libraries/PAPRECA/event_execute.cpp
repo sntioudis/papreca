@@ -265,14 +265,15 @@ namespace PAPRECA{
 	void fillIntegerDiffDataTransfArray( int *diff_intdata , Diffusion *diff ){
 		
 		/// Serializes (prepares) integer data for calls to MPI function related to the execution of PAPRECA::Diffusion events.
-		/// @param[in,out] diff_intdata 3-element array of integer data for transfer.
+		/// @param[in,out] diff_intdata 4-element array of integer data for transfer.
 		/// @param[in] diff PAPRECA::Diffusion event to be executed.
-		/// @note diff_intdata[0] contains the parent type. diff_intdata[1] is 0 if the diffusion type is displacive (see PAPRECA::Diffusion, and PAPRECA::PredefinedDiffusionHop definitions). diff_intdata[2] contains the diffused type.
+		/// @note diff_intdata[0] contains the parent type. diff_intdata[1] is 0 if the diffusion type is displacive (see PAPRECA::Diffusion, and PAPRECA::PredefinedDiffusionHop definitions). diff_intdata[2] contains the diffused type. diff_intdata[3] is the length of diffvec_style string.
 		/// @see PAPRECA::deserializeIntegerDiffDataArr(), PAPRECA::executeDiffusion()
 		
 		diff_intdata[0] = diff->getParentType( );
 		diff_intdata[1] = diff->isDisplacive( );
 		diff_intdata[2] = diff->getDiffusedType( );
+		diff_intdata[3] = diff->getDiffTemplate( )->getDiffvecStyle( ).size( );
 		
 	}
 	
@@ -289,18 +290,20 @@ namespace PAPRECA{
 		
 	}
 	
-	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &is_displacive , int &diffused_type ){
+	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &is_displacive , int &diffused_type , int &diffvec_style_len ){
 		
 		/// Deserializes (post-processes) integer data after calls to MPI function related to the execution of PAPRECA::Diffusion events.
-		/// @param[in] diff_intdata 3-element array of serialized (in fillIntegerDiffDataTransfArray() function) data.
+		/// @param[in] diff_intdata 4-element array of serialized (in fillIntegerDiffDataTransfArray() function) data.
 		/// @param[in,out] parent_type atom type of parent atom.
 		/// @param[in,out] is_displacive 0 or 1 depending on whether the diffusion event is diplacive or not.
 		/// @param[in,out] diffused_type atom type of diffused atom.
+		/// @param[in,out] diffvec_style_len length of diffvec_style array
 		/// @see PAPRECA::fillIntegerDiffDataTransfArray(), PAPRECA::executeDiffusion()
 		
 		parent_type = diff_intdata[0];
 		is_displacive = diff_intdata[1];
 		diffused_type = diff_intdata[2];
+		diffvec_style_len = diff_intdata[3];
 		
 	}
 	
@@ -329,10 +332,11 @@ namespace PAPRECA{
 		
 		double vac_pos[3] , insertion_vel;
 		LAMMPS_NS::tagint parent_id = -1;
-		int diff_intdata[3]; //This array stores the parent_type, is_displacive, and diffused_type in positions 0, 1, and 2 respectively.
+		int diff_intdata[4]; //This array stores the parent_type, is_displacive, diffused_type, and diffvecs_style_len in positions 0, 1, 2, and 3, respectively.
 		double diff_doubledata[4]; //This array stores the vac_pos in positions 1-3 and the insertion velocity in the last position
 		
-		int parent_type , is_displacive , diffused_type;
+		int parent_type , is_displacive , diffused_type , diffvec_style_len;
+		std::string diffvec_style;
 		
 		if( proc_id == event_proc ){
 			
@@ -340,24 +344,27 @@ namespace PAPRECA{
 			fillIntegerDiffDataTransfArray( diff_intdata , diff );
 			fillDoubleDiffDataTransfArray( diff_doubledata , diff );
 			parent_id = diff->getParentId( ); //This is a tagint, hence, it is communicated separately from the other ints
+			diffvec_style = diff->getDiffTemplate( )->getDiffvecStyle( ); //Same as above, this will be communicated seperately
 			
 			printf( "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~EVENTS INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n Executing diffusion event from proc %d, parent_id=%d , vac_pos=(%f,%f,%f) \n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n \n" , proc_id , parent_id , diff_doubledata[0] , diff_doubledata[1] , diff_doubledata[2] );
 		}
 		
-		//BCast VacPos (vacancy position) (positions 1-3) and insertion velocity (last position).
-		MPI_Bcast( diff_doubledata , 4 , MPI_DOUBLE , event_proc , MPI_COMM_WORLD );
-		//Bcast tagint (parent_id);
-		MPI_Bcast( &parent_id , 1 , MPI_LMP_TAGINT , event_proc , MPI_COMM_WORLD );
-		//BCast ints (parent_type , is_displacive , diffused_type );
-		MPI_Bcast( diff_intdata , 3 , MPI_INT , event_proc , MPI_COMM_WORLD );
+		//BCast and deserialize different data types if required
+		MPI_Bcast( &parent_id , 1 , MPI_LMP_TAGINT , event_proc , MPI_COMM_WORLD ); //tagints
 		
-		//Deserialize the BCasted data
-		deserializeIntegerDiffDataArr( diff_intdata , parent_type , is_displacive , diffused_type );
+		MPI_Bcast( diff_doubledata , 4 , MPI_DOUBLE , event_proc , MPI_COMM_WORLD ); //doubles
 		deserializeDoubleDiffDataArr( diff_doubledata , vac_pos , insertion_vel );
+
+		MPI_Bcast( diff_intdata , 4 , MPI_INT , event_proc , MPI_COMM_WORLD ); //integers
+		deserializeIntegerDiffDataArr( diff_intdata , parent_type , is_displacive , diffused_type , diffvec_style_len );
+		
+		//string
+		diffvec_style.resize( diffvec_style_len ); //Ensure that all strings have the same length before broadcasting 
+		MPI_Bcast( diffvec_style.data( ) , diffvec_style_len , MPI_CHAR , event_proc , MPI_COMM_WORLD );
 		
 		//Now safely call the relevant lammps_wrappers function
 		diffuseAtom( lmp , vac_pos , parent_id , parent_type , is_displacive , diffused_type );
-		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendDiffusion( KMC_loopid , time , vac_pos , parent_id , parent_type , insertion_vel , is_displacive , diffused_type ); }
+		if( proc_id == 0 ){ papreca_config.getLogFile( ).appendDiffusion( KMC_loopid , time , vac_pos , parent_id , parent_type , insertion_vel , diffvec_style , is_displacive , diffused_type ); }
 		
 		if( insertion_vel != 0.0 ){
 			lmp->input->one( "group new_atom subtract all fluid frozen" ); //Same as deposition insertion velocities. Probably an overkill to select a single atom using a subtract group. Can be made faster/better in future versions.

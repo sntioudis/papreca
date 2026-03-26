@@ -220,26 +220,32 @@ namespace PAPRECA{
 		
 		
 		//Dictate if your current atom is a candidate for diffusion events
-		PredefinedDiffusionHop *diff_template = papreca_config.getDiffusionHopFromAtomType( iatom_type );
+		const DIFFUSIONS_VEC *diff_templates_ptr = papreca_config.getDiffusionHopsFromAtomType( iatom_type );
 		
-		if( diff_template ){ //diff_template will be NULL if the parent_type (iatom type) is not linked to a diffusion event
 		
+		if( diff_templates_ptr ){ //diff_template_ptr will be NULL if the parent_type (iatom type) is not linked to any diffusion event
+		
+			const DIFFUSIONS_VEC &diff_templates = *diff_templates_ptr;
+			
+			for( PredefinedDiffusionHop *diff_template : diff_templates ){ //Scan all diffusion templates associated with this parent atom type and collect events
+			
+				double candidate_xyz[3];
+				getDiffPointCandidateCoords( lmp , papreca_config , iatom_xyz , candidate_xyz , diff_template );
 				
-			double candidate_xyz[3];
-			getDiffPointCandidateCoords( lmp , papreca_config , iatom_xyz , candidate_xyz , diff_template );
-			
-			const int diffused_type = diff_template->getDiffusedAtomType( );
-			
-			if( diff_template->getCustomStyle( ) == "Fe_4PO4neib" && !feCandidateHas4PO4Neibs( papreca_config , diff_template , atom_ids , atom_types , neighbors , neighbors_num , atomID2bonds ) ){ return; }
-			
-			if( !candidateDiffHasCollisions( lmp , papreca_config , neighbors , neighbors_num , candidate_xyz , diffused_type , iatom_xyz , iatom_type ) ){
+				const int diffused_type = diff_template->getDiffusedAtomType( );
 				
-				const double rate = diff_template->getRate( );
-				const int is_displacive = diff_template->isDisplacive( );
+				if( diff_template->getCustomStyle( ) == "Fe_4PO4neib" && !feCandidateHas4PO4Neibs( papreca_config , diff_template , atom_ids , atom_types , neighbors , neighbors_num , atomID2bonds ) ){ return; }
+				
+				if( !candidateDiffHasCollisions( lmp , papreca_config , neighbors , neighbors_num , candidate_xyz , diffused_type , iatom_xyz , iatom_type ) ){
+					
+					const double rate = diff_template->getRate( );
+					const int is_displacive = diff_template->isDisplacive( );
+								
+					Diffusion *diff = new Diffusion( rate , candidate_xyz , iatom_id , iatom_type , is_displacive , diffused_type , diff_template );
+					events_local.push_back( diff );
 							
-				Diffusion *diff = new Diffusion( rate , candidate_xyz , iatom_id , iatom_type , is_displacive , diffused_type , diff_template );
-				events_local.push_back( diff );
-						
+				}
+				
 			}
 				
 		
@@ -482,28 +488,36 @@ namespace PAPRECA{
 		const int iatom_type = atom_types[iatom];
 		double *iatom_xyz = atom_xyz[iatom];
 		
-		PredefinedDeposition *depo_template = papreca_config.getDepositionFromParentAtomType( iatom_type );
-		if( depo_template ){ //depo_template==NULL if the parent atom type (iatom_type) is not linked to a deposition
+		const DEPOSITIONS_VEC *depo_templates_ptr =  papreca_config.getDepositionsFromParentAtomType( iatom_type );
 		
-			if( atomIsInDepoScanRange( papreca_config , iatom_xyz , film_height ) ){ 
+		if( depo_templates_ptr ){ //depo_templates_ptr==NULL if the parent atom type (iatom_type) is not linked to any deposition event
+		
+		
+			if( atomIsInDepoScanRange( papreca_config , iatom_xyz , film_height ) ){ //Check if atom is below scan range first. No need to do anything if it's above
 				
-				double candidate_center[3];
-				getDepoPointCandidateCoords( lmp , papreca_config , iatom_xyz , candidate_center , depo_template );
+				const DEPOSITIONS_VEC &depo_templates = *depo_templates_ptr;
 				
-				if( depoCandidateIsBelowRejectionHeight( papreca_config , candidate_center , film_height ) ){ //reject depo candidates above a certain point
-				
-						if( depo_template->hasVariableStickingCoeff( ) || papreca_config.getSurfaceCoverageFile( ).isActive( ) ){ depo_template->incrementDepositionTries( ); }//No need to reset in the beginning. Variables are reset within the calcVariableStickingCoeff member function of PredefinedDeposition, immediately after the calculation of the sticking coefficient
-						
-						if( !candidateDepoHasCollisions( lmp , proc_id , nprocs , papreca_config , neighbors , neighbors_num , candidate_center , iatom_xyz , iatom_type , depo_template ) ){
-							
-							double rot_pos[3] = { 0.0 , 0.0 , 1.0 }; //In this version we don't rotate the molecule at all, so just define a rotation axis and set theta to zero!
-							
-							Deposition *depo = new Deposition( depo_template->getRate( ) , candidate_center , rot_pos , 0.0 , 0 , depo_template->getAdsorbateName( ) , depo_template );
-							events_local.push_back( depo );
-							if( depo_template->hasVariableStickingCoeff( ) || papreca_config.getSurfaceCoverageFile( ).isActive( ) ){ depo_template->incrementDepositionSites( ); }
-							
-						}
+				for( PredefinedDeposition *depo_template : depo_templates ){ //Each atom might be linked to multiple deposition events. We need to loop trough them
 					
+					double candidate_center[3];
+					getDepoPointCandidateCoords( lmp , papreca_config , iatom_xyz , candidate_center , depo_template );
+					
+					if( depoCandidateIsBelowRejectionHeight( papreca_config , candidate_center , film_height ) ){ //reject depo candidates above a certain point
+					
+							if( depo_template->hasVariableStickingCoeff( ) || papreca_config.getSurfaceCoverageFile( ).isActive( ) ){ depo_template->incrementDepositionTries( ); }//No need to reset in the beginning. Variables are reset within the calcVariableStickingCoeff member function of PredefinedDeposition, immediately after the calculation of the sticking coefficient
+							
+							if( !candidateDepoHasCollisions( lmp , proc_id , nprocs , papreca_config , neighbors , neighbors_num , candidate_center , iatom_xyz , iatom_type , depo_template ) ){
+								
+								double rot_pos[3] = { 0.0 , 0.0 , 1.0 }; //In this version we don't rotate the molecule at all, so just define a rotation axis and set theta to zero!
+								
+								Deposition *depo = new Deposition( depo_template->getRate( ) , candidate_center , rot_pos , 0.0 , 0 , depo_template->getAdsorbateName( ) , depo_template );
+								events_local.push_back( depo );
+								if( depo_template->hasVariableStickingCoeff( ) || papreca_config.getSurfaceCoverageFile( ).isActive( ) ){ depo_template->incrementDepositionSites( ); }
+								
+							}
+							
+						
+					}
 					
 				}
 				

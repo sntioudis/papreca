@@ -7,5 +7,7 @@ I will reintroduce this later if users require it for a specific application. <-
 3) Added limited option for bond-breaking events to restrict the bond length before removing the bond (and updated documentation accordingly)
 4) Added nve/lim option, which places atoms from bond formation/breaking events in a separate group that is integrated with nve/lim for a number of steps (updated documentation accordingly)
 5) Added short/long trajectory option for MD stages
+6) Patched diffusion and deposition events to now allow a specific atom type to be parent to multiple diffusion/deposition events (that was not previously possible). This
+can be very beneficial if we expect different molecules to be deposited on the same type, or if we expect an atom to diffuse with different ways (say simple hop and exchange).
 
 Updated files for transition to C++17 (in accordance with LAMMPS updates).

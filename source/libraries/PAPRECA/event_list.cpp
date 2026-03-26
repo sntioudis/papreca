@@ -155,31 +155,36 @@ namespace PAPRECA{
 	//------------------------------------PredefinedEventsCatalog Class------------------------------------
 	void PredefinedEventsCatalog::deletePredefinedDepositionsFromMap( ){
 		
-		std::vector< PredefinedDeposition* > depositions2del;
+		DEPOSITIONS_VEC depositions2del;
 		
 		for ( const auto &element : depositions_map ){ //Scan depositions to del. Two different atom types can be parent for deposition of the same adsorbate. Hence, need to gather deletion candidates and delete later.
 													   //Comparison is easy and can be made through basic arithmetic pointer comparison
-			PredefinedDeposition *deposition = element.second;
-			bool deposition_is_del = false;
+													   
+													   
+			const DEPOSITIONS_VEC &depositions = element.second;
 			
-			
-			for ( const auto &del_deposition : depositions2del ){
+			for( PredefinedDeposition *deposition : depositions ){
 				
-				if( del_deposition == deposition ){
-					deposition_is_del = true;
-					break;
+				bool deposition_is_del = false;
+				
+				
+				for ( const auto &del_deposition : depositions2del ){
+					
+					if( del_deposition == deposition ){
+						deposition_is_del = true;
+						break;
+					}
+					
+					
 				}
 				
-				
-			}
-			
-			if ( !deposition_is_del ){
-				
-				depositions2del.push_back( deposition );
-				
-			}
-			
+				if ( !deposition_is_del ){
 					
+					depositions2del.push_back( deposition );
+					
+				}
+			
+			}	
 			
 		
 		}
@@ -202,23 +207,15 @@ namespace PAPRECA{
 
 		for ( auto &element : diffusions_map ){
 			
-			
-			if( element.second ){
-				
-				const int &diffusing_type = element.first;
-				PredefinedDiffusionHop *diffusion = element.second;
-				delete diffusion;
-				diffusions_map[diffusing_type] = NULL;
+			DIFFUSIONS_VEC &diffusions = element.second;
+			for( const auto &diffusion : diffusions ){
+				delete diffusion;	
 			}
-				
-				
-			
-		
+			diffusions.clear( );
 		}
 		
 		diffusions_map.clear( );
 		diffusions_set.clear( );
-
 
 	}
 	

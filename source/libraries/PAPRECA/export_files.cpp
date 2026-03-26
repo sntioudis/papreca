@@ -56,9 +56,8 @@ namespace PAPRECA{
 		file << "For Deposition events events: site_pos (x,y,z) , rot_pos(x,y,z) , rot_theta , insertion_vel , mol_name \n";
 		file << "For Bond-formation events: atom1_id , atom2_id , bond_type \n";
 		file << "For Bond-breaking events: atom1_id , atom2_id , bond_type \n";
-		file << "For Diffusion events: vac_pos (x,y,z) , parent_id , parent_type , insertion_vel , is_displacive , diffused_type \n";
+		file << "For Diffusion events: vac_pos (x,y,z) , parent_id , parent_type , insertion_vel , diffvec_style , is_displacive , diffused_type \n";
 		file << "For Monoatomic desorption events: parent_id , parent_type \n \n";
-		
 		
 		file << std::fixed << "Step"
 			<< std::setw( 14 ) << std::setprecision( 8 ) << std::fixed << "Event"
@@ -98,7 +97,7 @@ namespace PAPRECA{
 			<< std::setw( 20 ) << std::setprecision( 4 ) << std::fixed << bond_type << std::endl;
 	}
 
-	void Log::appendDiffusion( const int &KMC_loopid , const double &time , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const int &is_displacive , const int &diffused_type ){
+	void Log::appendDiffusion( const int &KMC_loopid , const double &time , const double *vac_pos , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const double &insertion_vel , const std::string &diffvec_style , const int &is_displacive , const int &diffused_type ){
 		
 		file << std::setprecision( 8 ) << std::fixed << KMC_loopid
 			<< std::setw( 20 ) << std::setprecision( 8 ) << std::fixed << "Diffusion"
@@ -107,6 +106,7 @@ namespace PAPRECA{
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_id
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << parent_type
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << insertion_vel
+			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << diffvec_style
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << is_displacive
 			<< std::setw( 5 ) << std::setprecision( 4 ) << std::fixed << diffused_type << std::endl;
 

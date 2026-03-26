@@ -262,6 +262,10 @@ Defines the mobile atom types for the MD stage of the %PAPRECA simulation
 > **Note 2:**
 > %PAPRECA will not check if the defined mobile atom types are consistent with the mobile types of the MD (LAMMPS) stage.
 
+> **Pure kMC Tip:**
+> For pure kMC calculations the user might need to freeze all atoms in the simulation box. Since the fluid_atomtypes command is mandatory, one can input "fluid_atomtypes 1 N", where N is an atomtype that has NOT been declared as a LAMMPS atomtype. This will allow the pure kMC simulation to proceed normally.
+
+
 <hr>
 
 
@@ -835,7 +839,7 @@ For predefined deposition events the rate can also be calculated from the kineti
 this function PAPRECA::getDepoRateFromHertzKnudsen() and [here](https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Surface_Science_(Nix)/02%3A_Adsorption_of_Molecules_on_Surfaces/2.03%3A_Kinetics_of_Adsorption) for a brief theoretical background.
 
 > **Note:**
-> In the current version each parent atom (e.g., type 1) is allowed to be associated with only one predefined deposition template. However, different atom types can be associated with the same adsorbate_name (in separate deposition templates). See the phosphates example located in (./Examples/Phosphate Film Growth from TCP on Fe110).
+> Multiple deposition templates can be associated with the same atom type. Also, different atom types can be associated with the same adsorbate_name (in separate deposition templates). See the phosphates example located in (./Examples/Phosphate Film Growth from TCP on Fe110).
 
 \subsection createDepo_defaults Default
 
@@ -988,7 +992,7 @@ to the formation and growth of thin film from tricresyl phosphate (TCP) molecule
 You can provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
 > **Note:**
-> In the current version each parent atom (e.g., type 1) is allowed to be associated with only one predefined diffusion template.
+> Multiple diffusion templates can be associated with the same atom type.
 
 \subsection createDiff_bibliography Bibliography
 
