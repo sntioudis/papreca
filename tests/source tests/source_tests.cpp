@@ -135,8 +135,10 @@ void testMolCoords( LAMMPS *lmp , PaprecaConfig &papreca_config , const int &pro
 	/// @param[in] proc_id ID of current MPI process.
 	
 	
-	// First retrieve a molecule template (e.g., template set up for atoms of type 1).
-	PredefinedDeposition *depo_template = papreca_config.getDepositionFromParentAtomType( 1 );
+	// First retrieve a molecule template. Here, we will retrieve the first deposition template from atom type 1
+	const DEPOSITIONS_VEC *depo_templates_ptr = papreca_config.getDepositionsFromParentAtomType( 1 );
+	const DEPOSITIONS_VEC &depo_templates = *depo_templates_ptr;
+	PredefinedDeposition *depo_template = depo_templates[0];
 
 	
 	// Get mol information from mol name
