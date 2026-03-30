@@ -61,9 +61,9 @@ namespace PAPRECA{
 	void executeDeposition( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	
 	//Diffusion events
-	void fillIntegerDiffDataTransfArray( int *diff_intdata , Diffusion *diff );
+	void fillIntegerDiffDataTransfArray( int *diff_intdata , PredefinedDiffusionHop *diff_template , Diffusion *diff );
 	void fillDoubleDiffDataTransfArray( double *diff_doubledata , Diffusion *diff );
-	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &is_displacive , int &diffused_type );
+	void deserializeIntegerDiffDataArr( int *diff_intdata , int &parent_type , int &diffused_type , int &diffvec_style_len , int &diffusion_style_len );
 	void deserializeDoubleDiffDataArr( double *diff_doubledata , double *vac_pos , double &insertion_vel );
 	void executeDiffusion( LAMMPS_NS::LAMMPS *lmp , int &KMC_loopid , double &time , PaprecaConfig &papreca_config , const int &proc_id , const int &nprocs , const int &event_proc , Event *selected_event );
 	

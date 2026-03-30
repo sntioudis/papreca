@@ -886,7 +886,7 @@ namespace PAPRECA{
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
 		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
 		
-		std::string error_message = "Invalid create_DiffusionHop command. Must be create_DiffusionHop parent_type velocity diffusion_distance diffvec_style is_displacive(yes/no) diffused_type rate_(valid rate calculation command).";
+		std::string error_message = "Invalid create_DiffusionHop command. Must be create_DiffusionHop parent_type velocity diffusion_distance diffvec_style diffusion_style diffused_type rate_(valid rate calculation command).";
 		
 		if( commands.size( ) < 9 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
 		
@@ -903,10 +903,14 @@ namespace PAPRECA{
 			allAbortWithMessage( MPI_COMM_WORLD , "Unknown diffvec style " + commands[4] + " in " + commands[0] + " command. Must be +x/-x/+y/-y/+z/-z/+x+y/-x+y/-x-y/+x-y/sphere2D/sphere3D. ");
 		}
 		
-		bool is_displacive = string2Bool( commands[5] );
+		std::string diffusion_style = commands[5];
+		if( diffusion_style != "move" && diffusion_style != "move_del" && diffusion_style != "spawn" ){
+			allAbortWithMessage( MPI_COMM_WORLD , "Unknown diffusion style " + commands[5] + " in " + commands[0] + " command. Must be move/move_del/spawn." );
+		}
 		
 		int diffused_type = string2Int( commands[6] );
 		if( diffused_type < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "diffused_type in " + commands[0] + " command has to be a non-negative integer number."); }
+		if( diffusion_style == "move" && diffused_type != parent_type ){ allAbortWithMessage( MPI_COMM_WORLD , "Error in create_DiffusionHop command: diffused_type MUST be identical to parent type for diffusion style move."); }
 		
 		int current_pos = 7;
 		double rate = getRateFromInputRateOptions( commands , current_pos );
@@ -925,7 +929,7 @@ namespace PAPRECA{
 			}while( current_pos < commands.size( ) );
 		}
 		
-		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , diffvec_style , is_displacive , diffused_type , rate , custom_style , style_atomtypes );
+		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , diffvec_style , diffusion_style  , diffused_type , rate , custom_style , style_atomtypes );
 		
 		
 		

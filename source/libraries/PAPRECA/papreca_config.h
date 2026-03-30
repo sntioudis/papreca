@@ -89,7 +89,7 @@ namespace PAPRECA{
 			PredefinedMonoatomicDesorption *getMonoatomicDesorptionFromAtomType( const int &atom_type );
 			void initPredefinedReaction( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &rate , const std::vector< int > &catalyzing_types , const double &length_equil , const double &length_limit );
 			void initPredefinedBondForm( const int &atom1_type , const int &atom2_type , const int &bond_type , const double &bond_dist , const int &delete_atoms , const int &lone_candidates , const bool &same_mol , const double &rate );
-			void initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes );
+			void initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const std::string &diffusion_style , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes );
 			void initPredefinedDeposition( LAMMPS_NS::LAMMPS *lmp , const int &parent_type , const double &depo_offset , const double &insertion_vel , const std::string &adsorbate_name , const double &rate , const bool &variable_sticking , const double &sticking_coeff );
 			void initPredefinedMonoatomicDesorption( const int &parent_type , const double &rate );
 			void setSpeciesMaxBonds( const int &species , const int &bonds_max );

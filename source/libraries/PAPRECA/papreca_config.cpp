@@ -173,15 +173,28 @@ namespace PAPRECA{
 		
 	}
 	
-	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const bool &is_displacive , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes ){
+	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const std::string &diffusion_style , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes ){
 
-		PredefinedDiffusionHop *diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , rate , custom_style , custom_atomtypes , diffused_type , is_displacive );
-
-
-		predefined_catalog.diffusions_set.insert(parent_type); //Even if parent type is already in the set, the unordered set prevents duplicates
-		predefined_catalog.diffusions_map[parent_type].push_back(diffusion);
+		PredefinedDiffusionHop *diffusion = NULL;
+		
+		if( diffusion_style == "move" ){
+			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes );
+		}else if( diffusion_style == "move_del" || diffusion_style == "spawn" ){
+			if( diffused_type < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Tried to initialise PredefinedDiffusionHop object in papreca_config.cpp, but the diffused type was not set properly for styles move_del/spawn." ); }
+			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes , diffused_type );
+		}else{
+			allAbortWithMessage( MPI_COMM_WORLD , "Tried to initialise PredefinedDiffusionHop object in papreca_config.cpp with unknown diffusion style " + diffusion_style + "." );
+		}
 		
 		
+		if( diffusion ){
+			predefined_catalog.diffusions_set.insert(parent_type); //Even if parent type is already in the set, the unordered set prevents duplicates
+			predefined_catalog.diffusions_map[parent_type].push_back(diffusion);	
+		}else{
+			
+			allAbortWithMessage( MPI_COMM_WORLD , "Improper diffusion event initialization in papreca_config.cpp." );
+		}
+			
 	}
 	
 	void PaprecaConfig::initPredefinedDeposition( LAMMPS_NS::LAMMPS *lmp , const int &parent_type , const double &depo_offset , const double &insertion_vel , const std::string &adsorbate_name , const double &rate , const bool &variable_sticking , const double &sticking_coeff ){

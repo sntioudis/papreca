@@ -123,15 +123,15 @@ namespace PAPRECA{
 		
 		public:
 			//Constructor/Destructors
-			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ); //Initializing a PredefinedDiffusionHop object without a diffused type immediately sets the diffusion type to displacive (i.e., the parent atom moves).
-			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in , const bool &is_displacive_in ); //This constructor gives the freedom to set diffused type as well as type of diffusion hop (i.e., displacive==parent atom moves, non-displacive==new atom spawns on vacant site).
+			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ); //Can be used if the diffusion style is "move" because there is no requirement to set the diffused type (which is identical to the parent atom type)
+			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in ); //This constructor can only be used with styles "move_del" and "spawn", where the diffused atom type can be different from the parent atom type
 			~PredefinedDiffusionHop( );
 			
 			//Functions
 			const int &getParentAtomType( ) const;
 			const double &getInsertionVel( ) const;
 			const int &getDiffusedAtomType( ) const;
-			const bool &isDisplacive( ) const; ///< Displacive events "move" the parent atom, while non-displacive events, create a new atom at the vacancy.
+			const std::string &getDiffusionStyle( ) const;
 			const double &getDiffusionDist( ) const;
 			const double &getRate( ) const;
 			const std::string &getDiffvecStyle( ) const;
@@ -141,8 +141,8 @@ namespace PAPRECA{
 		private:
 			int parent_type = -1; ///< type of candidate parent atom.
 			double insertion_vel = 0.0; ///< velocity of the displaced atom.
-			int diffused_type = -2; ///< type of diffused atom. This can be the same as the parent type. Alternatively, it can be set to a different type if you want the atom type to change after diffusion.
-			bool is_displacive = false; //You can have displacive diffusion and the parent type being different from the diffused type, if you want the atom type to change when it moves.
+			int diffused_type = -2; ///< type of diffused atom. This is only relevant to diffusion styles "move_del" and "spawn". The diffused type can be the same as the parent type. Alternatively, it can be set to a different type if you want the atom type to change after diffusion.	
+			std::string diffusion_style = "move"; ///< Three diffusion styles are supported: "move" displaces atoms, "move_del" works like move but deletes atom and reinserts it in the vacant site, "spawn" does not move the parent atom and inserts a new atom in the vacant site.
 			double diffusion_dist = 0.0; /// displace atom by that much.
 			std::string custom_style = "NONE"; ///< currently, only the Fe_4PO4neib style is an acceptable custom style for diffusion.
 			std::string diffvec_style = "+z"; ///< Style of diffusion vector. Many different options are supported for deterministic jumps along different directions (e.g., +x,-z), and random jumps on the surface of a sphere (3D) or the northern hemisphere (2D).

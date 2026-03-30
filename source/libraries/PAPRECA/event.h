@@ -191,23 +191,23 @@ namespace PAPRECA{
 		
 		public:
 			//Child class constructor/destructor
-			Diffusion( const double &rate_in , const double vacancy_pos_in[3] , const LAMMPS_NS::tagint &parent_id_in , const int &parent_type_in , const int &is_displacive_in , const int &diffused_type_in , PredefinedDiffusionHop *diff_template_in );
+			Diffusion( const double &rate_in , const double vacancy_pos_in[3] , const double parent_pos_in[3] , const LAMMPS_NS::tagint &parent_id_in , const int &parent_type_in , const int &diffused_type_in , PredefinedDiffusionHop *diff_template_in );
 			~Diffusion( );
 			
 			//Functions
 			double *getVacancyPos( );
 			const LAMMPS_NS::tagint &getParentId( ) const;
 			const int &getParentType( ) const;
-			int isDisplacive( );
+			double *getParentPos( );
 			const int &getDiffusedType( ) const;
 			PredefinedDiffusionHop *getDiffTemplate( );
 		
 		protected:
+			double parent_pos[3];
 			double vacancy_pos[3];
 		
 			LAMMPS_NS::tagint parent_id = -1;
 			int parent_type = -2;	
-			int is_displacive = 0;  ///< Displacive diffusion events "displace" the parent atom. This is defined as an integer (and not as bool, even though in realitiy, it is a bool) to facilitate the transfering of data using MPI.
 			int diffused_type = -3;
 		
 		private:

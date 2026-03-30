@@ -929,14 +929,14 @@ Deposition scans are not limited to a distance above/below the current film heig
 \subsection createDiff_syntax Syntax
 
 ```bash
-create_DiffusionHop parent_type diff_vel diff_dist diffvec_style displacive diffused_type arg values keyword values
+create_DiffusionHop parent_type diff_vel diff_dist diffvec_style diffusion_style diffused_type arg values keyword values
 ```
 
 - parent_type = atom type of parent atom (i.e., atom on which the event is detected).
 - diff_vel = double number denoting the velocity (in velocity units as in LAMMPS) of the diffused atom.
 - diff_dist = double number denoting the Eucledian distance (in length units as in LAMMPS) between the parent atom and the vacant site.
 - diffvec_style = **+x** or **-x** or **+y** or **-y** or **+z** or **-z** or **+x+y** or **-x+y** or **-x-y** or **+x-y** or **sphere2D** or **sphere3D**. This determines the algorithm used to set the diffusion sites (see below for more information).
-- displacive = **yes** (if the parent atom is displaced) or **no** if the parent atom remains intact and a new atom is placed on the vacant site.
+- diffusion_style = **move** (moves parent atom to vacancy), **move_del** (spawns a new atom at the vacancy and deletes parent atom), **spawn** (spawns a new atom at the vacancy position but does not delete parent atom)
 - diffused_type = atom type of diffused atom.
 
 - (REQUIRED) arg = **rate_manual** or **rate_arrhenius**
@@ -968,12 +968,13 @@ create_DiffusionHop 1 0.0 3 sphere3D yes 1 rate_manual 1.0e13
 
 \subsection createDiff_description Description
 
-Create a predefined diffusion hop template (see PAPRECA::PredefinedDiffusionHop and PAPRECA::Diffusion) for the kMC stage of the %PAPRECA run. 
-A "displacive" diffusion template (i.e., displacive = "yes" ), means that the parent atom moves from its initial position to the position of the vacant site.
-Conversely, a "non-displacive" diffusion template (i.e., displacive = "no" ), means that the parent atom does not move and that a new atom is inserted on the vacant site. Note that,
-in the current version of %PAPRECA, the inserted atom has zero charge and zero velocity.
+Create a predefined diffusion hop template (see PAPRECA::PredefinedDiffusionHop and PAPRECA::Diffusion) for the kMC stage of the %PAPRECA run.
 
-On every kMC stage, %PAPRECA will attempt to move ("displacive" templates) or insert ("non-displacive" templates) an atom in the system with a given probability (based on the chosen rate).
+Three different diffusion styles are available in current version. The **move** style moves the parent atom to vacancy. The **move_del** spawns a new atom at the vacancy and deletes parent atom and
+can be very useful to model diffusion events with atoms involving implicit bonds (i.e., guarantees that the energy of the system will not rise when a single bonded atom moves).
+The **spawn** style does not delete the parent atom and simply spawns a new atom at the vacancy site. In the current version of %PAPRECA, the inserted atoms in **move_del** and **spawn** diffusion styles have zero charge and zero velocity.
+
+On every kMC stage, %PAPRECA will attempt to move (**move** style) or insert (**move_del** or **spawn** styles) an atom in the system with a given probability (based on the chosen rate).
 Atoms are diffused in the system by calling the PAPRECA::diffuseAtom() LAMMPS wrapper function and the executeDiffusion() function of the papreca.cpp driver code.
  
 The diffvec_style decides the location of the diffusion site. For styles **+x**, **-x**, **+y**, **-y**, **+z**, or **-z** the diffusion site is placed with a specific orientation on the given axis and is separated from the parent atom by diff_dist.
@@ -991,8 +992,17 @@ to the formation and growth of thin film from tricresyl phosphate (TCP) molecule
 
 You can provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
-> **Note:**
+> **Note1:**
+> For diffusion_style **move**, the diffused_type must be identical to the parent type! %PAPRECA will stop and throw an error if it is not.
+
+> **Note2:**
 > Multiple diffusion templates can be associated with the same atom type.
+
+> **Note3:**
+> At the moment, the relative performance of **move** and **move_del** styles has not been tested. Both styles should generate identical trajectories, only for pure kMC simulations. For hybrid kMC/MD simulations, some discrepancies are expected, since the **move_del** style reintroduces the atom with zero charge and velocity.
+
+> **Note4:**
+> For diffusion coefficient studies were [unwrapped trajectories](https://docs.lammps.org/dump.html) are required, the **move** style MUST be used. This is the only style that produces consistent unwrapped trajectories. The other two styles (**move_del** and **spawn**) create atoms in the periodic box, meaning that their "image" variables are not updated properly to track motion outside of the periodic box.
 
 \subsection createDiff_bibliography Bibliography
 

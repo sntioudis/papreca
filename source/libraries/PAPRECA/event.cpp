@@ -225,8 +225,9 @@ namespace PAPRECA{
 	
 	//-------------------------------------------CHILD Diffusion CLASS-------------------------------------------
 	//Constructors/Destructors
-	Diffusion::Diffusion( const double &rate_in , const double vacancy_pos_in[3] , const LAMMPS_NS::tagint &parent_id_in , const int &parent_type_in , const int &is_displacive_in , const int &diffused_type_in , PredefinedDiffusionHop *diff_template_in ) : Event::Event( rate_in , "DIFF" ) , parent_id( parent_id_in ), parent_type( parent_type_in ) , is_displacive( is_displacive_in ) , diffused_type( diffused_type_in ) , diff_template( diff_template_in ){ 
+	Diffusion::Diffusion( const double &rate_in , const double vacancy_pos_in[3] , const double parent_pos_in[3] , const LAMMPS_NS::tagint &parent_id_in , const int &parent_type_in , const int &diffused_type_in , PredefinedDiffusionHop *diff_template_in ) : Event::Event( rate_in , "DIFF" ) , parent_id( parent_id_in ), parent_type( parent_type_in ) , diffused_type( diffused_type_in ) , diff_template( diff_template_in ){ 
 		copyDoubleArray3D( vacancy_pos , vacancy_pos_in );
+		copyDoubleArray3D( parent_pos , parent_pos_in );
 	};
 	Diffusion::~Diffusion( ){ };
 	
@@ -234,8 +235,8 @@ namespace PAPRECA{
 	double *Diffusion::getVacancyPos( ){ return vacancy_pos; };
 	const LAMMPS_NS::tagint &Diffusion::getParentId( )const{ return parent_id; };
 	const int &Diffusion::getParentType( )const{ return parent_type; };
-	int Diffusion::isDisplacive( ){ return is_displacive; };
 	const int &Diffusion::getDiffusedType( )const{ return diffused_type; };
+	double *Diffusion::getParentPos( ){ return parent_pos; };
 	PredefinedDiffusionHop *Diffusion::getDiffTemplate( ){ return diff_template; }
 	//-------------------------------------------END OF CHILD Diffusion CLASS-------------------------------------------
 	

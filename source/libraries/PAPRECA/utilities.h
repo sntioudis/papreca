@@ -45,7 +45,7 @@ namespace PAPRECA{
 
 	//Array/Vector functions
 	double doubleArrSum( double *arr , const int &size );
-	void copyDoubleArray3D( double *copy , const double *source , const int start = 0 , const int end = 3 );
+	void copyDoubleArray3D( double *copy , const double *source , const int start_copy = 0 , const int end_copy = 2 , const int start_source = 0 , const int end_source = 2 );
 	
 	template< typename T > 
 	T getSumOfVecElements( const std::vector< T > &vec ){

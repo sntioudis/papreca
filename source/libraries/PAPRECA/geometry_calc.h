@@ -48,7 +48,7 @@ namespace PAPRECA{
 	void calcFilmHeight( LAMMPS_NS::LAMMPS *lmp , const int &proc_id , const int &KMC_loopid , PaprecaConfig &papreca_config , double &film_height );
 	
 	//Interference between atoms
-	const bool atomsCollide( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , double *atom1_xyz , const int &atom1_type , double *atom2_xyz , const int &atom2_type );
+	const bool atomsCollide( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , const double *atom1_xyz , const int &atom1_type , const double *atom2_xyz , const int &atom2_type );
 	
 }//end of namespace PAPRECA
 

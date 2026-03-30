@@ -69,7 +69,7 @@ namespace PAPRECA{
 		
 	
 	
-	void getDiffPointCandidateCoords( LAMMPS_NS::LAMMPS *lmp  , PaprecaConfig &papreca_config , double *iatom_xyz , double *candidate_xyz , PredefinedDiffusionHop *diff_template ){
+	void getDiffPointCandidateCoords( LAMMPS_NS::LAMMPS *lmp  , PaprecaConfig &papreca_config , const double *iatom_xyz , double *candidate_xyz , PredefinedDiffusionHop *diff_template ){
 	
 		/// Calculates the diffusion point (vacancy) coordinates for a given parent atom. Depending on the user settings, the diffusion point can be directly above the parent atom or at the surface of a sphere centered at the coordinates of the parent atom.
 		/// @param[in] lmp pointer to LAMMPS object.
@@ -83,6 +83,7 @@ namespace PAPRECA{
 		
 		const double &diff_dist = diff_template->getDiffusionDist( );
 		const std::string &diffvec_style = diff_template->getDiffvecStyle( );
+		const std::string &diffusion_style = diff_template->getDiffusionStyle( );
 			
 		if( diffvec_style == "+x" ){
 			candidate_xyz[0] = iatom_xyz[0] + diff_dist;
@@ -154,15 +155,25 @@ namespace PAPRECA{
 			candidate_xyz[2] = iatom_xyz[2] + diff_dist * cos( theta );
 			
 		}else{
-			allAbortWithMessage( MPI_COMM_WORLD , "Unkown diffvec style " + diffvec_style + " in getDiffPointCandidateCoords( ) function of event_detect.cpp." );
+			allAbortWithMessage( MPI_COMM_WORLD , "Unknown diffvec style " + diffvec_style + " in getDiffPointCandidateCoords( ) function of event_detect.cpp." );
 		}
 		
 
-		remap3DArrayInPeriodicBox( lmp , candidate_xyz );
+		// For diffusion style "move" we do not remap the candidate coords inside the periodic box.
+		// This does not influence the results, since we always calculate the minimum (i.e., periodic) distances between atoms to check for collisions.
+		// Also, LAMMPS correctly displaces and remaps atoms through the "displace" command.
+		// However, by NOT remapping at this stage we guarantee that the internal images stored by LAMMPS are correctly updated.
+		// This means that the move style can produce correct unwrapped trajectories. Note that, any other style (e.g., move_del and spawn)
+		// cannot produce unwrapped trajectories (i.e., you will get wrapped trajectories even if you output xu, yu, zu), since they always create a new atom in the box
+		// (new atoms have zero images)
+		
+		if( diffusion_style != "move" ){
+			remap3DArrayInPeriodicBox( lmp , candidate_xyz );
+		}
 		
 	}
 	
-	const bool candidateDiffHasCollisions( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int *neighbors , int &neighbors_num , double *candidate_xyz , const int &diffused_type , double *iatom_xyz , const int &iatom_type ){
+	const bool candidateDiffHasCollisions( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , int *neighbors , int &neighbors_num , double *candidate_xyz , const int &diffused_type , const double *iatom_xyz , const int &iatom_type ){
 
 		/// Checks for collisions between the diffusion atom (i.e., atom moving to the vacancy) and existing atoms in the simulation.
 		/// @param[in] lmp pointer to LAMMPS object.
@@ -216,7 +227,7 @@ namespace PAPRECA{
 		
 		const LAMMPS_NS::tagint iatom_id = atom_ids[iatom];
 		const LAMMPS_NS::tagint iatom_type = atom_types[iatom];
-		double *iatom_xyz = atom_xyz[iatom];
+		const double *iatom_xyz = atom_xyz[iatom];
 		
 		
 		//Dictate if your current atom is a candidate for diffusion events
@@ -239,9 +250,11 @@ namespace PAPRECA{
 				if( !candidateDiffHasCollisions( lmp , papreca_config , neighbors , neighbors_num , candidate_xyz , diffused_type , iatom_xyz , iatom_type ) ){
 					
 					const double rate = diff_template->getRate( );
-					const int is_displacive = diff_template->isDisplacive( );
-								
-					Diffusion *diff = new Diffusion( rate , candidate_xyz , iatom_id , iatom_type , is_displacive , diffused_type , diff_template );
+							
+					//Safely copy parent atom coordinates into new array (do not use internal LAMMPS structures to initialise PAPRECA objects)
+					double parent_xyz[3];
+					copyDoubleArray3D( parent_xyz , iatom_xyz );
+					Diffusion *diff = new Diffusion( rate , candidate_xyz , parent_xyz , iatom_id , iatom_type , diffused_type , diff_template );
 					events_local.push_back( diff );
 							
 				}

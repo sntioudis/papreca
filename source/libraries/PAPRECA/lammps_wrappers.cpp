@@ -316,27 +316,59 @@ namespace PAPRECA{
 		
 	}
 	
-	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const int &is_displacive , const int &diffused_type ){
+	void moveAtom( LAMMPS_NS::LAMMPS *lmp , const double end_pos[3] , const double start_pos[3] , const LAMMPS_NS::tagint &atom_id ){
+		
+		/// Moves atom specified by an ID to move_pos
+		/// @param[in,out] lmp pointer to previously instantiated LAMMPS object.
+		/// @param[in] end_pos final position of atom
+		/// @param[in] start_pos initial position of atom
+		/// @param[in] atom_id id of moving atom
+		/// @note This function is a wrapper of this LAMMPS command: https://docs.lammps.org/displace_atoms.html. This command automatically handles  periodic boundaries, increments periodic images, and resizes boxes, so it is safer than set. However, it needs you to calculate an additional distance, so might be slower than the other methods (needs to be tested further).
+		
+		double dist[3];
+		
+		//Fill dist array from differences in coordinates
+		for( int i = 0; i < 3; ++i ){
+			dist[i] = end_pos[i] - start_pos[i];
+		}
+		
+		
+		//Create a group for the atom to be displaced
+		std::string input_str1 = "group displaced id " + std::to_string( atom_id );
+		lmp->input->one( input_str1.c_str( ) );
+		
+		//Displace atoms
+		std::string input_str2 = "displace_atoms displaced move " + std::to_string( dist[0] ) + " " + std::to_string( dist[1] ) + " " + std::to_string( dist[2] ) + " units box";
+		lmp->input->one( input_str2.c_str( ) );
+		
+		//Delete group
+		lmp->input->one( "group displaced delete" );
+		
+	}
+		
+	
+	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const double parent_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const std::string &diffusion_style , const int &diffused_type ){
 			
-			/// Executes a diffusion operation (i.e., moves if the diffusion is displacive, or creates an atom if the diffusion is non-displacive).
+			/// Executes a diffusion operation based on diffusion style.
 			/// @param[in,out] lmp pointer to previously instantiated LAMMPS object.
 			/// @param[in] vac_pos coordinates (x,y, and z) of vacancy.
+			/// @param[in] parent_pos coordinates (x,y, and z) of parent atom.
 			/// @param[in] parent_id ID of parent candidate atom.
 			/// @param[in] parent_type atom type of parent candidate atom.
-			/// @param[in] is_displacive 1 if the diffusion is displacive (i.e., if the parent atom moves), or 0 if the diffusion is non-displacive (i.e., if a new atom is created on the vacancy position).
-			/// @param[in] diffused_type type of diffused atom. Can be the same as parent type or can be set to a different type if you wish to change the atom type after performing a diffusion event.
+			/// @param[in] diffusion_style string denoting the diffusion style: moves atom if style is "move", deletes parent atom and moves atom to vacancy if style is "move_del", or creates a new atom a the vacancy site for style "spawn".
+			/// @param[in] diffused_type type of diffused atom. Can be the same as parent type or can be set to a different type if you wish to change the atom type after performing a diffusion event. For style "move" the diffused type must be the same as the parent type
 			/// @see createAtom(), deleteAtoms()
-			/// @note If diffusion is displacive, the original atom moves. Instead of deleting bonds to move an atom it would be easier to delete the diffusing atom and spawn it again.
-			/// This approximation introduces an error: it assumes that the charge of the atom becomes zero during diffusion.
+			/// @note If diffusion style is "move_del", the original atom is deleted and a new atom is inserted at the vacancy site.
+			/// This approximation introduces an error: it assumes that the charge of the atom becomes zero during diffusion (because the new atom is inserted with 0 charge).
 			/// However, if you use any charge equilibration scheme this shouldn't be an issue because the atom is going to obtain the correct charge during equilibration.
 			/// More sophisticated solutions would include: Actual moving of atom or even transferring (using set functions of charges).
-			/// @note If diffusion is non-displacive, we create a new atom in the vacancy position instead of moving the parent atom.
+			/// @note If diffusion style is "spawn", we create a new atom in the vacancy position instead of moving the parent atom.
 			/// Again, we assume that the charge of the atom is 0 to begin with.
 			
-			if( is_displacive == 0 ){ //Now we simply create an atom at the vacancy pos
+			if( diffusion_style == "spawn" ){ //Now we simply create an atom at the vacancy pos
 				createAtom( lmp , vac_pos , diffused_type );
 				
-			}else if( is_displacive == 1 ){//Displacive diffusion
+			}else if( diffusion_style == "move_del" ){
 				
 				LAMMPS_NS::tagint *ids = new LAMMPS_NS::tagint[1];
 				ids[0] = parent_id;
@@ -346,6 +378,12 @@ namespace PAPRECA{
 				
 				delete [ ] ids;
 	
+			}else if( diffusion_style == "move" ){
+				
+				moveAtom( lmp , vac_pos , parent_pos , parent_id );
+				
+			}else{	
+				allAbortWithMessage( MPI_COMM_WORLD , "Unknown diffusion style " + diffusion_style + " in diffuseAtom function of lammps_wrappers.cpp." );
 			}
 			
 	}

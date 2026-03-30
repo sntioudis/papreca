@@ -82,7 +82,8 @@ namespace PAPRECA{
 	void resetMobileAtomsGroups4NveLimIntegration( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void resetMobileAtomsGroups( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void insertMolecule( LAMMPS_NS::LAMMPS *lmp , const double site_pos[3] , const double rot_pos[3] , const double &rot_theta , const int &mol_id , const char *mol_name );
-	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const int &is_displacive , const int &diffused_type );
+	void moveAtom( LAMMPS_NS::LAMMPS *lmp , const double move_pos[3] , const LAMMPS_NS::tagint &move_id );
+	void diffuseAtom( LAMMPS_NS::LAMMPS *lmp , const double vac_pos[3] , const double parent_pos[3] , const LAMMPS_NS::tagint &parent_id , const int &parent_type , const std::string &diffusion_style , const int &diffused_type );
 	
 	//Sigmas
 	void initType2SigmaFromLammpsPairCoeffs( LAMMPS_NS::LAMMPS *lmp , INTPAIR2DOUBLE_MAP &type2sigma );

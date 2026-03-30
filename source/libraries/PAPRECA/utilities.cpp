@@ -43,18 +43,28 @@ namespace PAPRECA{
 	}
 	
 	
-	void copyDoubleArray3D( double *copy , const double *source , const int start , const int end ){
+	void copyDoubleArray3D( double *copy , const double *source , const int start_copy , const int end_copy , const int start_source , const int end_source ){
 		
 		/// Receives an array of doubles and copies it to a different array of doubles.
 		/// @param[in,out] copy copied array.
 		/// @param[in] source original array.
-		/// @param[in] start copy starting from that index.
-		/// @param[in] end copy all elements whose index is less than this variable (i.e., copy[i] with i < end ).
-		/// @note This function will result in a segmentation fault if the "start" or "end" indexes are out-of-bounds (i.e., not mapped for the source array).
+		/// @param[in] start_copy starting index to operate on the copy array
+		/// @param[in] end_copy ending index to operate on the copy array (i.e., copy[i] with i <= end ).
+		/// @param[in] start_source starting index to copy from the source array
+		/// @param[in] end_source ending index to copy from the source array)
+		/// @note The default behaviour retrieves indexes 0, 1, 2 from the source array and copies them to the copy array
+		/// @note This function will result in a segmentation fault if the "start" or "end" indexes are out-of-bounds or if the two provided arrays map the same memory addresses. PAPRECA will note check for those cases so, use carefully!
 		
-		for( int i = start; i < end; ++i ){
+	
+		int i_copy = start_copy;
+		int i_source = start_source;
+		
+		while( i_copy <= end_copy && i_source <= end_source ){
 			
-			copy[i] = source[i];
+			copy[i_copy] = source[i_source];
+				
+			++i_copy;
+			++i_source;
 			
 		}
 		
