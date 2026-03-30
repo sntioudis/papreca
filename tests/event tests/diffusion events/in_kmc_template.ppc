@@ -14,4 +14,4 @@ sigmas_options LAMMPS
 trajectory_duration 1
 
 #Predefined events
-create_DiffusionHop 1 0.0 20 sphere3D move_del 2 rate_arrhenius 20 1.0e13 500
+create_DiffusionHop 1 0.0 20 sphere3D spawn 2 rate_arrhenius 20 1.0e13 500
