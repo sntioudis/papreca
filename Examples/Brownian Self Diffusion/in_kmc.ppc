@@ -13,7 +13,7 @@ sigmas_options LAMMPS
 trajectory_duration 1
 
 #Predefined events
-create_DiffusionHop 1 0.0 3 sphere3D yes 1 rate_manual 1.0
+create_DiffusionHop 1 0.0 3 sphere3D move_del 1 rate_manual 1.0
 
 #Export files
 export_ElementalDistributions 1000 bin_width 10
