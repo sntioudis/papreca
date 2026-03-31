@@ -4,6 +4,7 @@
 #include "neigh_request.h"
 #include "neigh_list.h"
 #include "error.h"
+#include <cstring>
 using namespace LAMMPS_NS;
 using namespace FixConst;
 
