@@ -1,6 +1,12 @@
-# Introduction
+# Home 
 
 \anchor main
+
+\section news News
+
+**April 2026**
+
+%PAPRECA is now listed in the [external software section](https://www.lammps.org/external.html) of LAMMPS' official website!
 
 \section intro What is PAPRECA?
 
