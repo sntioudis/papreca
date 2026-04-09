@@ -1,15 +1,16 @@
 ### PAPRECA
 
 #### Recognition
+### PAPRECA
+
+#### Recognition
 [![LAMMPS External Software](https://img.shields.io/badge/LAMMPS-External%20Software-1f77b4)](https://www.lammps.org/external.html#papreca)
 [![JOSS Status](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b/status.svg)](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b)
 
 #### Testing & Compatibility
 [![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml)
-
-[![Earliest Compatible LAMMPS Version](https://img.shields.io/badge/Earliest%20Compatible%20LAMMPS%20Version-patch__15Sep2022-brightgreen)](https://github.com/sntioudis/papreca/actions/runs/9228674083)
-
 [![Documentation](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
+[![Earliest Compatible LAMMPS Version](https://img.shields.io/badge/Earliest%20Compatible%20LAMMPS%20Version-patch__15Sep2022-brightgreen)](https://github.com/sntioudis/papreca/actions/runs/9228674083)
 
 PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
 
