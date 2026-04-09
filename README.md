@@ -1,5 +1,5 @@
 PAPRECA
-[![LAMMPS Official External Software](https://img.shields.io/badge/LAMMPS-Official%20External%20Software-blue)](https://www.lammps.org/external.html#papreca)
+[![LAMMPS Verified External Software](https://img.shields.io/badge/LAMMPS-verified%20external%20software-2ea44f)](https://www.lammps.org/external.html#papreca)
 [![Tests](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/run_ALLtests.yml)
 [![Compatibility](https://img.shields.io/badge/Earliest%20Compatible%20Lammps%20Version-patch_15Sep2022-BrightGreen)](https://github.com/sntioudis/papreca/actions/runs/9228674083)
 [![Docs](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
