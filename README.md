@@ -1,4 +1,5 @@
 ### PAPRECA
+<img width="1280" height="640" alt="PAPRECA logo (final) png" src="https://github.com/user-attachments/assets/0ea33445-ca80-4a73-b3f5-cbd6a2ed1db5" />
 
 [![LAMMPS Stand-alone External Software](https://img.shields.io/badge/LAMMPS-Stand--alone%20External%20Software-1f77b4)](https://www.lammps.org/external.html#papreca)
 [![JOSS Status](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b/status.svg)](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b)
