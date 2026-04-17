@@ -1,5 +1,10 @@
 ### PAPRECA
-<img width="1280" height="640" alt="PAPRECA logo (final)-png" src="https://github.com/user-attachments/assets/6e1d1300-1249-4a8c-bfc4-bd5ae2d6ba5b" />
+<img width="1280" height="640" alt="PAPRECA logo" src="https://github.com/user-attachments/assets/d16643bd-a934-401e-8863-81a98c619076" />
+
+<p align="Left">
+  Logo built with ❤️ by Rafaela E. Christodoulou
+</p>
+
 
 [![LAMMPS Stand-alone External Software](https://img.shields.io/badge/LAMMPS-Stand--alone%20External%20Software-1f77b4)](https://www.lammps.org/external.html#papreca)
 [![JOSS Status](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b/status.svg)](https://joss.theoj.org/papers/f00ac3f3856e2f369c96646b66a1581b)
