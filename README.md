@@ -2,8 +2,10 @@
 <img width="1280" height="640" alt="PAPRECA logo" src="https://github.com/user-attachments/assets/d16643bd-a934-401e-8863-81a98c619076" />
 
 <p align="Left">
-  Logo built with ❤️ by Rafaela E. Christodoulou
+  Logo crafted with ❤️ by Rafaela E. Christodoulou
 </p>
+
+<br>
 
 
 [![LAMMPS Stand-alone External Software](https://img.shields.io/badge/LAMMPS-Stand--alone%20External%20Software-1f77b4)](https://www.lammps.org/external.html#papreca)
@@ -13,6 +15,8 @@
 [![Earliest Compatible LAMMPS Version](https://img.shields.io/badge/Earliest%20Compatible%20LAMMPS%20Version-patch__15Sep2022-brightgreen)](https://github.com/sntioudis/papreca/actions/runs/9228674083)
 
 [![Documentation](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
+
+<br>
 
 PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
 
