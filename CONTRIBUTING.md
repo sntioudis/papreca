@@ -18,8 +18,7 @@ Take a look at this repository's open issues. There is usually something you cou
 8. [Submitting a Pull Request](#submitting-a-pull-request)
 9. [Reporting Bugs and Requesting Features](#reporting-bugs-and-requesting-features)
 10. [Documentation Contributions](#documentation-contributions)
-11. [Citing PAPRECA](#citing-papreca)
-12. [Contact](#contact)
+11. [Contact](#contact)
 
 ---
 
@@ -169,17 +168,6 @@ Documentation lives in the documentation/ directory and is hosted on the PAPRECA
 - Corrections to existing documentation can be submitted via a Pull Request.
 - For larger documentation additions (e.g., new tutorials or theory sections), please open a GitHub Issue first to discuss the scope.
 
----
-
-## Citing PAPRECA
-
-If you use PAPRECA in your research, please cite the following:
-
-Ntioudis, S., et al. PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator. Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
-
-Ntioudis, S., et al. A hybrid off-lattice kinetic Monte Carlo/molecular dynamics method for amorphous thin film growth. Computational Materials Science, 229, 112421 (2023). https://doi.org/10.1016/j.commatsci.2023.112421
-
-Thompson, A.P. et al. LAMMPS - a flexible simulation tool for particle-based materials modeling. Computer Physics Communications, 272, 108171 (2022). https://doi.org/10.1016/j.cpc.2021.108171
 
 ---
 
