@@ -1,13 +1,14 @@
-1) Added +x, -x, +y, -y, +z, -z, +x+y, -x+y, -x-y, +x-y, 2D, 3D options for diffusion events. random_diffvecs command is now deprecated and the user can select the type of diffusion event directly within the create_DiffusionHop command.
-This is significantly more flexible, as the determination of each diffusion site can now be controlled independantly (before, random_diffvecs) defined the vacancy types of ALL Diffusion events.
+1) Added +x, -x, +y, -y, +z, -z, +x+y, -x+y, -x-y, +x-y, 2D, 3D options for diffusion events. random_diffvecs command is now deprecated, and the user can select the type of diffusion event directly within the create_DiffusionHop command.
+This is significantly more flexible, as the determination of each diffusion site can now be controlled independently (before, random_diffvecs) defined the vacancy types of ALL Diffusion events.
 Should test for a while and could potentially add random_depovecs inside the deposition events for more flexibility.
-Some modification will be required to your in_kmc.ppc files now as the create_DiffusionHop command requires an extra input!
-2) Removed catalyzed and limit options for bond-formation events. They looked like overkill, and I could not think of a realistic application where these would be required.
+Some modifications will be required to your in_kmc.ppc files now, as the create_DiffusionHop command requires an extra input!
+2) Removed catalysed and limit options for bond-formation events. They looked like overkill, and I could not think of a realistic application where these would be required.
 I will reintroduce this later if users require it for a specific application. <--- Will need to check that nothing is broken regarding bondForms (potentially test that the Phosphates example runs smoothly).
-3) Added limited option for bond-breaking events to restrict the bond length before removing the bond (and updated documentation accordingly)
+3) Added limited option for bond-breaking events to restrict the bond length before removing the bond (and updated the documentation accordingly)
 4) Added nve/lim option, which places atoms from bond formation/breaking events in a separate group that is integrated with nve/lim for a number of steps (updated documentation accordingly)
 5) Added short/long trajectory option for MD stages
 6) Patched diffusion and deposition events to now allow a specific atom type to be parent to multiple diffusion/deposition events (that was not previously possible). This
-can be very beneficial if we expect different molecules to be deposited on the same type, or if we expect an atom to diffuse with different ways (say simple hop and exchange).
+can be very beneficial if we expect different molecules to be deposited on the same type, or if we expect an atom to diffuse in different ways (say simple hop and exchange).
+7) Added box_zvacuum option to resize simulation box and fit all atoms for thicker films + changes in documentation to introduce command
 
 Updated files for transition to C++17 (in accordance with LAMMPS updates).
