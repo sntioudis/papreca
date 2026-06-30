@@ -101,24 +101,27 @@ namespace PAPRECA{
 		///Adjusts simulation box to that the vacuum region (i.e., distance between highest z-coordinate of atoms and height of the simulation box along the z-direction) has a user-defined length (box_zvacuum value).
 		/// @param[in,out] lmp pointer to LAMMPS object.
 		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
-		
+
+		//Get box bounds
 		double box_zmax = lmp->domain->boxhi[2];
 		double box_zmin = lmp->domain->boxlo[2];
 		double box_zvacuum = papreca_config.getBoxZvacuum( );
-		
+
+		//Define variable, compute, and retrieve zmax of atoms in LAMMPS 
 		std::string command = "variable atoms_zmax equal bound(all,zmax)";
 		std::string var_name = "atoms_zmax";
 		lmp->input->one( command.c_str( ) );
-		int id_zmax = getLammpsVariableID( lmp , var_name );
-		double atoms_zmax = getLammpsVariableValue( lmp , id_zmax );
+		int id_zmax = lmp->input->variable->find( var_name.c_str( ) ); //Get variable id from LAMMPS
+		double atoms_zmax = lmp->input->variable->compute_equal( id_zmax ); //Get variable value from LAMMPS using retrieved id
 		
-		
+		//Decide if box resize is needed
 		printf( "box_zmax=%f, atoms_zmax=%f , box_zmax-atoms_zmax=%f , box_zvacuum=%f \n" , box_zmax , atoms_zmax , box_zmax-atoms_zmax , box_zvacuum ); 
 		if( fabs( box_zmax - atoms_zmax ) <=  box_zvacuum ){
 			double box_znew = atoms_zmax + box_zvacuum;
 			resizeZboxLength( lmp , box_zmin , box_znew );
 		}
 
+		//Clean up LAMMPS variables
 		command = "variable " + var_name + " delete";
 		lmp->input->one( command.c_str( ) );
 		
