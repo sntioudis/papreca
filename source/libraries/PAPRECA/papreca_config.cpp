@@ -350,7 +350,13 @@ namespace PAPRECA{
 	const double &PaprecaConfig::getHeightPercentage( ) const{ return height_percentage; }
 	void PaprecaConfig::setBinWidth( const double &bin_width_in ){ bin_width = bin_width_in; }
 	const double &PaprecaConfig::getBinWidth( ) const{ return bin_width; }
-	
+
+	//Box resize
+	void PaprecaConfig::setBoxZvacuum( const double &box_zvacuum_in ){ box_zvacuum = box_zvacuum_in; }
+	const double &PaprecaConfig::getBoxZvacuum( ) const{ return box_zvacuum; }
+	void PaprecaConfig::setBoxZvacuumActive( ){ zvacuum_active = true; }
+	void PaprecaConfig::setBoxZvacuumInactive( ){ zvacuum_active = false; }
+	const bool &PaprecaConfig::boxZvacuumIsActive( ) const{ return zvacuum_active; }
 	
 	//type2sigma
 	void PaprecaConfig::initSigmasFromLammps( LAMMPS_NS::LAMMPS *lmp ){ initType2SigmaFromLammpsPairCoeffs( lmp , type2sigma ); }
