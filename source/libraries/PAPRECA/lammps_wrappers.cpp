@@ -83,7 +83,47 @@ namespace PAPRECA{
 		
 	}
 	
-	//Period Box Operations
+	//Simulation Box Operations
+	void resizeZboxLength( LAMMPS_NS::LAMMPS *lmp , double &box_zlow , double &box_zhigh ){
+		/// Resizes the simulation box along the z-dimension.
+		/// @param[in] lmp pointer to previously instantiated LAMMPS object.
+		/// @param[in] box_zlow Lower bound of simulation box along the z-dimension.
+		/// @param[in] box_zhigh Higher bound of simulation box along the z-dimension.
+		/// @note This function uses the following LAMMPS command: https://docs.lammps.org/change_box.html.
+		
+			std::string input = "change_box all z final " + std::to_string( box_zlow ) + " " + std::to_string( box_zhigh) + " units box";
+			lmp->input->one( input.c_str( ) );
+		
+	}
+
+	void adjustSimulationBoxZvacuum( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config ){
+		
+		///Adjusts simulation box to that the vacuum region (i.e., distance between highest z-coordinate of atoms and height of the simulation box along the z-direction) has a user-defined length (box_zvacuum value).
+		/// @param[in,out] lmp pointer to LAMMPS object.
+		/// @param[in,out] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		
+		double box_zmax = lmp->domain->boxhi[2];
+		double box_zmin = lmp->domain->boxlo[2];
+		double box_zvacuum = papreca_config.getBoxZvacuum( );
+		
+		std::string command = "variable atoms_zmax equal bound(all,zmax)";
+		std::string var_name = "atoms_zmax";
+		lmp->input->one( command.c_str( ) );
+		int id_zmax = getLammpsVariableID( lmp , var_name );
+		double atoms_zmax = getLammpsVariableValue( lmp , id_zmax );
+		
+		
+		printf( "box_zmax=%f, atoms_zmax=%f , box_zmax-atoms_zmax=%f , box_zvacuum=%f \n" , box_zmax , atoms_zmax , box_zmax-atoms_zmax , box_zvacuum ); 
+		if( fabs( box_zmax - atoms_zmax ) <=  box_zvacuum ){
+			double box_znew = atoms_zmax + box_zvacuum;
+			resizeZboxLength( lmp , box_zmin , box_znew );
+		}
+
+		command = "variable " + var_name + " delete";
+		lmp->input->one( command.c_str( ) );
+		
+	}
+
 	void remap3DArrayInPeriodicBox( LAMMPS_NS::LAMMPS *lmp , double *arr ){ 
 	
 		/// Receives an 1D array of 3 elements (i.e., x,y, and z coordinates) and remaps it inside the existing periodic box (as set in the provided LAMMPS object).
