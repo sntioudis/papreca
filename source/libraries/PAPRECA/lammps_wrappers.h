@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "domain.h"
 #include "force.h"
 #include "pair.h"
+#include "variable.h"
 /// \endcond
 
 //kMC Headers
