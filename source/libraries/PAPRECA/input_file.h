@@ -70,6 +70,7 @@ namespace PAPRECA{
 	void executeFrozenAtomTypesCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeDesorptionCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeHeightCalculationCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
+	void executeBoxZvacuumCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeSpeciesMaxBondsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeSpeciesMaxBondTypesCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
 	void executeMinimizePriorCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );
