@@ -115,7 +115,6 @@ namespace PAPRECA{
 		double atoms_zmax = lmp->input->variable->compute_equal( id_zmax ); //Get variable value from LAMMPS using retrieved id
 		
 		//Decide if box resize is needed
-		printf( "box_zmax=%f, atoms_zmax=%f , box_zmax-atoms_zmax=%f , box_zvacuum=%f \n" , box_zmax , atoms_zmax , box_zmax-atoms_zmax , box_zvacuum ); 
 		if( fabs( box_zmax - atoms_zmax ) <=  box_zvacuum ){
 			double box_znew = atoms_zmax + box_zvacuum;
 			resizeZboxLength( lmp , box_zmin , box_znew );
