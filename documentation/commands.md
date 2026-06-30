@@ -424,6 +424,44 @@ No atom deletions (desorptions) are performed if the user does not include this 
 
 <hr>
 
+\section boxzvacuum box_zvacuum command
+
+\subsection boxzvacuum_syntax Syntax
+
+```bash
+box_zvacuum vacuum
+```
+
+- height = vacuum length (i.e., distance between highest z-coordinate of any atom and +z-edge of the simulation box). Units are in length units (as defined in the LAMMPS input file).
+
+
+\subsection boxzvacuum_examples Example(s)
+
+```bash
+box_zvacuum 20
+box_zvacuum 50
+```
+
+\subsection boxzvacuum_description Description
+
+Ensures that the distance between the maximum z-coordinate of any atom in the simulation box is separated by the +z-edge of the simulation box by "vacuum length" (i.e., a user-defined parameter).
+This operation is performed before every kMC stage. This command can be essential in thin-film simulations to guarantee that there is enough space for the insertion of atoms (see \ref createDiff and \ref createDepo).
+Note that if there is not enough space for insertions, the [create_atoms command](https://docs.lammps.org/create_atoms.html) will attempt to add atoms outside of the current simulation box. In such a case, the insertion operation will fail silently (without error or warning) and no atoms will be added to the system.
+The box_zvacuum command ensures that the simulation box is always big enough to accommodate new atoms by resizing the simulation box (via the [change_box command](https://docs.lammps.org/change_box.html) in LAMMPS).
+
+
+> **Note 1:**
+>This command solely resizes the +z-edge of the simulation box. The -z-edge as well as the x- and z-edges remain unchanged. Any periodic boundaries are not affected.
+
+> **Note 2:**
+> The use of this command can boost the efficiency of simulations. The user can initiate simulations with a smaller simulation box and allow %PAPRECA to adjust the boundaries accordingly. Care, however, as excessive modifications of the dimensions of the simulation domain can comprise the simulation performance.
+
+
+\subsection boxzvacuum_default Default
+No simulation box modifications are performed by default.
+
+<hr>
+
 \section minprior minimize_prior command
 
 \subsection minprior_syntax Syntax
