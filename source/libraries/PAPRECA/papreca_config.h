@@ -126,6 +126,13 @@ namespace PAPRECA{
 			const double &getHeightPercentage( ) const; //Only for film height percentage method!
 			void setBinWidth( const double &bin_width_in );
 			const double &getBinWidth( ) const;
+
+			//BoxResize
+			void setBoxZvacuum( const double &box_zvacuum_in );
+			const double &getBoxZvacuum( ) const;
+			void setBoxZvacuumActive( );
+			void setBoxZvacuumInactive( );
+			const bool &boxZvacuumIsActive( ) const;
 			
 			//type2sigma
 			void initSigmasFromLammps( LAMMPS_NS::LAMMPS *lmp );
@@ -217,7 +224,11 @@ namespace PAPRECA{
 			std::string height_method = ""; ///< Algorithm to calculate height. Currently, only the mass_bins method is supported.
 			double height_percentage = 0.0; ///< Only used for height calculation method: mass_bins. Defines the mass percentage cutoff. The film height is calculated as the first bin whose cumulative mass is above the percentage cutoff.
 			double bin_width = 1.0; ///< Bin width for height calculation or for ElementaDistribution files. Initialized at 1.0, so even if the user does not use the height_caulcation or heightbin_width command, you would be able to calculate mass bins with a width of 1.0.
-			
+
+			//Box resize
+			double box_zvacuum = 0.0; //Parameter dictating the vacuum (distance between maximum z of atoms and zhigh of simulation box).
+			bool zvacuum_active = false; //Denotes if zvacuum is activated (i.e., if the user called box_zvacuum in the PAPRECA input file).
+
 			//Map that returns the sigma distance (i.e., equilibrium distance of species as in the LJ potential). Currently initialized from the LAMMPS input.
 			INTPAIR2DOUBLE_MAP type2sigma; ///< maps types of atom types to their corresponding sigma.
 			std::string sigma_style = ""; ///< method for initialization of sigma values (can be manual/LAMMPS).
