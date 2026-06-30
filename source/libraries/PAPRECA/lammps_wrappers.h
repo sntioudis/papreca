@@ -69,7 +69,9 @@ namespace PAPRECA{
 	void runLammps( LAMMPS_NS::LAMMPS *lmp , const int &timesteps_num );
 	void MPIBcastAndExecuteCommand( LAMMPS_NS::LAMMPS *lmp , std::string &command ); //This function gets a line command (std::string), casts it to all other procs, and executes the command
 	
-	//Period Box Operations
+	//Simulation Box Operations
+	void resizeZboxLength( LAMMPS_NS::LAMMPS *lmp , double &box_zlow , double &box_zhigh );
+	void adjustSimulationBoxZvacuum( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	void remap3DArrayInPeriodicBox( LAMMPS_NS::LAMMPS *lmp , double *arr ); //Receives a 3D array and remaps it inside the existing periodic box.
 	
 	//kMC operations
