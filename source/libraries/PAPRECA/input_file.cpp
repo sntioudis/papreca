@@ -621,7 +621,22 @@ namespace PAPRECA{
 		}
 		
 	}
-	
+
+	void executeBoxZvacuumCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
+		
+		/// Sets all parameters relevant to the box_vacuum command for the PAPRECA::PaprecaConfig object.
+		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
+		/// @param[in,out] papreca_config previously instantiated PAPRECA::PaprecaConfig object storing the settings and global variables for the PAPRECA simulation.
+		
+		if( commands.size( ) != 2 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid box_zvacuum command. Must be box_zvacuum M, where M is a double positive number denoting the distance between the maximum z-coordinate of atoms and the height (on the z-direction) of the simulation box." ); }
+		double box_zvacuum = string2Double( commands[1] );
+		if( box_zvacuum <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Invalid box_zvacuum command. The box_zvacuum parameter must be a double POSITIVE number." ); }
+		
+		papreca_config.setBoxZvacuum( box_zvacuum );
+		papreca_config.setBoxZvacuumActive( );
+		
+	}
+			
 	void executeSpeciesMaxBondsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config ){
 	
 		/// Sets a maximum number of bonds for a species in the PAPRECA::PaprecaConfig object.
@@ -1212,6 +1227,8 @@ namespace PAPRECA{
 			executeFrozenAtomTypesCommand( commands , papreca_config );
 		}else if( command_class == "desorption" ){
 			executeDesorptionCommand( commands, papreca_config );
+		}else if( command_class == "box_zvacuum" ){
+			executeBoxZvacuumCommand( commands , papreca_config );
 		}else if( command_class == "height_calculation" ){
 			executeHeightCalculationCommand( commands , papreca_config );
 		}else if( command_class == "species_maxbonds" ){
