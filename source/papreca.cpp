@@ -145,6 +145,7 @@ int main( int narg , char **arg ){
 		PAPRECA::Bond::initAtomID2BondsMap( lmp , proc_id , atomID2bonds );
 		
 		//KMC Operations
+		if( papreca_config.boxZvacuumIsActive( ) ){ adjustSimulationBoxZvacuum( lmp , papreca_config ); } //Box has to be resized here to enable depositions
 		loopAtomsAndIdentifyEvents( lmp , proc_id , nprocs , i , papreca_config , events_local , atomID2bonds , film_height );
 		zero_rate = selectAndExecuteEvent( lmp , i , time , event_type , proc_id , nprocs , papreca_config , events_local , atomID2bonds , film_height );
 		Event::deleteAndClearLocalEvents( lmp , events_local );	
