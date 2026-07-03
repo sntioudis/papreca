@@ -9,7 +9,7 @@ frozen_atomtypes 1 1
 
 #Height Calculation and desorption
 height_calculation mass_bins 0.94 1.0
-desorption 20 LAMMPS_region
+desorption 20 gather_all max 50
 
 #Sigmas for types
 sigmas_options LAMMPS
