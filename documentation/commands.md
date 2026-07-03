@@ -432,7 +432,7 @@ No atom deletions (desorptions) are performed if the user does not include this 
 box_zvacuum vacuum
 ```
 
-- height = vacuum length (i.e., distance between highest z-coordinate of any atom and +z-edge of the simulation box). Units are in length units (as defined in the LAMMPS input file).
+- vacuum = vacuum length (i.e., distance between highest z-coordinate of any atom and +z-edge of the simulation box). Units are in length units (as defined in the LAMMPS input file).
 
 
 \subsection boxzvacuum_examples Example(s)
@@ -444,9 +444,9 @@ box_zvacuum 50
 
 \subsection boxzvacuum_description Description
 
-Ensures that the distance between the maximum z-coordinate of any atom in the simulation box is separated by the +z-edge of the simulation box by "vacuum length" (i.e., a user-defined parameter).
+Ensures that the distance between the maximum z-coordinate of any atom in the simulation box and the +z-edge of the simulation box is at least "vacuum length" (i.e., a user-defined parameter).
 This operation is performed before every kMC stage. This command can be essential in thin-film simulations to guarantee that there is enough space for the insertion of atoms (see \ref createDiff and \ref createDepo).
-Note that if there is not enough space for insertions, the [create_atoms command](https://docs.lammps.org/create_atoms.html) will attempt to add atoms outside of the current simulation box. In such a case, the insertion operation will fail silently (without error or warning) and no atoms will be added to the system.
+Note that if there is not enough space for insertions, the [create_atoms command](https://docs.lammps.org/create_atoms.html) will attempt to add atoms outside of the current simulation box. In such a case, the insertion operation will fail silently (without error or warning), and no atoms will be added to the system.
 The box_zvacuum command ensures that the simulation box is always big enough to accommodate new atoms by resizing the simulation box (via the [change_box command](https://docs.lammps.org/change_box.html) in LAMMPS).
 
 
@@ -454,8 +454,7 @@ The box_zvacuum command ensures that the simulation box is always big enough to 
 >This command solely resizes the +z-edge of the simulation box. The -z-edge as well as the x- and z-edges remain unchanged. Any periodic boundaries are not affected.
 
 > **Note 2:**
-> The use of this command can boost the efficiency of simulations. The user can initiate simulations with a smaller simulation box and allow %PAPRECA to adjust the boundaries accordingly. Care, however, as excessive modifications of the dimensions of the simulation domain can comprise the simulation performance.
-
+> The use of this command can boost the efficiency of simulations. The user can initiate simulations with a smaller simulation box and allow %PAPRECA to adjust the boundaries accordingly. Care, however, as excessive modifications of the dimensions of the simulation domain can compromise the simulation performance.
 
 \subsection boxzvacuum_default Default
 No simulation box modifications are performed by default.
@@ -490,7 +489,7 @@ minimize_prior no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and before simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1], [2] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -536,7 +535,7 @@ minimize_after no
 Defines a minimization command to be executed within the MD stage of the %PAPRECA run and right after simulating the MD trajectory. This command might be helpful to relax the system to the closest Potential Energy Surface (PES) valley and avoid instabilities [1], [2] within the MD trajectory (e.g., "bond atoms missing from proc %d" errors (see [LAMMPS documentation page](https://www.afs.enea.it/software/lammps/doc17/html/Section_errors.html)).
 Please see the relevant LAMMPS documentation page for the [minimize command](https://docs.lammps.org/minimize.html) for more information.
 
-When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that, %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
+When the "yes" keyword is utilized, the user has to provide a valid LAMMPS minimization command. Note that %PAPRECA will not check if the command is valid before the start of the simulation but will probably abort during runtime. Moreover,
 note that any valid LAMMPS command can be passed to %PAPRECA with this command.
 
 > **Note:**
@@ -575,7 +574,7 @@ trajectory_duration 0
 
 \subsection trajdur_description Description
 
-Sets the duration of the MD stage of the %PAPRECA run. This represents how many MD timesteps will be simulated by LAMMPS during each MD stage. The trajectory duration can be 0 (means that %PAPRECA will perform a pure off-lattice kMC run).
+Sets the duration of the MD stage of the %PAPRECA run. This represents how many MD timesteps will be simulated by LAMMPS during each MD stage. The trajectory duration can be 0 (meaning that %PAPRECA will perform a pure off-lattice kMC run).
 
 \subsection trajdur_default Default
 
@@ -619,7 +618,7 @@ long_trajectory_duration = -1.
 nve_lim N xmax
 ```
 
-- N = positive integer number denoting the number of LAMMPS MD time steps for nve/lim integration
+- N = positive integer denoting the number of LAMMPS MD time steps for nve/lim integration
 - xmax = positive double number denoting the maximum distance (in LAMMPS distance units) an atom can move in one timestep
 
 \subsection nvelim_examples Example(s)
@@ -693,14 +692,14 @@ Bonds are removed from the system by calling the PAPRECA::deleteBond() LAMMPS wr
 You can provide the bond-breaking rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
 When the catalyzed keyword is used, the bond-breaking event can be selected and executed (within the kMC stage of the %PAPRECA run) only if at least one atom of the specified atom type is present
-in the full neighbor list of the parent atom (i.e., the atom on which the bond-breaking was discovered). Note that, %PAPRECA will not check if the provided catalyzing atom type is valid (i.e., exists in your simulation and has been defined in the LAMMPS input file).
+in the full neighbor list of the parent atom (i.e., the atom on which the bond-breaking was discovered). Note that %PAPRECA will not check if the provided catalyzing atom type is valid (i.e., exists in your simulation and has been defined in the LAMMPS input file).
 Also, note that the bond-breaking probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer "catalyzing" types will be in the neighborhood of the parent atom.
 
-When the limit keyword is used, bond-breaking events are only valid if the current distance between bonded atoms obeys the following inequality: (1-length_perc) * length_equil <= (1+length_perc) * length_equil. Careful, to avoid bond-missing errors it is suggested that the length_equil variable is set to the equilibrium bond length as defined in the LAMMPS input file.
+When the limit keyword is used, bond-breaking events are only valid if the current distance between bonded atoms obeys the following inequality: (1-length_perc) * length_equil <= (1+length_perc) * length_equil. Careful, to avoid bond-missing errors, it is suggested that the length_equil variable is set to the equilibrium bond length as defined in the LAMMPS input file.
 
 > **Note 1:**
-> In the current version each pair of atom types (e.g., type 1 and type 2) and their corresponding bond (e.g., bond type 5 for atom types 1 and 2) are allowed to be associated with only one predefined bond-breaking template.
+> In the current version, each pair of atom types (e.g., type 1 and type 2) and their corresponding bond (e.g., bond type 5 for atom types 1 and 2) are allowed to be associated with only one predefined bond-breaking template.
 
 > **Note 2:**
 > %PAPRECA uses a dummy group with id=1 to perform bond deletions (see this LAMMPS wrapper function for more information PAPRECA::deleteBond()), which means that you should **NOT** use this bond id to define some another bonded interaction. Please see the "kmc.lmp" file located in ./Examples/Phosphate Film Growth from TCP on Fe110/ for an example demonstrating how you can define multiple bond types.
@@ -746,7 +745,7 @@ create_BondForm 5 6 9 3.7588562 no no no rate_arrhenius 13.0 1.0e13 500
 
 Create a predefined bond-formation template (see PAPRECA::PredefinedBondForm and PAPRECA::BondForm) for the kMC stage of the %PAPRECA run. 
 Note that, for the kMC event to function properly, you have to explicitly declare the [bond_style](https://docs.lammps.org/bond_style.html) (typically harmonic) along with the relevant [bond_coeff](https://docs.lammps.org/bond_coeff.html) in your LAMMPS input file.
-%PAPRECA does not permit the formation of two bonds between exactly the same atoms. If you wish to create a "double" bond consider defining an additional bond type whose coefficients are representative of a "double" bond.
+%PAPRECA does not permit the formation of two bonds between exactly the same atoms. If you wish to create a "double" bond, consider defining an additional bond type whose coefficients are representative of a "double" bond.
 
 On every kMC stage, %PAPRECA will attempt to create the bond (as defined in the template) with a given probability (based on the chosen rate).
 Bonds are created by calling PAPRECA::formBond() LAMMPS wrapper function and the executeBondForm() function of the papreca.cpp driver code.
@@ -972,7 +971,7 @@ create_DiffusionHop parent_type diff_vel diff_dist diffvec_style diffusion_style
 
 - parent_type = atom type of parent atom (i.e., atom on which the event is detected).
 - diff_vel = double number denoting the velocity (in velocity units as in LAMMPS) of the diffused atom.
-- diff_dist = double number denoting the Eucledian distance (in length units as in LAMMPS) between the parent atom and the vacant site.
+- diff_dist = double number denoting the Euclidean distance (in length units as in LAMMPS) between the parent atom and the vacant site.
 - diffvec_style = **+x** or **-x** or **+y** or **-y** or **+z** or **-z** or **+x+y** or **-x+y** or **-x-y** or **+x-y** or **sphere2D** or **sphere3D**. This determines the algorithm used to set the diffusion sites (see below for more information).
 - diffusion_style = **move** (moves parent atom to vacancy), **move_del** (spawns a new atom at the vacancy and deletes parent atom), **spawn** (spawns a new atom at the vacancy position but does not delete parent atom)
 - diffused_type = atom type of diffused atom.
@@ -1008,8 +1007,7 @@ create_DiffusionHop 1 0.0 3 sphere3D yes 1 rate_manual 1.0e13
 
 Create a predefined diffusion hop template (see PAPRECA::PredefinedDiffusionHop and PAPRECA::Diffusion) for the kMC stage of the %PAPRECA run.
 
-Three different diffusion styles are available in current version. The **move** style moves the parent atom to vacancy. The **move_del** spawns a new atom at the vacancy and deletes parent atom and
-can be very useful to model diffusion events with atoms involving implicit bonds (i.e., guarantees that the energy of the system will not rise when a single bonded atom moves).
+Three different diffusion styles are available in the current version. The **move** style moves the parent atom to a vacancy. The **move_del** style spawns a new atom at the vacancy and deletes the parent atom. It can be very useful to model diffusion events with atoms involving implicit bonds (i.e., guarantees that the energy of the system will not rise when a single bonded atom moves).
 The **spawn** style does not delete the parent atom and simply spawns a new atom at the vacancy site. In the current version of %PAPRECA, the inserted atoms in **move_del** and **spawn** diffusion styles have zero charge and zero velocity.
 
 On every kMC stage, %PAPRECA will attempt to move (**move** style) or insert (**move_del** or **spawn** styles) an atom in the system with a given probability (based on the chosen rate).
@@ -1018,12 +1016,12 @@ Atoms are diffused in the system by calling the PAPRECA::diffuseAtom() LAMMPS wr
 The diffvec_style decides the location of the diffusion site. For styles **+x**, **-x**, **+y**, **-y**, **+z**, or **-z** the diffusion site is placed with a specific orientation on the given axis and is separated from the parent atom by diff_dist.
 This can be useful to model simple diffusion hops. For styles **+x+y**, **-x+y**, **-x-y**, or **+x-y** the diffusion site is placed diagonally (i.e., rotated by 45 degrees) on the x-y plane at a distance of diff_dist and on the 1st, 2nd, 3rd, and 4th quadrants, respectively.
 Therefore, these options can be useful when it comes to modelling exchange diffusion events on surfaces (e.g., FCC100).
-When the **sphere3D** or **sphere2D** styles are used the diffusion site is placed on the surface of a sphere (**sphere3D**) or the northern (i.e., +z) hemisphere (**sphere2D**). The sphere (or hemisphere) has a radius of diff_dist and is centered on the parent atom of the diffusion event. 
+When the **sphere3D** or **sphere2D** styles are used, the diffusion site is placed on the surface of a sphere (**sphere3D**) or the northern (i.e., +z) hemisphere (**sphere2D**). The sphere (or hemisphere) has a radius of diff_dist and is centered on the parent atom of the diffusion event. 
 Note that the exact location of the diffusion site for styles **sphere3D** and  **sphere2D** depends on a random number (see getDiffPointCandidateCoords() for more information) and will be different for each diffusion event (i.e., it cannot be predetermined).
 Random diffusion sites can be useful when it comes to simulating random-walk-like events.
 
 If the custom template "Fe_4PO4neib" is used (see example above for syntax), then diffusion events require at least four PO4 structures in their neighborhood to be valid.
-A PO4 structure consists of Phosphorus atom which is bonded (with an explicit bonded interaction) to four Oxygen atoms.
+A PO4 structure consists of a phosphorus atom which is bonded (with an explicit bonded interaction) to four Oxygen atoms.
 The "Fe_4PO4neib" custom template performs searches on the neighbor list of the parent atom. Also, note that the diffusion probabilities will be influenced by any settings related to the building and updating of the neighbor lists. For example, if your pair_style cutoff is too small, then
 fewer PO4 structures will be in the neighborhood of the parent atom. The "Fe_4PO4neib" custom template was created to cover the needs of a very specific application related
 to the formation and growth of thin film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1] , [2].
@@ -1182,9 +1180,9 @@ export_ElementalDistributions 1000 bin_width 1.0
 \subsection Edistributions_description Description
 
 Generates a file named distributions.log every N steps, in the current directory of the %PAPRECA run. The first column of the distributions
-lists the height (in length units as in LAMMPS). The remaining columns list the number of atoms of each type (in each height-bin).
+lists the height (in length units as in LAMMPS). The remaining columns list the number of atoms of each type (in each height bin).
 
-For more information regarding the x-y bins and the domain segmentation please refer to \ref height_calculation.
+For more information regarding the x-y bins and the domain segmentation, please refer to \ref height_calculation.
 
 
 \subsection Edistributions_default Default
@@ -1219,7 +1217,7 @@ times will be equal if you choose to run the simulation on a single processor.
 %PAPRECA will append to the execTimes.log file every N steps.
 
 > **Note:**
-> The total walltime (at the bottom of the execTimes.log file) is the sum of all the average times. Note that, if you choose a print frequency (N) different than 1, the reported total wall time will be smaller than the actual walltime. Nevertheless, the total walltime will be printed (by LAMMPS) in the console at the end of the run.
+> The total walltime (at the bottom of the execTimes.log file) is the sum of all the average times. Note that, if you choose a print frequency (N) different than 1, the reported total wall time will be smaller than the actual wall time. Nevertheless, the total walltime will be printed (by LAMMPS) in the console at the end of the run.
 
 
 \subsection execution_default Default
