@@ -1,7 +1,7 @@
 #APRECAT input file
 
 #Basic settings
-KMC_steps 12000
+KMC_steps 1000
 KMC_per_MD 1
 random_seed 1234124
 fluid_atomtypes 7 2 3 4 5 6 7 8
