@@ -1,7 +1,7 @@
-#Template (reusable) workflow that receives a LAMMPS version tag or a LAMMPS branch name.
-#Then, the workflow builds LAMMPS. Finally, the workflow builds PAPRECA and the source_tests.
-#This reusable workflow is utilized for the scheduled build and functionality tests.
-#The workflow can also be used to test for backwards compatibility with different LAMMPS versions.
+# Template (reusable) workflow that receives a LAMMPS version tag or branch name.
+# The workflow builds LAMMPS, then builds PAPRECA and the source-tests executable.
+# It is used by the scheduled build and functionality tests and can also test
+# compatibility with different LAMMPS versions.
 
 name: Build and test reusable
 
@@ -13,146 +13,153 @@ on:
         required: true
         type: string
       clone_name:
-        description: 'This is the name of either the branch or the tag name'
+        description: 'This is the branch or tag name'
         required: true
         type: string
+    outputs:
+      lammps_sha:
+        description: 'Exact LAMMPS commit used for this workflow run'
+        value: ${{ jobs.buildLAMMPS.outputs.lammps_sha }}
 
 jobs:
-
   buildLAMMPS:
-    runs-on: ubuntu-latest
-      
+    runs-on: ubuntu-24.04
+    outputs:
+      lammps_sha: ${{ steps.get-lammps-commit.outputs.sha }}
+
     steps:
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v6
 
-    - name: checkout PAPRECA
-      uses: actions/checkout@v4 #Checkout PAPRECA repository (to retrieve headers and source files for papreca fix) in case LAMMPS needs building.
-      
-    - name: Clone a specific LAMMPS branch
-      if: ${{ inputs.clone_type == 'branch' }}
-      run: |
-        git clone -b ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout ${{ inputs.clone_name }}
-        git pull
+      - name: Clone a specific LAMMPS branch
+        if: ${{ inputs.clone_type == 'branch' }}
+        run: |
+          git clone --depth 1 --single-branch --branch "${{ inputs.clone_name }}" https://github.com/lammps/lammps.git mylammps
 
-    - name: Clone a specific LAMMPS tag
-      if: ${{ inputs.clone_type == 'tag' }}
-      run: |
-        git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
+      - name: Clone a specific LAMMPS tag
+        if: ${{ inputs.clone_type == 'tag' }}
+        run: |
+          git clone --depth 1 --single-branch --branch "${{ inputs.clone_name }}" https://github.com/lammps/lammps.git mylammps
 
-    - name: Get LAMMPS release commit SHA
-      id: get-lammps-commit
-      run: |
-        cd mylammps
-        echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-      
-    - name: Create lammps_artifacts directory to save liblammps.so and lmp
-      run: |
-        mkdir -p lammps_artifacts_${{ inputs.clone_name }}
-       
-    - name: Cache LAMMPS library
-      id: cache-lammps-repo
-      uses: actions/cache@v4
-      with:
-        path: lammps_artifacts_${{ inputs.clone_name }}
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
+      - name: Get exact LAMMPS commit SHA
+        id: get-lammps-commit
+        run: echo "sha=$(git -C mylammps rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-    - name: Install LAMMPS dependencies
-      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-      
-    - name: Configure and build LAMMPS
-      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
-      run: |
-        cd mylammps
-        cp $GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.h ./src/
-        cp $GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.cpp ./src/
-        mkdir build; cd build
-        cmake -DPKG_KOKKOS=on -DPKG_KSPACE=on -DPKG_MOLECULE=on -DPKG_RIGID=on -DPKG_QEQ=on -DBUILD_LIB=on -DBUILD_SHARED_LIBS=on ../cmake #Configure LAMMPS, build all required packages to run tests and enable static library building
-        cmake --build .
+      - name: Install LAMMPS dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential mpich
 
-    - name: Verify LAMMPS
-      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
-      run: ./mylammps/build/lmp -h
+      - name: Record the build toolchain
+        id: toolchain
+        run: |
+          toolchain="$(gcc -dumpfullversion)-$(cmake --version | head -n 1)-$(dpkg-query -W -f='${Version}' mpich)"
+          echo "hash=$(printf '%s' "$toolchain" | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
-    - name: Move lmp executable and lammps library to lammps_artifacts directory
-      if: ${{ steps.cache-lammps-repo.outputs.cache-hit != 'true' }}
-      run: |
-        mv mylammps/build/lmp lammps_artifacts_${{ inputs.clone_name }}
-        mv mylammps/build/liblammps.so lammps_artifacts_${{ inputs.clone_name }}
-        mv mylammps/build/liblammps.so.0 lammps_artifacts_${{ inputs.clone_name }}
-        mv mylammps/build/liblammps.pc lammps_artifacts_${{ inputs.clone_name }}
-      
-  buildPAPRECA: 
+      - name: Create LAMMPS artifacts directory
+        run: mkdir -p "lammps_artifacts_${{ inputs.clone_name }}"
 
+      - name: Cache the exact LAMMPS build
+        id: cache-lammps
+        uses: actions/cache@v6
+        with:
+          path: lammps_artifacts_${{ inputs.clone_name }}
+          key: ${{ runner.os }}-${{ runner.arch }}-lammps-${{ steps.get-lammps-commit.outputs.sha }}-${{ steps.toolchain.outputs.hash }}-${{ hashFiles('source/libraries/LAMMPS/fix_papreca.h', 'source/libraries/LAMMPS/fix_papreca.cpp') }}
+
+      - name: Configure and build LAMMPS
+        if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
+        run: |
+          cp "$GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.h" mylammps/src/
+          cp "$GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.cpp" mylammps/src/
+          cmake \
+            -S mylammps/cmake \
+            -B mylammps/build \
+            -DPKG_KOKKOS=on \
+            -DPKG_KSPACE=on \
+            -DPKG_MOLECULE=on \
+            -DPKG_RIGID=on \
+            -DPKG_QEQ=on \
+            -DBUILD_LIB=on \
+            -DBUILD_SHARED_LIBS=on
+          cmake --build mylammps/build
+
+      - name: Copy LAMMPS executable and libraries
+        if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
+        run: |
+          cp mylammps/build/lmp "lammps_artifacts_${{ inputs.clone_name }}/"
+          cp -L mylammps/build/liblammps.so* "lammps_artifacts_${{ inputs.clone_name }}/"
+          cp mylammps/build/liblammps.pc "lammps_artifacts_${{ inputs.clone_name }}/"
+
+      - name: Verify the restored or newly built LAMMPS artifacts
+        run: |
+          chmod -R +rwx "lammps_artifacts_${{ inputs.clone_name }}"
+          LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}:${LD_LIBRARY_PATH:-}" \
+            "./lammps_artifacts_${{ inputs.clone_name }}/lmp" -h
+
+      - name: Upload the exact LAMMPS build
+        uses: actions/upload-artifact@v7
+        with:
+          name: lammps-artifacts_${{ inputs.clone_name }}_${{ steps.get-lammps-commit.outputs.sha }}
+          path: lammps_artifacts_${{ inputs.clone_name }}
+          if-no-files-found: error
+
+  buildPAPRECA:
     needs: buildLAMMPS
-    
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      
-    - name: Checkout
-      uses: actions/checkout@v4 #Checkout PAPRECA repository
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v6
 
-    - name: Clone a specific LAMMPS branch
-      if: ${{ inputs.clone_type == 'branch' }}
-      run: |
-        git clone -b ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout ${{ inputs.clone_name }}
-        git pull
+      - name: Checkout the exact LAMMPS commit used by the build job
+        run: |
+          git init mylammps
+          git -C mylammps remote add origin https://github.com/lammps/lammps.git
+          git -C mylammps fetch --depth 1 origin "${{ needs.buildLAMMPS.outputs.lammps_sha }}"
+          git -C mylammps checkout --detach FETCH_HEAD
+          test "$(git -C mylammps rev-parse HEAD)" = "${{ needs.buildLAMMPS.outputs.lammps_sha }}"
 
-    - name: Clone a specific LAMMPS tag
-      if: ${{ inputs.clone_type == 'tag' }}
-      run: |
-        git clone --depth 1 --branch ${{ inputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        
-    - name: Restore LAMMPS cache
-      id: cache-lammps
-      uses: actions/cache@v4
-      with:
-        path: lammps_artifacts_${{ inputs.clone_name }}
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
-          
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
+      - name: Download the exact LAMMPS build
+        uses: actions/download-artifact@v8
+        with:
+          name: lammps-artifacts_${{ inputs.clone_name }}_${{ needs.buildLAMMPS.outputs.lammps_sha }}
+          path: lammps_artifacts_${{ inputs.clone_name }}
 
-    - name: Build PAPRECA
-      run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/ #Grant full permissions to use LAMMPS library (sometimes artifacts do not come with full permissions)
-        mkdir mypapreca; cd ./mypapreca
-        mkdir build; cd build
-        cmake $GITHUB_WORKSPACE/Installation/CMake -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/
-        cmake --build .
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential mpich
 
-    - name: Build TESTS executable for PAPRECA
-      run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/
-        cd $GITHUB_WORKSPACE/tests/source\ tests/
-        mkdir build; cd build
-        cmake .. -DLAMMPS_SRC_DIR=$GITHUB_WORKSPACE/mylammps/src/ -DLAMMPS_LIB_DIR=$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }} -DPAPRECA_SRC_DIR=$GITHUB_WORKSPACE/source
-        cmake --build .
-        
-    - name: Move papreca executables to artifacts folder
-      run: |
-        mkdir -p papreca_artifacts_${{ inputs.clone_name }}
-        mv mypapreca/build/papreca papreca_artifacts_${{ inputs.clone_name }}
-        mv $GITHUB_WORKSPACE/tests/source\ tests/build/source_tests papreca_artifacts_${{ inputs.clone_name }}
+      - name: Build PAPRECA
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+          cmake \
+            -S "$GITHUB_WORKSPACE/Installation/CMake" \
+            -B "$GITHUB_WORKSPACE/mypapreca/build" \
+            -DLAMMPS_SRC_DIR="$GITHUB_WORKSPACE/mylammps/src/" \
+            -DLAMMPS_LIB_DIR="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+          cmake --build "$GITHUB_WORKSPACE/mypapreca/build"
 
-    - name: Upload papreca executables as artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: papreca-artifacts_${{ inputs.clone_name }}
-        path: papreca_artifacts_${{ inputs.clone_name }}
+      - name: Build source-tests executable
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+          cmake \
+            -S "$GITHUB_WORKSPACE/tests/source tests" \
+            -B "$GITHUB_WORKSPACE/tests/source tests/build" \
+            -DLAMMPS_SRC_DIR="$GITHUB_WORKSPACE/mylammps/src/" \
+            -DLAMMPS_LIB_DIR="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}" \
+            -DPAPRECA_SRC_DIR="$GITHUB_WORKSPACE/source"
+          cmake --build "$GITHUB_WORKSPACE/tests/source tests/build"
+
+      - name: Collect PAPRECA executables
+        run: |
+          mkdir -p "papreca_artifacts_${{ inputs.clone_name }}"
+          cp mypapreca/build/papreca "papreca_artifacts_${{ inputs.clone_name }}/"
+          cp "$GITHUB_WORKSPACE/tests/source tests/build/source_tests" "papreca_artifacts_${{ inputs.clone_name }}/"
+
+      - name: Upload PAPRECA executables
+        uses: actions/upload-artifact@v7
+        with:
+          name: papreca-artifacts_${{ inputs.clone_name }}
+          path: papreca_artifacts_${{ inputs.clone_name }}
+          if-no-files-found: error
