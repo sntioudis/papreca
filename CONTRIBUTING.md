@@ -354,7 +354,7 @@ The pull-request description should include:
 
 A useful template is:
 
-```markdown
+````markdown
 ## Summary
 
 Describe what changed.
@@ -392,7 +392,7 @@ Describe any effect on existing input files, APIs, output, or scientific behavio
 ## Related issues
 
 Closes #<issue-number>
-```
+````
 
 Pull requests may be asked to change scope, add tests, improve documentation, or revise the implementation. Please respond to review comments and keep the branch up to date while review is ongoing.
 
