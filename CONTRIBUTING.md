@@ -1,182 +1,447 @@
 # Contributing to PAPRECA
 
-Thank you for your interest in contributing to **PAPRECA**! Community contributions are warmly welcomed and greatly appreciated. Please take a moment to read these guidelines before submitting your contribution.
+Thank you for your interest in contributing to **PAPRECA**. Contributions that improve the code, tests, examples, documentation, and scientific usability of the project are welcome.
 
-Take a look at this repository's open issues. There is usually something you could help with!
+Before starting substantial work, please review the open issues and consider opening an issue to discuss your proposal. Early discussion is especially helpful for new features, changes to user-facing commands, architectural changes, and anything that may affect backward compatibility.
 
----
+## Table of contents
 
-## Table of Contents
+1. [Code of conduct](#code-of-conduct)
+2. [Ways to contribute](#ways-to-contribute)
+3. [AI-assisted contributions](#ai-assisted-contributions)
+4. [Development requirements](#development-requirements)
+5. [Getting started](#getting-started)
+6. [Branch and commit workflow](#branch-and-commit-workflow)
+7. [Coding standards](#coding-standards)
+8. [Testing](#testing)
+9. [Documentation](#documentation)
+10. [Submitting a pull request](#submitting-a-pull-request)
+11. [Reporting bugs](#reporting-bugs)
+12. [Requesting features](#requesting-features)
+13. [Contact](#contact)
 
-1. [Code of Conduct](#code-of-conduct)
-2. [A Note on AI-Generated Contributions](#a-note-on-ai-generated-contributions)
-3. [How Can I Contribute?](#how-can-i-contribute)
-4. [Getting Started](#getting-started)
-5. [Branch Strategy](#branch-strategy)
-6. [Coding Standards](#coding-standards)
-7. [Testing Requirements](#testing-requirements)
-8. [Submitting a Pull Request](#submitting-a-pull-request)
-9. [Reporting Bugs and Requesting Features](#reporting-bugs-and-requesting-features)
-10. [Documentation Contributions](#documentation-contributions)
-11. [Contact](#contact)
+## Code of conduct
 
----
+By participating in this project, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## Code of Conduct
+Please communicate respectfully, assume good intent, and keep technical discussions focused on improving the project.
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please review it before engaging with the community.
+## Ways to contribute
 
----
+Useful contributions include:
 
-## A Note on AI-Generated Contributions
+- Fixing bugs.
+- Improving performance, memory use, or MPI communication.
+- Adding or improving tests.
+- Adding simulation examples.
+- Adding predefined event types, such as deposition, desorption, reaction, diffusion, bond-formation, or bond-breaking events.
+- Improving error messages and input validation.
+- Fixing or expanding documentation.
+- Proposing and implementing new simulation capabilities.
 
-AI tools can be a powerful aid in development, and contributors are welcome to use them. 
-However, any code submitted (AI-assisted or not) must be fully understood 
-and explainable by the contributor. Contributors are expected to be able 
-to walk through their code and justify their implementation decisions. The 
-contributor is solely responsible for the quality of their submission. Low effort or 
-poorly understood AI-generated contributions that do not meet the standards of this 
-project will be rejected, and the accountability for such submissions lies entirely 
-with the contributor, not the tool used to generate them.
+Small corrections may be submitted directly. For larger changes, please open an issue before implementation so that the intended design and scope can be discussed.
 
----
+## AI-assisted contributions
 
-## How Can I Contribute?
+AI tools may be used to assist development, but the contributor remains fully responsible for every submitted change.
 
-- **Bug fixes** - Found a bug? Fix it and submit a pull request.
-- **Code optimisation** - Improve performance, memory usage, or MPI communication efficiency.
-- **New examples** - Add new simulation examples (e.g., thin film growth, catalysis, diffusion studies).
-- **New event templates** - New predefined event types (depositions, desorptions, reactions, diffusion hops, bond formation/breaking) are highly encouraged.
-- **Documentation** - Fix typos, clarify explanations, or expand the documentation.
-- **New features** - Propose and implement new simulation capabilities.
+By submitting AI-assisted work, you confirm that you:
 
----
+- Understand the code and documentation you are submitting.
+- Can explain the implementation and the decisions behind it.
+- Have reviewed the output for correctness, security, licensing, and project compatibility.
+- Have removed fabricated APIs, unnecessary abstractions, irrelevant comments, and unrelated changes.
+- Have built and tested the contribution yourself.
 
-## Getting Started
+Low-effort or poorly understood generated contributions may be closed without further review.
 
-1. Fork the repository on GitHub.
-2. Clone your fork locally:
+## Development requirements
 
-git clone https://github.com/<your-username>/papreca.git
+PAPRECA requires:
+
+- A compiler with **C++17** support.
+- CMake **3.16 or later** when using the CMake build.
+- An MPI implementation and compiler wrapper, such as Open MPI with `mpicxx`.
+- A compatible shared LAMMPS library and its source headers.
+- Bash for the supplied build and test scripts.
+- Python 3 and NumPy for the predefined-event tests.
+
+Follow the instructions under [`Installation/`](Installation/) to build PAPRECA and its LAMMPS dependency.
+
+## Getting started
+
+### 1. Fork and clone the repository
+
+Fork `sntioudis/papreca` on GitHub, then clone **your fork**:
+
+```bash
+git clone https://github.com/<YOUR-GITHUB-USERNAME>/papreca.git
 cd papreca
+```
 
-3. Set up the upstream remote:
+Replace `<YOUR-GITHUB-USERNAME>` with your GitHub username.
 
+### 2. Add the upstream repository
+
+```bash
 git remote add upstream https://github.com/sntioudis/papreca.git
+git fetch upstream
+```
 
-4. Follow the Installation Guide in the Installation/ directory to build PAPRECA with its LAMMPS dependency.
-5. Verify your setup by running the existing test suite.
+Verify the remotes:
 
----
+```bash
+git remote -v
+```
 
-## Branch Strategy
+`origin` should refer to your fork, and `upstream` should refer to `sntioudis/papreca`.
 
-- main - Active development branch. All contributions should target this branch.
-- release - Stable, production-ready branch. Merges into release are performed only by the core maintainers.
-- Semantic versioning tags (e.g., v2.0.0) are used to link released versions to specific commits.
+### 3. Create a branch from the latest `main`
 
-Do not submit pull requests directly to the release branch.
+```bash
+git switch main
+git fetch upstream
+git merge --ff-only upstream/main
+git push origin main
+git switch -c feature/short-description
+```
 
-When working on a contribution, create a dedicated feature branch from main:
+Use a descriptive branch name, for example:
 
-git checkout main
-git pull upstream main
-git checkout -b feature/my-new-feature
+- `fix/deposition-boundary-check`
+- `feature/new-diffusion-event`
+- `docs/installation-clarification`
+- `test/mpi-regression`
 
----
+Do not commit contribution work directly to `main` or `release`.
 
-## Coding Standards
+### 4. Build PAPRECA
 
-PAPRECA is written in C++ (C++11 or later). Please adhere to the following conventions:
+Follow one of the supported build procedures under [`Installation/`](Installation/).
 
-- Consistency - Follow the style and conventions present in the existing source files under source/.
-- Object-Oriented Programming (OOP) - PAPRECA uses an OOP design. New classes must inherit from the existing base event classes found in source/. Do not duplicate 
-functionality that already exists in a parent class, and create a new class only if it is absolutely necessary.
-- Naming - Use descriptive, camelCase names for variables and functions. Follow the present naming styles closely.
-- Comments - Document non-trivial logic, especially for new event templates or MPI communication routines. Do not add comments to explain trivial logic.
-- MPI safety - Ensure that any new code involving parallel execution is MPI-safe. Pay careful attention to process synchronisation, global reductions, and output (handled by Process 0 only).
-- LAMMPS integration - Use existing PAPRECA wrappers around LAMMPS functions wherever possible.
-- No breaking changes - Contributions should not break backward compatibility with existing PAPRECA input files or APIs without prior discussion.
-- PAPRECA input files - Certain changes will require the addition or modification 
-of PAPRECA commands. Make sure your features/changes are accessible to the user. 
-Input file parsing logic is handled in [input_file.cpp](source/libraries/PAPRECA/input_file.cpp) 
-and [input_file.h](source/libraries/PAPRECA/input_file.h).
-- Documentation - Document all changes properly in the PAPRECA documentation 
-found in the documentation/ directory. This includes new commands, new event 
-types, and any changes to existing behaviour.
+Keep note of these absolute paths because they are used by the tests:
 
----
+```bash
+export PAPRECA_BUILD_DIR=/absolute/path/to/papreca/build/PAPRECA
+export LAMMPS_SRC_DIR=/absolute/path/to/lammps/src
+export LAMMPS_LIB_DIR=/absolute/path/to/lammps/build
+```
 
-## Testing Requirements
+`PAPRECA_BUILD_DIR` must be the directory containing the `papreca` executable.
 
-Before submitting a pull request, ensure that your local fork passes all existing tests:
+If the LAMMPS shared library is not installed in a standard library location, make it discoverable before running PAPRECA or the tests:
 
-cd tests/
-# Follow the test instructions in the tests/ directory README
+```bash
+export LD_LIBRARY_PATH="$LAMMPS_LIB_DIR:${LD_LIBRARY_PATH:-}"
+```
 
-- If you are adding a new feature or event template, please also add corresponding tests that clearly demonstrate that the code functions as expected.
-- Tests should cover both serial and parallel (MPI) execution where applicable.
-- Verify that your changes compile cleanly without warnings using a C++11-compatible MPI compiler (e.g., mpicxx or mpiCC).
+## Branch and commit workflow
 
-Pull requests that fail existing tests will not be merged.
+The repository uses:
 
----
+- `main` for active development and pull requests.
+- `release` for stable releases maintained by the core maintainers.
+- Semantic-version tags, such as `v2.0.0`, for released versions.
 
-## Submitting a Pull Request
+Pull requests must target `main`. Do not open pull requests against `release` unless a maintainer explicitly requests it.
 
-1. Ensure your branch is up to date with upstream/main:
+Keep commits focused and use clear messages. Avoid mixing formatting changes, generated files, refactoring, and functional changes in the same commit unless they are inseparable.
 
+Before opening or updating a pull request, rebase your branch onto the latest upstream `main`:
+
+```bash
 git fetch upstream
 git rebase upstream/main
+```
 
-2. Push your branch to your fork:
+Resolve any conflicts, then continue the rebase:
 
-git push origin feature/my-new-feature
+```bash
+git add <resolved-files>
+git rebase --continue
+```
 
-3. Open a Pull Request against the main branch of sntioudis/papreca.
-4. In your PR description, please include:
-   - A clear summary of the changes made.
-   - The motivation and context for the contribution.
-   - Reference to any related GitHub Issues (e.g., Closes #42).
-   - Confirmation that all tests pass.
-5. Be responsive to review feedback. The maintainers may request changes before merging.
+For the first push of a branch:
 
----
+```bash
+git push -u origin feature/short-description
+```
 
-## Reporting Bugs and Requesting Features
+If you already pushed the branch before rebasing it, update your fork safely with:
 
-Please use GitHub Issues to:
+```bash
+git push --force-with-lease origin feature/short-description
+```
 
-- Report bugs - include steps to reproduce, expected vs. actual behaviour, and your build details.
-- Suggest new features or improvements.
-- Track ongoing tasks or discussions.
+Use `--force-with-lease`, not plain `--force`, so that you do not accidentally overwrite remote work you have not seen.
 
-When reporting a bug, please provide:
+## Coding standards
 
-- PAPRECA version (e.g., v2.0.0)
-- LAMMPS version used
-- Compiler and MPI implementation (e.g., mpicxx, OpenMPI version)
-- Operating system
-- A minimal reproducible example if possible
+### General style
 
----
+- Follow the conventions already used in the surrounding files under [`source/`](source/).
+- Use descriptive names and keep functions focused.
+- Prefer simple changes over unnecessary abstractions.
+- Avoid unrelated cleanup in a functional pull request.
+- Do not leave debugging output, commented-out code, temporary files, or generated build artefacts in the repository.
+- Document non-trivial algorithms, scientific assumptions, event-selection logic, and MPI communication.
+- Do not add comments that merely restate obvious code.
 
-## Documentation Contributions
+### C++ requirements
 
-Documentation lives in the documentation/ directory and is hosted on the PAPRECA GitHub Pages site at https://sntioudis.github.io/papreca/.
+- Write standard **C++17**.
+- Ensure the project compiles without new warnings.
+- Use existing PAPRECA types, helpers, and wrappers where appropriate.
+- Follow the ownership and lifetime patterns used by nearby code.
+- Avoid introducing undefined behaviour, unchecked indexing, or unsafe resource handling.
 
-- Corrections to existing documentation can be submitted via a Pull Request.
-- For larger documentation additions (e.g., new tutorials or theory sections), please open a GitHub Issue first to discuss the scope.
+### Classes and event types
 
+PAPRECA uses an object-oriented design for its event system.
 
----
+New event implementations should derive from the appropriate existing event base class and reuse inherited behaviour rather than duplicating it. This requirement applies to event implementations; unrelated utility or infrastructure classes should use the design that best fits their purpose.
+
+Before adding a new class, check whether the change can be implemented cleanly by extending an existing component.
+
+### MPI safety
+
+Changes involving parallel execution must be MPI-safe.
+
+Pay particular attention to:
+
+- Collective operations being called by all required ranks.
+- Consistent ordering of collective calls.
+- Synchronisation and data ownership.
+- Global reductions and broadcasts.
+- Deterministic handling of shared simulation state.
+- Output that should be written only by rank 0.
+- Serial and multi-rank behaviour.
+
+Do not assume that code working with one MPI rank is correct for multiple ranks.
+
+### LAMMPS integration
+
+Use existing PAPRECA wrappers around LAMMPS functionality wherever possible. Avoid bypassing established interfaces without a clear reason.
+
+Changes that depend on particular LAMMPS packages, commands, or versions must be documented.
+
+### Input files and backward compatibility
+
+Changes that add or modify user-facing functionality may require updates to PAPRECA input commands. Input parsing is primarily implemented in:
+
+- [`source/libraries/PAPRECA/input_file.cpp`](source/libraries/PAPRECA/input_file.cpp)
+- [`source/libraries/PAPRECA/input_file.h`](source/libraries/PAPRECA/input_file.h)
+
+Do not intentionally break existing PAPRECA input files or public behaviour without discussing the change with the maintainers first.
+
+When a breaking change is approved, clearly document:
+
+- What changed.
+- Why it changed.
+- Which users are affected.
+- How existing input files or code should be migrated.
+
+## Testing
+
+All relevant tests must pass before a pull request is submitted.
+
+PAPRECA currently has three main test families:
+
+1. Predefined-event tests.
+2. Hybrid kMC/MD tests.
+3. Source-level tests.
+
+Run commands from the repository root unless the instructions explicitly change directory.
+
+### Predefined-event tests
+
+These tests require Python 3 and NumPy. Choose an integer seed between `0` and `900000000`.
+
+```bash
+(
+  cd "tests/event tests"
+  bash test_all_events.sh 49123 "$PAPRECA_BUILD_DIR" python3
+)
+```
+
+The test script creates working `in_kmc.ppc` files from templates. Review `git status` after running the tests and do not commit generated test files unless they are intentionally part of the contribution.
+
+### Hybrid kMC/MD test
+
+```bash
+(
+  cd "tests/hybrid kMC MD"
+  bash test_hybrid.sh "$PAPRECA_BUILD_DIR"
+)
+```
+
+### Source-level tests
+
+Configure and build the source-test executable:
+
+```bash
+cmake \
+  -S "tests/source tests" \
+  -B "tests/source tests/build" \
+  -DLAMMPS_SRC_DIR="$LAMMPS_SRC_DIR" \
+  -DLAMMPS_LIB_DIR="$LAMMPS_LIB_DIR" \
+  -DPAPRECA_SRC_DIR="$PWD/source"
+
+cmake --build "tests/source tests/build"
+```
+
+Run it from the source-test directory so that its relative input paths resolve correctly:
+
+```bash
+(
+  cd "tests/source tests"
+  bash run_tests.sh "$PWD/build"
+)
+```
+
+### Test expectations for changes
+
+- Bug fixes should include a regression test whenever practical.
+- New features and event types must include tests that demonstrate the new behaviour.
+- Changes affecting MPI execution should be tested with one rank and multiple ranks where applicable.
+- Changes affecting input parsing should include valid-input and invalid-input coverage where practical.
+- Tests should be deterministic, isolated, and reasonably fast.
+- Do not weaken, skip, or delete an existing test solely to make a change pass.
+
+In the pull-request description, list the exact commands you ran and their results. If a test cannot be run locally, explain why rather than claiming that all tests passed.
+
+## Documentation
+
+Update documentation whenever a contribution changes user-visible behaviour.
+
+Relevant documentation is stored under [`documentation/`](documentation/) and published on the PAPRECA documentation website.
+
+Documentation updates may include:
+
+- New or changed input commands.
+- New event types.
+- New dependencies or installation steps.
+- New examples.
+- Behavioural or compatibility changes.
+- Scientific assumptions, limitations, or units.
+
+Small documentation corrections can be submitted directly. For larger tutorials or theory sections, please open an issue first to discuss scope and placement.
+
+## Submitting a pull request
+
+Before opening a pull request:
+
+- Rebase your branch onto the latest `upstream/main`.
+- Build PAPRECA successfully.
+- Run all relevant tests.
+- Review the complete diff.
+- Remove accidental, generated, or unrelated changes.
+- Update documentation and examples where required.
+- Confirm that no secrets, credentials, personal paths, or large binary artefacts are included.
+
+Open the pull request against the `main` branch of `sntioudis/papreca`.
+
+The pull-request description should include:
+
+- A concise summary of the change.
+- The problem or motivation.
+- The implementation approach.
+- Any user-visible or compatibility impact.
+- Tests performed, including the commands and results.
+- Documentation updated.
+- Related issues, using wording such as `Closes #42` where appropriate.
+- Any remaining limitations, follow-up work, or areas where reviewer attention is requested.
+
+A useful template is:
+
+```markdown
+## Summary
+
+Describe what changed.
+
+## Motivation
+
+Explain the problem or requested capability.
+
+## Implementation
+
+Summarise the technical approach and important design decisions.
+
+## Testing
+
+- [ ] PAPRECA builds successfully
+- [ ] Predefined-event tests pass, where applicable
+- [ ] Hybrid kMC/MD test passes, where applicable
+- [ ] Source-level tests pass, where applicable
+- [ ] Serial and MPI behaviour tested, where applicable
+
+Commands run:
+
+```text
+Paste the exact commands and results here.
+```
+
+## Documentation
+
+Describe the documentation or examples updated, or explain why none were needed.
+
+## Compatibility
+
+Describe any effect on existing input files, APIs, output, or scientific behaviour.
+
+## Related issues
+
+Closes #<issue-number>
+```
+
+Pull requests may be asked to change scope, add tests, improve documentation, or revise the implementation. Please respond to review comments and keep the branch up to date while review is ongoing.
+
+Maintainers may close pull requests that are abandoned, unrelated to the project, insufficiently tested, or not understood by their author.
+
+## Reporting bugs
+
+Use GitHub Issues for reproducible bugs.
+
+Before opening an issue, search existing issues to avoid duplicates. Include:
+
+- PAPRECA version, branch, tag, or commit hash.
+- LAMMPS version or commit.
+- Operating system.
+- Compiler and version.
+- MPI implementation and version.
+- Build method and relevant CMake options.
+- Number of MPI ranks used.
+- Minimal input files or a minimal reproducible example.
+- Exact command executed.
+- Expected behaviour.
+- Actual behaviour.
+- Complete error output or stack trace.
+
+Please paste text logs as text or attach them as files rather than providing only screenshots.
+
+Do not include credentials, private data, or information you are not authorised to share.
+
+## Requesting features
+
+Use GitHub Issues to propose features or significant design changes.
+
+Describe:
+
+- The scientific or technical problem.
+- The desired behaviour.
+- A representative use case.
+- Possible alternatives or workarounds.
+- Potential effects on input syntax, output, performance, MPI execution, LAMMPS integration, and backward compatibility.
+
+Please wait for maintainer feedback before investing substantial effort in a large implementation.
 
 ## Contact
 
-For questions not suited for a public GitHub Issue, you can reach the main developer directly:
+Public technical questions should normally be raised in a GitHub Issue so that answers can benefit other users and contributors.
 
-Stavros Ntioudis - stavros.ntioudis20@imperial.ac.uk
+For matters that are not suitable for a public issue, contact:
 
----
+**Stavros Ntioudis**  
+stavros.ntioudis20@imperial.ac.uk
 
-Thank you for helping make PAPRECA better for the entire computational materials science community!
+Thank you for helping improve PAPRECA.
