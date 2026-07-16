@@ -1,7 +1,5 @@
 # Template (reusable) workflow that receives a LAMMPS version tag or branch name.
 # The workflow builds LAMMPS, then builds PAPRECA and the source-tests executable.
-# It is used by the scheduled build and functionality tests and can also test
-# compatibility with different LAMMPS versions.
 
 name: Build and test reusable
 
@@ -21,6 +19,14 @@ on:
         description: 'Exact LAMMPS commit used for this workflow run'
         value: ${{ jobs.buildLAMMPS.outputs.lammps_sha }}
 
+# Ubuntu 24.04's MPICH package is built on UCX and is unreliable on hosted
+# runners with partially exposed RDMA devices. Use Open MPI's standard
+# shared-memory/TCP path and explicitly exclude UCX and InfiniBand transports.
+env:
+  OMPI_MCA_pml: ob1
+  OMPI_MCA_btl: self,vader,tcp
+  OMPI_MCA_btl_base_warn_component_unused: "0"
+
 jobs:
   buildLAMMPS:
     runs-on: ubuntu-24.04
@@ -34,26 +40,51 @@ jobs:
       - name: Clone a specific LAMMPS branch
         if: ${{ inputs.clone_type == 'branch' }}
         run: |
-          git clone --depth 1 --single-branch --branch "${{ inputs.clone_name }}" https://github.com/lammps/lammps.git mylammps
+          git clone \
+            --depth 1 \
+            --single-branch \
+            --branch "${{ inputs.clone_name }}" \
+            https://github.com/lammps/lammps.git \
+            mylammps
 
       - name: Clone a specific LAMMPS tag
         if: ${{ inputs.clone_type == 'tag' }}
         run: |
-          git clone --depth 1 --single-branch --branch "${{ inputs.clone_name }}" https://github.com/lammps/lammps.git mylammps
+          git clone \
+            --depth 1 \
+            --single-branch \
+            --branch "${{ inputs.clone_name }}" \
+            https://github.com/lammps/lammps.git \
+            mylammps
 
       - name: Get exact LAMMPS commit SHA
         id: get-lammps-commit
         run: echo "sha=$(git -C mylammps rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Install LAMMPS dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential mpich
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
 
       - name: Record the build toolchain
         id: toolchain
         run: |
-          toolchain="$(gcc -dumpfullversion)-$(cmake --version | head -n 1)-$(dpkg-query -W -f='${Version}' mpich)"
+          toolchain="$(
+            printf '%s\n' \
+              "$(gcc -dumpfullversion)" \
+              "$(cmake --version | head -n 1)" \
+              "$(dpkg-query -W -f='${Version}' openmpi-bin)" \
+              "$(dpkg-query -W -f='${Version}' libopenmpi-dev)"
+          )"
           echo "hash=$(printf '%s' "$toolchain" | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
       - name: Create LAMMPS artifacts directory
@@ -64,13 +95,14 @@ jobs:
         uses: actions/cache@v6
         with:
           path: lammps_artifacts_${{ inputs.clone_name }}
-          key: ${{ runner.os }}-${{ runner.arch }}-lammps-${{ steps.get-lammps-commit.outputs.sha }}-${{ steps.toolchain.outputs.hash }}-${{ hashFiles('source/libraries/LAMMPS/fix_papreca.h', 'source/libraries/LAMMPS/fix_papreca.cpp') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-openmpi-lammps-${{ steps.get-lammps-commit.outputs.sha }}-${{ steps.toolchain.outputs.hash }}-${{ hashFiles('source/libraries/LAMMPS/fix_papreca.h', 'source/libraries/LAMMPS/fix_papreca.cpp') }}
 
       - name: Configure and build LAMMPS
         if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
         run: |
           cp "$GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.h" mylammps/src/
           cp "$GITHUB_WORKSPACE/source/libraries/LAMMPS/fix_papreca.cpp" mylammps/src/
+
           cmake \
             -S mylammps/cmake \
             -B mylammps/build \
@@ -79,21 +111,40 @@ jobs:
             -DPKG_MOLECULE=on \
             -DPKG_RIGID=on \
             -DPKG_QEQ=on \
+            -DBUILD_MPI=on \
             -DBUILD_LIB=on \
             -DBUILD_SHARED_LIBS=on
-          cmake --build mylammps/build
 
-      - name: Verify LAMMPS
-        if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
-        run: ./mylammps/build/lmp -h
+          cmake --build mylammps/build
 
       - name: Copy LAMMPS executable and libraries
         if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
         run: |
           cp mylammps/build/lmp "lammps_artifacts_${{ inputs.clone_name }}/"
-          cp mylammps/build/liblammps.so "lammps_artifacts_${{ inputs.clone_name }}/"
-          cp mylammps/build/liblammps.so.0 "lammps_artifacts_${{ inputs.clone_name }}/"
+          cp -L mylammps/build/liblammps.so* "lammps_artifacts_${{ inputs.clone_name }}/"
           cp mylammps/build/liblammps.pc "lammps_artifacts_${{ inputs.clone_name }}/"
+
+      - name: Verify the restored or newly built LAMMPS artifacts
+        run: |
+          artifact_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}"
+
+          chmod -R +rwx "$artifact_dir"
+          test -x "$artifact_dir/lmp"
+          test -s "$artifact_dir/liblammps.so"
+          test -s "$artifact_dir/liblammps.pc"
+
+          export LD_LIBRARY_PATH="$artifact_dir:${LD_LIBRARY_PATH:-}"
+          ldd "$artifact_dir/lmp" | tee /tmp/lammps-ldd.txt
+
+          if grep -q "not found" /tmp/lammps-ldd.txt; then
+            echo "LAMMPS has unresolved shared-library dependencies." >&2
+            exit 1
+          fi
+
+          if ! ldd "$artifact_dir/lmp" | grep -q "libmpi"; then
+            echo "LAMMPS was not linked to MPI." >&2
+            exit 1
+          fi
 
       - name: Upload the exact LAMMPS build
         uses: actions/upload-artifact@v7
@@ -124,37 +175,66 @@ jobs:
           name: lammps-artifacts_${{ inputs.clone_name }}_${{ needs.buildLAMMPS.outputs.lammps_sha }}
           path: lammps_artifacts_${{ inputs.clone_name }}
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential mpich
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
 
       - name: Build PAPRECA
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+
           cmake \
             -S "$GITHUB_WORKSPACE/Installation/CMake" \
             -B "$GITHUB_WORKSPACE/mypapreca/build" \
             -DLAMMPS_SRC_DIR="$GITHUB_WORKSPACE/mylammps/src/" \
             -DLAMMPS_LIB_DIR="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+
           cmake --build "$GITHUB_WORKSPACE/mypapreca/build"
 
       - name: Build source-tests executable
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
+
           cmake \
             -S "$GITHUB_WORKSPACE/tests/source tests" \
             -B "$GITHUB_WORKSPACE/tests/source tests/build" \
             -DLAMMPS_SRC_DIR="$GITHUB_WORKSPACE/mylammps/src/" \
             -DLAMMPS_LIB_DIR="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}" \
             -DPAPRECA_SRC_DIR="$GITHUB_WORKSPACE/source"
+
           cmake --build "$GITHUB_WORKSPACE/tests/source tests/build"
 
       - name: Collect PAPRECA executables
         run: |
           mkdir -p "papreca_artifacts_${{ inputs.clone_name }}"
           cp mypapreca/build/papreca "papreca_artifacts_${{ inputs.clone_name }}/"
-          cp "$GITHUB_WORKSPACE/tests/source tests/build/source_tests" "papreca_artifacts_${{ inputs.clone_name }}/"
+          cp "$GITHUB_WORKSPACE/tests/source tests/build/source_tests" \
+            "papreca_artifacts_${{ inputs.clone_name }}/"
+
+      - name: Verify PAPRECA uses Open MPI
+        run: |
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+          ldd "papreca_artifacts_${{ inputs.clone_name }}/papreca" | tee /tmp/papreca-ldd.txt
+
+          if grep -q "not found" /tmp/papreca-ldd.txt; then
+            echo "PAPRECA has unresolved shared-library dependencies." >&2
+            exit 1
+          fi
+
+          if ! grep -q "libmpi" /tmp/papreca-ldd.txt; then
+            echo "PAPRECA was not linked to MPI." >&2
+            exit 1
+          fi
 
       - name: Upload PAPRECA executables
         uses: actions/upload-artifact@v7
