@@ -8,6 +8,14 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+# Force Open MPI to use only transports available on a standard hosted runner.
+# pml=ob1 prevents the UCX PML from being selected.
+# btl=self,vader,tcp prevents probing InfiniBand/RDMA devices.
+env:
+  OMPI_MCA_pml: ob1
+  OMPI_MCA_btl: self,vader,tcp
+  OMPI_MCA_btl_base_warn_component_unused: "0"
+
 jobs:
   setCloneName:
     runs-on: ubuntu-24.04
@@ -36,10 +44,19 @@ jobs:
       - name: Checkout PAPRECA
         uses: actions/checkout@v7
 
-      - name: Install dependencies
+      - name: Install Open MPI runtime
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential mpich
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
 
       - name: Download PAPRECA executables
         uses: actions/download-artifact@v8
@@ -57,9 +74,12 @@ jobs:
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+
           cd "$GITHUB_WORKSPACE/tests/source tests/"
-          bash run_tests.sh "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          bash run_tests.sh \
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
 
   hybridTest:
     needs:
@@ -71,10 +91,19 @@ jobs:
       - name: Checkout PAPRECA
         uses: actions/checkout@v7
 
-      - name: Install dependencies
+      - name: Install Open MPI runtime
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential mpich
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
 
       - name: Download PAPRECA executables
         uses: actions/download-artifact@v8
@@ -92,9 +121,12 @@ jobs:
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+
           cd "$GITHUB_WORKSPACE/tests/hybrid kMC MD/"
-          bash ./test_hybrid.sh "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          bash ./test_hybrid.sh \
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
 
   eventTests:
     needs:
@@ -116,11 +148,21 @@ jobs:
           python-version: '3.12'
           architecture: x64
 
-      - name: Install dependencies
+      - name: Install Open MPI runtime and Python dependencies
         run: |
           python -m pip install --disable-pip-version-check 'numpy==2.5.1'
+
           sudo apt-get update
-          sudo apt-get install -y build-essential mpich
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
 
       - name: Download PAPRECA executables
         uses: actions/download-artifact@v8
@@ -138,9 +180,12 @@ jobs:
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+
           echo "Starting all event tests with seed: ${{ matrix.seed }}"
           cd "$GITHUB_WORKSPACE/tests/event tests/"
+
           bash test_all_events.sh \
             "${{ matrix.seed }}" \
             "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}" \
