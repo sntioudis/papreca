@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout PAPRECA
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Clone a specific LAMMPS branch
         if: ${{ inputs.clone_type == 'branch' }}
@@ -83,18 +83,17 @@ jobs:
             -DBUILD_SHARED_LIBS=on
           cmake --build mylammps/build
 
+      - name: Verify LAMMPS
+        if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
+        run: ./mylammps/build/lmp -h
+
       - name: Copy LAMMPS executable and libraries
         if: ${{ steps.cache-lammps.outputs.cache-hit != 'true' }}
         run: |
           cp mylammps/build/lmp "lammps_artifacts_${{ inputs.clone_name }}/"
-          cp -L mylammps/build/liblammps.so* "lammps_artifacts_${{ inputs.clone_name }}/"
+          cp mylammps/build/liblammps.so "lammps_artifacts_${{ inputs.clone_name }}/"
+          cp mylammps/build/liblammps.so.0 "lammps_artifacts_${{ inputs.clone_name }}/"
           cp mylammps/build/liblammps.pc "lammps_artifacts_${{ inputs.clone_name }}/"
-
-      - name: Verify the restored or newly built LAMMPS artifacts
-        run: |
-          chmod -R +rwx "lammps_artifacts_${{ inputs.clone_name }}"
-          LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}:${LD_LIBRARY_PATH:-}" \
-            "./lammps_artifacts_${{ inputs.clone_name }}/lmp" -h
 
       - name: Upload the exact LAMMPS build
         uses: actions/upload-artifact@v7
@@ -109,7 +108,7 @@ jobs:
 
     steps:
       - name: Checkout PAPRECA
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout the exact LAMMPS commit used by the build job
         run: |
