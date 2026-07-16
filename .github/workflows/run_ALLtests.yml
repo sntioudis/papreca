@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout PAPRECA
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout PAPRECA
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -108,10 +108,10 @@ jobs:
 
     steps:
       - name: Checkout PAPRECA
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           architecture: x64
