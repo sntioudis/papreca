@@ -1,210 +1,147 @@
 name: Build and functionality tests
 
-# Builds LAMMPS from a reusable workflow and then executes all PAPRECA tests
-
+# Builds LAMMPS through the reusable workflow and then executes all PAPRECA tests.
 
 on:
-  schedule: #Test runs everyday at midnight UTC
-    - cron: "0 0 * * *"
+  schedule:
+    # Run every day at midnight UTC.
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
-  
 jobs:
-
   setCloneName:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       clone_name: ${{ steps.set-clone-name.outputs.clone_name }}
+
     steps:
       - name: Set clone name variable
         id: set-clone-name
-        run: echo "clone_name=release" >> $GITHUB_OUTPUT
-        
-  build-reusable:
-   needs: setCloneName
-   uses: sntioudis/papreca/.github/workflows/build-reusable.yml@main
-   with:
-     clone_type: branch
-     clone_name: ${{ needs.setCloneName.outputs.clone_name }}
+        run: echo "clone_name=release" >> "$GITHUB_OUTPUT"
 
-     
+  build-reusable:
+    needs: setCloneName
+    uses: ./.github/workflows/build-reusable.yml
+    with:
+      clone_type: branch
+      clone_name: ${{ needs.setCloneName.outputs.clone_name }}
+
   sourceTests:
-  
     needs:
-      - setCloneName #required to retrieve the clone name
+      - setCloneName
       - build-reusable
-    
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v6
 
-    - name: Checkout #Checkout PAPRECA repository
-      uses: actions/checkout@v4 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential mpich
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-        
-    - name: Restore papreca executables
-      uses: actions/download-artifact@v4
-      with:
-        name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }} #use commit hash (enviromental variable captured in the reusable workflow)
-        path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        merge-multiple: false
+      - name: Download PAPRECA executables
+        uses: actions/download-artifact@v8
+        with:
+          name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
+          path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
-    - name: Clone a specific LAMMPS branch
-      if: ${{ inputs.clone_type == 'branch' }}
-      run: |
-        git clone -b ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout ${{ needs.setCloneName.outputs.clone_name }}
-        git pull
+      - name: Download the exact LAMMPS build
+        uses: actions/download-artifact@v8
+        with:
+          name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
+          path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
-    - name: Clone a specific LAMMPS tag
-      if: ${{ inputs.clone_type == 'tag' }}
-      run: |
-        git clone --depth 1 --branch ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        
-    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
-      id: cache-lammps
-      uses: actions/cache@v4
-      with:
-        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
-          
-    - name: Run source tests
-      run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/ 
-        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
-        cd $GITHUB_WORKSPACE/tests/source\ tests/
-        bash run_tests.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+      - name: Run source tests
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+          cd "$GITHUB_WORKSPACE/tests/source tests/"
+          bash run_tests.sh "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
 
   hybridTest:
-  
     needs:
-      - setCloneName #required to retrieve the clone name
+      - setCloneName
       - build-reusable
-    
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v6
 
-    - name: Checkout #Checkout PAPRECA repository
-      uses: actions/checkout@v4
-      
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-        
-    - name: Restore papreca executables
-      uses: actions/download-artifact@v4
-      with:
-        name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        merge-multiple: false
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential mpich
 
-    - name: Clone a specific LAMMPS branch
-      if: ${{ inputs.clone_type == 'branch' }}
-      run: |
-        git clone -b ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout ${{ needs.setCloneName.outputs.clone_name }}
-        git pull
+      - name: Download PAPRECA executables
+        uses: actions/download-artifact@v8
+        with:
+          name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
+          path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
-    - name: Clone a specific LAMMPS tag
-      if: ${{ inputs.clone_type == 'tag' }}
-      run: |
-        git clone --depth 1 --branch ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        
-    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
-      id: cache-lammps
-      uses: actions/cache@v4
-      with:
-        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
-          
-    - name: Run hybrid test
-      run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
-        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
-        cd $GITHUB_WORKSPACE/tests/hybrid\ kMC\ MD/
-        bash ./test_hybrid.sh $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+      - name: Download the exact LAMMPS build
+        uses: actions/download-artifact@v8
+        with:
+          name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
+          path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
+      - name: Run hybrid test
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+          cd "$GITHUB_WORKSPACE/tests/hybrid kMC MD/"
+          bash ./test_hybrid.sh "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
 
   eventTests:
-  
     needs:
-      - setCloneName #required to retrieve the clone name
+      - setCloneName
       - build-reusable
-    
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
-        seed: [52748145,27149655,45334679,217676174,161081677]
+        seed: [52748145, 27149655, 45334679, 217676174, 161081677]
 
     steps:
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v6
 
-    - name: Checkout #Checkout PAPRECA repository
-      uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          architecture: x64
 
-    - name: Setup python
-      uses: actions/setup-python@v5
-      with:
-          python-version: '3.x'
-          architecture: 'x64'
-           
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip numpy
-        sudo apt-get update
-        sudo apt-get install -y build-essential
-        sudo apt-get install mpich
-        
-    - name: Restore papreca executables
-      uses: actions/download-artifact@v4
-      with:
-        name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        merge-multiple: false
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'numpy==2.5.1'
+          sudo apt-get update
+          sudo apt-get install -y build-essential mpich
 
-    - name: Clone a specific LAMMPS branch
-      if: ${{ inputs.clone_type == 'branch' }}
-      run: |
-        git clone -b ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        cd mylammps
-        git checkout ${{ needs.setCloneName.outputs.clone_name }}
-        git pull
+      - name: Download PAPRECA executables
+        uses: actions/download-artifact@v8
+        with:
+          name: papreca-artifacts_${{ needs.setCloneName.outputs.clone_name }}
+          path: papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
-    - name: Clone a specific LAMMPS tag
-      if: ${{ inputs.clone_type == 'tag' }}
-      run: |
-        git clone --depth 1 --branch ${{ needs.setCloneName.outputs.clone_name }} https://github.com/lammps/lammps.git mylammps
-        
-    - name: Restore LAMMPS cache #Restore LAMMPS library cache because linking to the shared library is performed at runtime
-      id: cache-lammps
-      uses: actions/cache@v4
-      with:
-        path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
-        #Key generated from os, and commit HASH. if any of these changes the key will be invalid and a rebuild will be triggered
-        key: ${{ runner.os }}-lammps-repo-key-${{ env.COMMIT_HASH }}
-        restore-keys: |
-          ${{ runner.os }}-lammps-repo-restorekey-${{ env.COMMIT_HASH }}
-          
-    - name: Run event test
-      run: |
-        chmod -R +rwx $GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
-        chmod -R +rwx $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/
-        echo -e "Starting all event tests with seed: ${{ matrix.seed }}"
-        cd $GITHUB_WORKSPACE/tests/event\ tests/
-        bash test_all_events.sh ${{ matrix.seed }} $GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }} python3
+      - name: Download the exact LAMMPS build
+        uses: actions/download-artifact@v8
+        with:
+          name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
+          path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
+
+      - name: Run event test
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
+          echo "Starting all event tests with seed: ${{ matrix.seed }}"
+          cd "$GITHUB_WORKSPACE/tests/event tests/"
+          bash test_all_events.sh \
+            "${{ matrix.seed }}" \
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}" \
+            python
