@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace PAPRECA{
 	
-	//SUPPLEMENTARY SETTER FUNCTIONS FOR APRECAT CONFIG
+	//SUPPLEMENTARY SETTER FUNCTIONS FOR PAPRECA CONFIG
 	void setTimeUnitsConversionConstant( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config );
 	
 	//ACCEPTABLE OPTIONAL COMMAND KEYWORDS and KEYWORD IDENTIFICATION FUNCTIONS.
@@ -58,7 +58,8 @@ namespace PAPRECA{
 	double getBinWidthFromElementalDistributions( std::vector< std::string > &commands , int &current_pos );
 	double getStickingCoeffFromDepositionEventOptions( std::vector< std::string > &commands , int &current_pos );
 	double getRateFromInputRateOptions( std::vector< std::string > &commands , int &current_pos );
-	void processCustomDiffEventOptions( std::vector< std::string > &commands , int &current_pos , std::string &custom_style , std::vector< int > &style_atomtypes );
+	void readContaminantsInputFile( std::string &file_name , INTPAIR2DOUBLE_MAP &contnum_to_rate );
+	void processCustomDiffEventOptions( std::vector< std::string > &commands , int &current_pos , std::string &custom_style , std::vector< int > &style_atomtypes , std::vector< double > &style_constants , INTPAIR2DOUBLE_MAP &contnum_to_rate );
 	
 	//ACCEPTABLE COMMANDS
 	void executeKMCstepsCommand( std::vector< std::string > &commands , PaprecaConfig &papreca_config );

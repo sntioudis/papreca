@@ -173,15 +173,15 @@ namespace PAPRECA{
 		
 	}
 	
-	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const std::string &diffusion_style , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes ){
+	void PaprecaConfig::initPredefinedDiffusionHop( const int &parent_type , const double &insertion_vel , const double &diff_dist , const std::string &diffvec_style , const std::string &diffusion_style , const int &diffused_type , const double &rate , const std::string &custom_style , const std::vector< int > &custom_atomtypes , const std::vector< double > &custom_constants , INTPAIR2DOUBLE_MAP &contnum_to_rate ){
 
 		PredefinedDiffusionHop *diffusion = NULL;
 		
 		if( diffusion_style == "move" ){
-			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes );
+			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes , custom_constants , contnum_to_rate );
 		}else if( diffusion_style == "move_del" || diffusion_style == "spawn" ){
 			if( diffused_type < 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Tried to initialise PredefinedDiffusionHop object in papreca_config.cpp, but the diffused type was not set properly for styles move_del/spawn." ); }
-			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes , diffused_type );
+			diffusion = new PredefinedDiffusionHop( parent_type , insertion_vel , diff_dist, diffvec_style  , diffusion_style , rate , custom_style , custom_atomtypes , custom_constants , contnum_to_rate , diffused_type );
 		}else{
 			allAbortWithMessage( MPI_COMM_WORLD , "Tried to initialise PredefinedDiffusionHop object in papreca_config.cpp with unknown diffusion style " + diffusion_style + "." );
 		}

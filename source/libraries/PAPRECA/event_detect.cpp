@@ -67,7 +67,58 @@ namespace PAPRECA{
 
 	}
 		
-	
+	const double getRate4ContaminantsDiffEvent( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config , PredefinedDiffusionHop *diff_template , LAMMPS_NS::tagint *atom_ids , int *atom_types , double **atom_xyz , int *neighbors , int &neighbors_num , double *candidate_xyz , double *parent_xyz ){
+		/// Calculates the rate of event based on the number of contaminants present in the initial and final diffusion states. This function is only called when the custom PAPRECA::PredefinedDiffusionHop style: Contaminants is active.
+		/// @param[in] lmp pointer to LAMMPS object.
+		/// @param[in] papreca_config object of the PAPRECA::PaprecaConfig class that stores global variables and settings for the current PAPRECA run.
+		/// @param[in] diff_template Diffusion Hop template (PAPRECA::PredefinedDiffusionHop) as initialized by the user (in the PAPRECA input file).
+		/// @param[in] atom_ids LAMMPS atom ids.
+		/// @param[in] atom_types LAMMPS atom types.
+		/// @param[in] 2D array containing LAMMPS atoms on a given proc
+		/// @param[in] neighbors LAMMPS array storing the IDs of neighbors of the current (parent) atom type.
+		/// @param[in] neighbors_num total number of neighbors.
+		/// @param[in] candidate_xyz 3-element double array containing the coordinates of the diffusion site.
+		/// @param[in] parent_xyz 3-element double array of the parent atom to the diffusion site.
+		/// @return rate of diffusion event
+		/// @see PAPRECA::getDiffEventsFromAtom()
+		/// @note Neibs are obtained from the parent atom to this diffusion event. However, we look for contaminant species in the neighbourhood of both the
+		/// parent xyz and the candidate xyz. This means that no contaminants will be detected for the candidate location
+		/// if the candidate xyz is separated by the parent xyz by more than the neibs list cutoff. Therefore, this operation only works for diffusion distances
+		/// considerably smaller than the neibs list cutoff.
+		
+		unsigned int parent_cont_num = 0;
+		unsigned int candidate_cont_num = 0;
+		int contaminant_type = ( diff_template->getStyleAtomTypes( ) )[0];
+		double contaminant_dist = ( diff_template->getStyleConstants( ) )[0];
+		double contaminant_sqrdist = contaminant_dist * contaminant_dist;
+		
+		//Scan through neighbours list to identify contaminants for the parent and candidate positions
+		for( int i = 0; i < neighbors_num; ++i ){
+				
+			int ineib = getMaskedNeibIndex( neighbors , i );
+			int neib_type = atom_types[ineib];
+			double *neib_xyz = atom_xyz[ineib];
+			LAMMPS_NS::tagint neib_id = atom_ids[ineib];
+
+			if( contaminant_type == neib_type ){ //This means that a contaminant has been detected
+			
+				
+				
+				double parent_cont_sqrdist = get3DSqrDistWithPBC( lmp , parent_xyz , neib_xyz );
+				if( parent_cont_sqrdist <= contaminant_sqrdist ){ ++parent_cont_num; }
+				
+				double candidate_cont_sqrdist = get3DSqrDistWithPBC( lmp , candidate_xyz , neib_xyz );
+				if( candidate_cont_sqrdist <= contaminant_sqrdist ){ ++candidate_cont_num; }
+				
+			}
+					
+			
+		}
+		
+		return diff_template->getRate( parent_cont_num , candidate_cont_num );
+		
+		
+	}
 	
 	void getDiffPointCandidateCoords( LAMMPS_NS::LAMMPS *lmp  , PaprecaConfig &papreca_config , const double *iatom_xyz , double *candidate_xyz , PredefinedDiffusionHop *diff_template ){
 	
@@ -249,11 +300,21 @@ namespace PAPRECA{
 				
 				if( !candidateDiffHasCollisions( lmp , papreca_config , neighbors , neighbors_num , candidate_xyz , diffused_type , iatom_xyz , iatom_type ) ){
 					
-					const double rate = diff_template->getRate( );
-							
 					//Safely copy parent atom coordinates into new array (do not use internal LAMMPS structures to initialise PAPRECA objects)
 					double parent_xyz[3];
 					copyDoubleArray3D( parent_xyz , iatom_xyz );
+					
+					double rate = -1;
+					
+					if( diff_template->getCustomStyle( ) == "Contaminants" ){
+						rate = getRate4ContaminantsDiffEvent( lmp , papreca_config , diff_template , atom_ids , atom_types , atom_xyz , neighbors , neighbors_num , candidate_xyz , parent_xyz );
+					}else{
+						rate = diff_template->getRate( );
+					}
+					
+					if( rate <= 0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Attempted to initialise diffusion event with invalid rate in getDiffEventsFromAtom function (event_detect.cpp)"); }
+							
+
 					Diffusion *diff = new Diffusion( rate , candidate_xyz , parent_xyz , iatom_id , iatom_type , diffused_type , diff_template );
 					events_local.push_back( diff );
 							

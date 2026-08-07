@@ -990,17 +990,24 @@ rate_arrhenius values = energy frequency temperature
 - (OPTIONAL) keyword = custom
 
 ```bash
-custom values = Fe_4PO4neib
+custom values = Fe_4PO4neib or Contaminants
 	Fe_4PO4neib values = N Ptype
 		N = has to be equal to 1
 		Ptype = atom type number of the Phosphorus type in the simulation.
+	Contaminants values = N Contaminant_type M Contaminant_dist Contaminant_file
+		M = has to be equal to 1
+		Contaminant_type = atom type number of Contaminant species (currently only 1 type is supported)
+		Contaminant_dist = double number denoting the distance to search for contaminant atom types around the parent atom for diffusion events
+		Contaminant_file = text file located in the parent folder of the simulation (see below for file structure)
+
 ```
 
 \subsection createDiff_examples Example(s)
 
 ```bash
-create_DiffusionHop 1 0.0 4.14468 +z no 8 rate_arrhenius 11.53 1.4e13 528.15 custom Fe_4PO4neib 1 5
+create_DiffusionHop 1 0.0 4.14468 move_del +z no 8 rate_arrhenius 11.53 1.4e13 528.15 custom Fe_4PO4neib 1 5
 create_DiffusionHop 1 0.0 3 sphere3D yes 1 rate_manual 1.0e13
+create_DiffusionHop 2 0.0 3.97 +x+y move 2 rate_arrhenius 7.03347  1e13 528.15 custom Contaminants 1 3 1 2.5 contaminants.ppc
 ```
 
 \subsection createDiff_description Description
@@ -1026,7 +1033,29 @@ The "Fe_4PO4neib" custom template performs searches on the neighbor list of the 
 fewer PO4 structures will be in the neighborhood of the parent atom. The "Fe_4PO4neib" custom template was created to cover the needs of a very specific application related
 to the formation and growth of thin film from tricresyl phosphate (TCP) molecules on an iron Fe110 surface [1] , [2].
 
-You can provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
+If the custom template "Contaminants" is used (see example above for syntax), the diffusion rates are adjusted based on the number of Contaminant_types detected around the parent atom and the diffusion site.
+For example, assume event E1 that displaces an atom from the parent site (S_p) to the diffusion site (S_d). In such case, %PAPRECA will use the neighbours list of the parent atom to retrieve the number of Contaminant_type atoms (C_p)
+located as far as Contaminant_dist from S_p. A similar search is performed to retrieve the number of Contaminant_type atoms (C_d) around S_d. Note that both searches are performed using the full neighbours list of the parent atom.
+Therefore, the user must be careful to make sure that diff_dist is considerably smaller than force_cutoff+skin. This distance controls the cluster size of the neighbours lists [(see LAMMPS website for more information](https://docs.lammps.org/neighbor.html).
+The diffusion event rate is updated based on the values of C_p and C_d. The user must provide the relevant rate values to perform the (C_p,C_d)->rate_pd mapping in the Contaminant_file. Note that the rate of the clean/uncontaminated event: (0,0)->rate_00 must be
+provided as the base rate of the create_DiffusionHop command. See below for the structure of the Contaminant_file:
+
+```bash
+filler_rate
+C_p1 C_d1 rate_11
+C_p2 C_d2 rate_22
+.
+.
+.
+C_pNp C_dNd rate_NpNd
+```
+
+Note that all rates in the Contaminant_file must be provided in Hz (1/s). The user is responsible for properly populating this file and ensuring that all rates of interest are included.
+When a rate is not included, %PAPRECA will use the filler_rate listed in the beginning of the Contaminants_file. For instance, if %PAPRECA detects 4 Contaminant_type atoms around the parent atom
+and 6 Contaminant_type atoms around the diffusion site but the (4,6)->rate_46 mapping is not listed in the Contaminant_file, then the following mapping is performed (4,6)->filler_rate.
+
+
+For the **base (i.e., uncontaminated) rate only**, you provide the diffusion rate manually or input the activation energy, attempt frequency, and temperature of that kMC event to obtain the corresponding rate from the Arrhenius equation (see rates_calc.h rates_calc.cpp, and PAPRECA::getRateFromArrhenius() ).
 
 > **Note1:**
 > For diffusion_style **move**, the diffused_type must be identical to the parent type! %PAPRECA will stop and throw an error if it is not.

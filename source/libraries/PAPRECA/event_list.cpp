@@ -77,8 +77,8 @@ namespace PAPRECA{
 	
 	//---------------------------------------PredefinedDiffusionHop class---------------------------------------
 	//Constructors/Destructors
-	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ) , diffusion_style( diffusion_style_in ) , rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( parent_type_in ){ }
-	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ) , diffusion_style( diffusion_style_in ) , rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , diffused_type( diffused_type_in ){ }
+	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const std::vector< double > &style_constants_in , INTPAIR2DOUBLE_MAP &contnum_to_rate_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ) , diffusion_style( diffusion_style_in ) , rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , style_constants( style_constants_in ) , contnum_to_rate( contnum_to_rate_in ) , diffused_type( parent_type_in ){ }
+	PredefinedDiffusionHop::PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const std::vector< double > &style_constants_in , INTPAIR2DOUBLE_MAP &contnum_to_rate_in , const int &diffused_type_in ) : parent_type( parent_type_in ) , insertion_vel( insertion_vel_in ) , diffusion_dist( diffusion_dist_in ), diffvec_style( diffvec_style_in ) , diffusion_style( diffusion_style_in ) , rate( rate_in ) , custom_style( custom_style_in ) , style_atomtypes( style_atomtypes_in ) , style_constants( style_constants_in ) , contnum_to_rate( contnum_to_rate_in ) , diffused_type( diffused_type_in ){}
 	PredefinedDiffusionHop::~PredefinedDiffusionHop( ){ }
 	
 	//functions
@@ -88,9 +88,28 @@ namespace PAPRECA{
 	const std::string &PredefinedDiffusionHop::getDiffusionStyle( ) const{ return diffusion_style; }
 	const double &PredefinedDiffusionHop::getDiffusionDist( ) const{ return diffusion_dist; }
 	const double &PredefinedDiffusionHop::getRate( ) const{ return rate; }
+	const double &PredefinedDiffusionHop::getRate( const int &parent_cont_num_in , const int &candidate_cont_num_in ) const{
+	
+		std::cout <<  "Trying to return contaminant rate for " << parent_cont_num_in << " and " << candidate_cont_num_in << std::endl;
+		if( parent_cont_num_in == 0 && candidate_cont_num_in == 0 ){
+			std::cout << "The rate is " << rate << std::endl;
+			return rate; //Return base uncontaminated rate in this case. If there is at least one contaminant proceed to return the mapped value
+		}
+		INT_PAIR contaminant_pair = {parent_cont_num_in , candidate_cont_num_in };
+		if( !mappingExists( contnum_to_rate , contaminant_pair ) ){
+			contaminant_pair = { -1 , -1 }; //If the mapping does not exist we need to return the "filler" value. E.g., if 
+			std::cout << "Mapping does not exist... returning filler value " << std::endl;
+		}
+		std::cout << "The rate is " << contnum_to_rate.at(contaminant_pair) << std::endl;
+		return contnum_to_rate.at(contaminant_pair);
+	
+	}//Overloaded getRate for style Contaminants
+	
+	
 	const std::string &PredefinedDiffusionHop::getDiffvecStyle( ) const{ return diffvec_style; }
 	const std::string &PredefinedDiffusionHop::getCustomStyle( ) const{ return custom_style; }
 	const std::vector< int > &PredefinedDiffusionHop::getStyleAtomTypes( ) const{ return style_atomtypes; }
+	const std::vector< double > &PredefinedDiffusionHop::getStyleConstants( ) const{ return style_constants; }
 	//-------------------------------------End of PredefinedDiffusionHop class-------------------------------------
 	
 	

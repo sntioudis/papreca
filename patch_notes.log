@@ -10,5 +10,6 @@ I will reintroduce this later if users require it for a specific application. <-
 6) Patched diffusion and deposition events to now allow a specific atom type to be parent to multiple diffusion/deposition events (that was not previously possible). This
 can be very beneficial if we expect different molecules to be deposited on the same type, or if we expect an atom to diffuse in different ways (say simple hop and exchange).
 7) Added box_zvacuum option to resize simulation box and fit all atoms for thicker films + changes in documentation to introduce command
+8) Introduced "contaminated" diffusion events (see docs for more information)
 
-Updated files for transition to C++17 (in accordance with LAMMPS updates).
+**Updated files for transition to C++17 (in accordance with LAMMPS updates).

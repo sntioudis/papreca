@@ -123,8 +123,8 @@ namespace PAPRECA{
 		
 		public:
 			//Constructor/Destructors
-			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in ); //Can be used if the diffusion style is "move" because there is no requirement to set the diffused type (which is identical to the parent atom type)
-			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const int &diffused_type_in ); //This constructor can only be used with styles "move_del" and "spawn", where the diffused atom type can be different from the parent atom type
+			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const std::vector< double > &style_constants_in , INTPAIR2DOUBLE_MAP &contnum_to_rate_in ); //Can be used if the diffusion style is "move" because there is no requirement to set the diffused type (which is identical to the parent atom type)
+			PredefinedDiffusionHop( const int &parent_type_in , const double &insertion_vel_in , const double &diffusion_dist_in , const std::string &diffvec_style_in , const std::string &diffusion_style_in , const double &rate_in , const std::string &custom_style_in , const std::vector< int > &style_atomtypes_in , const std::vector< double > &style_constants_in , INTPAIR2DOUBLE_MAP &contnum_to_rate_in , const int &diffused_type_in ); //This constructor can only be used with styles "move_del" and "spawn", where the diffused atom type can be different from the parent atom type
 			~PredefinedDiffusionHop( );
 			
 			//Functions
@@ -134,9 +134,11 @@ namespace PAPRECA{
 			const std::string &getDiffusionStyle( ) const;
 			const double &getDiffusionDist( ) const;
 			const double &getRate( ) const;
+			const double &getRate( const int &parent_cont_num_in , const int &candidate_cont_num_in ) const;
 			const std::string &getDiffvecStyle( ) const;
 			const std::string &getCustomStyle( ) const;
 			const std::vector< int > &getStyleAtomTypes( ) const;
+			const std::vector< double > &getStyleConstants( ) const;
 			
 		private:
 			int parent_type = -1; ///< type of candidate parent atom.
@@ -144,10 +146,12 @@ namespace PAPRECA{
 			int diffused_type = -2; ///< type of diffused atom. This is only relevant to diffusion styles "move_del" and "spawn". The diffused type can be the same as the parent type. Alternatively, it can be set to a different type if you want the atom type to change after diffusion.	
 			std::string diffusion_style = "move"; ///< Three diffusion styles are supported: "move" displaces atoms, "move_del" works like move but deletes atom and reinserts it in the vacant site, "spawn" does not move the parent atom and inserts a new atom in the vacant site.
 			double diffusion_dist = 0.0; /// displace atom by that much.
-			std::string custom_style = "NONE"; ///< currently, only the Fe_4PO4neib style is an acceptable custom style for diffusion.
+			std::string custom_style = "NONE"; ///< currently, the Fe_4PO4neib and Contaminants styles are acceptable custom style for diffusion.
 			std::string diffvec_style = "+z"; ///< Style of diffusion vector. Many different options are supported for deterministic jumps along different directions (e.g., +x,-z), and random jumps on the surface of a sphere (3D) or the northern hemisphere (2D).
 			std::vector< int > style_atomtypes; ///< vector that allows you to pass information about atom types from the PAPRECA input file.
-			double rate = 0.0;
+			std::vector< double > style_constants; ///< vector that allows you to pass information about constants from the PAPRECA input file. For instance, used to store the "contaminant search distance" in style "Contaminants";
+			INTPAIR2DOUBLE_MAP contnum_to_rate; ///< integer pair to double map, mapping (parent_cont_num,candidate_cont_num)->rate. Only used for Contaminant diffusion.
+			double rate = 0.0; ///< rate of diffusion event. This is a placeholder for style "Contaminants" this is a placeholder (rates are extracted from contnum_to_rate;
 	
 	};
 	

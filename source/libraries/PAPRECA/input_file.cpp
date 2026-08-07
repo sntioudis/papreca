@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace PAPRECA{
 	
-	//SUPPLEMENTARY SETTER FUNCTIONS FOR APRECAT CONFIG
+	
+	//SUPPLEMENTARY SETTER FUNCTIONS FOR PAPRECA CONFIG
 	void setTimeUnitsConversionConstant( LAMMPS_NS::LAMMPS *lmp , PaprecaConfig &papreca_config ){
 		
 		/// Retrieves the LAMMPS units style from the provided LAMMPS object (lmp) and sets the conversion time variable of the PAPRECA::PaprecaConfig object.
@@ -350,7 +351,43 @@ namespace PAPRECA{
 
 	}
 	
-	void processCustomDiffEventOptions( std::vector< std::string > &commands , int &current_pos , std::string &custom_style , std::vector< int > &style_atomtypes ){
+	void readContaminantsInputFile( std::string &file_name , INTPAIR2DOUBLE_MAP &contnum_to_rate ){
+	
+		/// Reads Contaminants input file to initialise 
+		/// @param[in] file_name name of Contaminants input file
+		/// @param[in,out] INTPAIR2DOUBLE map to initialise contaminants number mapping
+		/// @note file format should be of type parent_cont_num candidate_cont_num rate (an arbitrary number of lines can be included to cover all cases)
+	
+		std::ifstream file( file_name );
+		if(  !file.is_open( ) ){ allAbortWithMessage( MPI_COMM_WORLD , "Could not open Contaminants input file. It is possible that you provided a wrong file Contaminants file name or that the file is not present in the simulation directory." ); }
+		
+		//Read the filler rate before you enter the main loop
+		double filler_rate;
+		file >> filler_rate;
+		
+		if( filler_rate < 0.0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Attempted to initialise a negative filler rate." ); }
+		INT_PAIR filler_pair = { -1 , -1 }; //Filler rate is always mapped at (-1,-1)
+		contnum_to_rate[filler_pair] = filler_rate;
+		
+		int parent_cont_num , candidate_cont_num;
+		double rate;
+		
+		//Format of the file should be 
+		while( file >> parent_cont_num >> candidate_cont_num >> rate ){
+		
+			if( parent_cont_num < 0 && parent_cont_num <0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Attempted to initialise negative number of contaminant species in Contaminants input file" ); }
+			if( rate < 0.0 ){ allAbortWithMessage( MPI_COMM_WORLD , "Attempted to initialise a negative rate in Contaminants input file" ); }
+			INT_PAIR  contaminant_pair = { parent_cont_num , candidate_cont_num };
+			if( mappingExists( contnum_to_rate , contaminant_pair ) ){ warnAll( MPI_COMM_WORLD , "Contaminants mapping between " + std::to_string( parent_cont_num ) + " and " + std::to_string( candidate_cont_num ) + " exists already! Overwritting rate values during Contaminants custom diffusion event initialisation" ); }
+			contnum_to_rate[contaminant_pair] = rate;
+		
+		}
+		
+		file.close( );
+	
+	}
+	
+	void processCustomDiffEventOptions( std::vector< std::string > &commands , int &current_pos , std::string &custom_style , std::vector< int > &style_atomtypes , std::vector< double > &style_constants , INTPAIR2DOUBLE_MAP &contnum_to_rate ){
 		
 		/// Initializes custom_style and style_atomtypes for custom diffusion events.
 		/// @param[in] commands trimmed/processed vector of strings. This is effectively the entire command line with each vector element (i.e., std::string) being a single word/number.
@@ -359,17 +396,23 @@ namespace PAPRECA{
 		/// @param[in,out] style_atomtypes potentially useful auxiliary vector storing atom types and passing them to the main function of papreca.cpp.
 		
 		checkForAcceptableKeywordsUsedMultipleTimes( commands, "custom" ); //This has to be done for all optional commands to ensure that no multiple-defined commands exist.
-		std::string error_message = "Illegal custom diffusion keyword. Has to be custom STYLE N type1 type2 ... typeN (where N is the style_types num) If there are no style types the option should be custom STYLE 0. Currently only Fe_4PO4neib is supported as a custom diffusion style.";
+		std::string error_message = "Illegal custom diffusion keyword. Has to be custom STYLE N_atomtypes type1 type2 ... typeN_atomtypes (where N is the style_types num) N_constants constant1 constant2 ... constantN_constants (optional constants for custom event) file (optional). If there are no style types the option should be custom STYLE 0. Currently only Fe_4PO4neib and Contaminants are supported as custom diffusion styles.";
 		if( commands.size( ) < current_pos + 3 ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
 		
 		std::string style = commands[current_pos+1];
 		if( style == "Fe_4PO4neib" ){
 			custom_style = style;
-			if( string2Int( commands[current_pos+2] ) != 1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Custom diffusion style Fe_4PO4 only works with 1 custom atomtype is defined (i.e., the P type)." ); }
+			if( string2Int( commands[current_pos+2] ) != 1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Custom diffusion style Fe_4PO4neib cannot be initialised with more than 1 style atomtype (i.e., that of the P atom)!" ); }
+		}else if( style == "Contaminants" ){
+			custom_style = style;
+			if( string2Int( commands[current_pos+2] ) != 1 ){ allAbortWithMessage( MPI_COMM_WORLD , "Custom diffusion style Contaminants cannot be initialised with more than 1 style atomtype (i.e., that of the contaminant atom type)!" ); }
+			
 		}else{
 			allAbortWithMessage( MPI_COMM_WORLD , error_message );
 		}
 		
+		
+		//Process atom types
 		int types_num = string2Int( commands[current_pos+2] );
 		if( types_num <= 0 ){ return; } //Exit if there are no style types
 		
@@ -391,7 +434,38 @@ namespace PAPRECA{
 				
 		}
 		
+		
+		//Process constants
 		current_pos = types_end;
+		if( current_pos >= commands.size( ) ){ return; }
+		if( custom_style == "Fe_4PO4neib" && current_pos != commands.size( ) ){ allAbortWithMessage( MPI_COMM_WORLD, "Fe_4PO4neib custom diffusion event command cannot be initialised with extra constants or an input file"); }
+		
+
+		int constants_num = string2Int( commands[current_pos] );
+		if( constants_num <= 0 ){ return; }
+		int constants_start = current_pos + 1;
+		int constants_end = constants_start + constants_num;
+		
+		if( commands.size( ) < constants_end ){ allAbortWithMessage( MPI_COMM_WORLD , error_message ); }
+		
+		for( int i = constants_start; i < constants_end; ++i ){
+		
+			style_constants.push_back( string2Double( commands[i] ) );
+		
+		}
+		
+		
+		
+		
+		//Read input file
+		if( current_pos >= commands.size( ) ){ return; }
+		current_pos = constants_end;
+		std::string file_name = commands[current_pos];
+		if( custom_style != "Contaminants" ){ allAbortWithMessage( MPI_COMM_WORLD , "Only Contaminants custom diffusion style requires an input file" ); }
+		readContaminantsInputFile( file_name , contnum_to_rate );
+		
+		//Finalise
+		++current_pos; //Increment current pos to send back the final position (previously current_pos was the position of the file name);
 		
 	
 		
@@ -930,13 +1004,15 @@ namespace PAPRECA{
 		int current_pos = 7;
 		double rate = getRateFromInputRateOptions( commands , current_pos );
 		std::string custom_style = "NONE";
-		std::vector< int > style_atomtypes;
+		std::vector< int > style_atomtypes; //Only used for custom diffusion events
+		std::vector< double > style_constants; //Only used for custom diffusion events
+		INTPAIR2DOUBLE_MAP contnum_to_rate; //Only used for "Contanimants" custom diffusion event
 		
 		//Optional Commands update the current_pos value. Exit when current_pos reached the end of the command line (or if an error occurs).
 		if( current_pos != commands.size( ) ){ //Exit immediately if there are no optional keywords
 			do{
 				if( commands[current_pos] == "custom" ){	
-					processCustomDiffEventOptions( commands , current_pos , custom_style , style_atomtypes );
+					processCustomDiffEventOptions( commands , current_pos , custom_style , style_atomtypes , style_constants , contnum_to_rate );
 					
 				}else{
 					allAbortWithMessage( MPI_COMM_WORLD , "Unknown option " + commands[current_pos] + " for command " + commands[0] + "." );
@@ -944,7 +1020,7 @@ namespace PAPRECA{
 			}while( current_pos < commands.size( ) );
 		}
 		
-		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , diffvec_style , diffusion_style  , diffused_type , rate , custom_style , style_atomtypes );
+		papreca_config.initPredefinedDiffusionHop( parent_type , velocity , distance , diffvec_style , diffusion_style  , diffused_type , rate , custom_style , style_atomtypes , style_constants , contnum_to_rate );
 		
 		
 		
