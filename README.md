@@ -18,7 +18,8 @@
 
 <br>
 
-**📢As of April 2026, PAPRECA is listed in the [external software section](https://www.lammps.org/external.html) of LAMMPS' official website!**
+
+**📢As of April 2026, PAPRECA is listed in the [external software section](https://www.lammps.org/ecosystem/tools/) of LAMMPS' official website!**
 
 <br>
 
