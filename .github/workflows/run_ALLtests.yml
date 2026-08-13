@@ -1,6 +1,8 @@
 name: Build and functionality tests
 
 # Builds LAMMPS through the reusable workflow and then executes all PAPRECA tests.
+# Test jobs record their runner/runtime fingerprint and preserve the test logs
+# as artifacts, including when a test fails.
 
 on:
   schedule:
@@ -70,16 +72,126 @@ jobs:
           name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
           path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
+      - name: Record source-test environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          lammps_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          papreca_dir="$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/source-test-environment.txt"
+
+          {
+            echo "========================================"
+            echo "SOURCE TEST ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== Test identity ==="
+            echo "lammps_sha=${{ needs.build-reusable.outputs.lammps_sha }}"
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev
+
+            echo
+            echo "=== Exact downloaded binary hashes ==="
+            sha256sum "$lammps_dir/lmp"
+            sha256sum "$lammps_dir"/liblammps.so*
+            sha256sum "$papreca_dir/papreca"
+            sha256sum "$papreca_dir/source_tests"
+
+            echo
+            echo "=== PAPRECA linkage on source-test runner ==="
+            export LD_LIBRARY_PATH="$lammps_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$papreca_dir/papreca"
+
+            echo
+            echo "=== Source-tests linkage ==="
+            ldd "$papreca_dir/source_tests"
+
+            echo
+            echo "=== Host library hashes resolved for PAPRECA ==="
+            ldd "$papreca_dir/papreca" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/source-test-packages.txt"
+
       - name: Run source tests
+        shell: bash
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
 
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
-
           cd "$GITHUB_WORKSPACE/tests/source tests/"
+
+          set +e
           bash run_tests.sh \
-            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}" \
+            2>&1 | tee "$GITHUB_WORKSPACE/diagnostics/source-tests.log"
+
+          status=${PIPESTATUS[0]}
+          echo "test_exit_code=$status" >> "$GITHUB_WORKSPACE/diagnostics/source-test-environment.txt"
+          exit "$status"
+
+      - name: Upload source-test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-source-tests-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
 
   hybridTest:
     needs:
@@ -117,16 +229,121 @@ jobs:
           name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
           path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
+      - name: Record hybrid-test environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          lammps_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          papreca_dir="$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/hybrid-test-environment.txt"
+
+          {
+            echo "========================================"
+            echo "HYBRID TEST ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== Test identity ==="
+            echo "lammps_sha=${{ needs.build-reusable.outputs.lammps_sha }}"
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev
+
+            echo
+            echo "=== Exact downloaded binary hashes ==="
+            sha256sum "$lammps_dir/lmp"
+            sha256sum "$lammps_dir"/liblammps.so*
+            sha256sum "$papreca_dir/papreca"
+
+            echo
+            echo "=== PAPRECA linkage on hybrid-test runner ==="
+            export LD_LIBRARY_PATH="$lammps_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$papreca_dir/papreca"
+
+            echo
+            echo "=== Host library hashes resolved for PAPRECA ==="
+            ldd "$papreca_dir/papreca" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/hybrid-test-packages.txt"
+
       - name: Run hybrid test
+        shell: bash
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
 
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
-
           cd "$GITHUB_WORKSPACE/tests/hybrid kMC MD/"
+
+          set +e
           bash ./test_hybrid.sh \
-            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}" \
+            2>&1 | tee "$GITHUB_WORKSPACE/diagnostics/hybrid-test.log"
+
+          status=${PIPESTATUS[0]}
+          echo "test_exit_code=$status" >> "$GITHUB_WORKSPACE/diagnostics/hybrid-test-environment.txt"
+          exit "$status"
+
+      - name: Upload hybrid-test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-hybrid-test-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
 
   eventTests:
     needs:
@@ -135,6 +352,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
+      fail-fast: false
       matrix:
         seed: [52748145, 27149655, 45334679, 217676174, 161081677]
 
@@ -176,17 +394,133 @@ jobs:
           name: lammps-artifacts_${{ needs.setCloneName.outputs.clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
           path: lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}
 
+      - name: Record event-test environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          lammps_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          papreca_dir="$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/event-test-${{ matrix.seed }}-environment.txt"
+
+          {
+            echo "========================================"
+            echo "EVENT TEST ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== Test identity ==="
+            echo "seed=${{ matrix.seed }}"
+            echo "lammps_sha=${{ needs.build-reusable.outputs.lammps_sha }}"
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Python ==="
+            python --version
+            python -c 'import sys; print("python_executable=" + sys.executable)'
+            python -c 'import platform; print("python_platform=" + platform.platform())'
+            python -c 'import numpy; print("numpy=" + numpy.__version__)'
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev
+
+            echo
+            echo "=== Exact downloaded binary hashes ==="
+            sha256sum "$lammps_dir/lmp"
+            sha256sum "$lammps_dir"/liblammps.so*
+            sha256sum "$papreca_dir/papreca"
+
+            echo
+            echo "=== PAPRECA linkage on EVENT TEST runner ==="
+            export LD_LIBRARY_PATH="$lammps_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$papreca_dir/papreca"
+
+            echo
+            echo "=== LAMMPS linkage on EVENT TEST runner ==="
+            ldd "$lammps_dir/lmp"
+
+            echo
+            echo "=== Host library hashes resolved for PAPRECA ==="
+            ldd "$papreca_dir/papreca" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/event-test-${{ matrix.seed }}-packages.txt"
+
       - name: Run event test
+        shell: bash
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
           chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}/"
 
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ needs.setCloneName.outputs.clone_name }}:${LD_LIBRARY_PATH:-}"
-
           echo "Starting all event tests with seed: ${{ matrix.seed }}"
           cd "$GITHUB_WORKSPACE/tests/event tests/"
 
+          set +e
           bash test_all_events.sh \
             "${{ matrix.seed }}" \
             "$GITHUB_WORKSPACE/papreca_artifacts_${{ needs.setCloneName.outputs.clone_name }}" \
-            python
+            python \
+            2>&1 | tee "$GITHUB_WORKSPACE/diagnostics/event-test-${{ matrix.seed }}.log"
+
+          status=${PIPESTATUS[0]}
+          echo "test_exit_code=$status" >> "$GITHUB_WORKSPACE/diagnostics/event-test-${{ matrix.seed }}-environment.txt"
+          exit "$status"
+
+      - name: Upload event-test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-event-test-seed-${{ matrix.seed }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
