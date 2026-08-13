@@ -1,8 +1,10 @@
 # Template (reusable) workflow that receives a LAMMPS version tag or branch name.
 # The workflow builds LAMMPS, then builds PAPRECA and the source-tests executable.
+#
+# Diagnostics are captured during both build jobs so that binaries reused on
+# later GitHub-hosted runners can be compared against their build environment.
 
 name: Build and test reusable
-
 on:
   workflow_call:
     inputs:
@@ -146,12 +148,132 @@ jobs:
             exit 1
           fi
 
+      - name: Record LAMMPS build environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          artifact_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/lammps-build-environment.txt"
+
+          {
+            echo "========================================"
+            echo "LAMMPS BUILD ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+            echo "lammps_cache_hit=${{ steps.cache-lammps.outputs.cache-hit }}"
+
+            echo
+            echo "=== Source revisions ==="
+            echo "lammps_requested_type=${{ inputs.clone_type }}"
+            echo "lammps_requested_ref=${{ inputs.clone_name }}"
+            echo "lammps_expected_sha=${{ steps.get-lammps-commit.outputs.sha }}"
+            git -C mylammps rev-parse HEAD
+            git -C mylammps log -1 --format='lammps_commit=%H%ncommit_date=%cI%nsubject=%s'
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== Toolchain ==="
+            gcc --version
+            g++ --version
+            cmake --version
+            ld --version | head -n 1
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev \
+              gcc \
+              g++ \
+              cmake
+
+            echo
+            echo "=== LAMMPS artifact listing ==="
+            ls -lah "$artifact_dir"
+
+            echo
+            echo "=== LAMMPS binary hashes ==="
+            sha256sum "$artifact_dir/lmp"
+            sha256sum "$artifact_dir"/liblammps.so*
+
+            echo
+            echo "=== LAMMPS executable linkage ==="
+            export LD_LIBRARY_PATH="$artifact_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$artifact_dir/lmp"
+
+            echo
+            echo "=== liblammps linkage ==="
+            ldd "$artifact_dir/liblammps.so"
+
+            echo
+            echo "=== Hashes of host libraries resolved for LAMMPS ==="
+            ldd "$artifact_dir/lmp" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/lammps-build-packages.txt"
+
+      - name: Upload LAMMPS build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-lammps-build-${{ inputs.clone_name }}-${{ steps.get-lammps-commit.outputs.sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Upload the exact LAMMPS build
         uses: actions/upload-artifact@v7
         with:
           name: lammps-artifacts_${{ inputs.clone_name }}_${{ steps.get-lammps-commit.outputs.sha }}
           path: lammps_artifacts_${{ inputs.clone_name }}
           if-no-files-found: error
+          retention-days: 30
 
   buildPAPRECA:
     needs: buildLAMMPS
@@ -192,7 +314,6 @@ jobs:
       - name: Build PAPRECA
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
-
           cmake \
             -S "$GITHUB_WORKSPACE/Installation/CMake" \
             -B "$GITHUB_WORKSPACE/mypapreca/build" \
@@ -204,7 +325,6 @@ jobs:
       - name: Build source-tests executable
         run: |
           chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}/"
-
           cmake \
             -S "$GITHUB_WORKSPACE/tests/source tests" \
             -B "$GITHUB_WORKSPACE/tests/source tests/build" \
@@ -236,9 +356,129 @@ jobs:
             exit 1
           fi
 
+      - name: Record PAPRECA build environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          lammps_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.clone_name }}"
+          papreca_dir="$GITHUB_WORKSPACE/papreca_artifacts_${{ inputs.clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/papreca-build-environment.txt"
+
+          {
+            echo "========================================"
+            echo "PAPRECA BUILD ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+
+            echo
+            echo "=== Source revisions ==="
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+            echo "lammps_expected_sha=${{ needs.buildLAMMPS.outputs.lammps_sha }}"
+            echo "lammps_checked_out_sha=$(git -C mylammps rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== Toolchain ==="
+            gcc --version
+            g++ --version
+            cmake --version
+            ld --version | head -n 1
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev \
+              gcc \
+              g++ \
+              cmake
+
+            echo
+            echo "=== Artifact listings ==="
+            ls -lah "$lammps_dir"
+            ls -lah "$papreca_dir"
+
+            echo
+            echo "=== Exact binary hashes ==="
+            sha256sum "$lammps_dir/lmp"
+            sha256sum "$lammps_dir"/liblammps.so*
+            sha256sum "$papreca_dir/papreca"
+            sha256sum "$papreca_dir/source_tests"
+
+            echo
+            echo "=== PAPRECA linkage ==="
+            export LD_LIBRARY_PATH="$lammps_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$papreca_dir/papreca"
+
+            echo
+            echo "=== LAMMPS linkage on the PAPRECA build runner ==="
+            ldd "$lammps_dir/lmp"
+
+            echo
+            echo "=== Hashes of host libraries resolved for PAPRECA ==="
+            ldd "$papreca_dir/papreca" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/papreca-build-packages.txt"
+
+      - name: Upload PAPRECA build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-papreca-build-${{ inputs.clone_name }}-${{ needs.buildLAMMPS.outputs.lammps_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Upload PAPRECA executables
         uses: actions/upload-artifact@v7
         with:
           name: papreca-artifacts_${{ inputs.clone_name }}
           path: papreca_artifacts_${{ inputs.clone_name }}
           if-no-files-found: error
+          retention-days: 30
