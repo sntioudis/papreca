@@ -17,7 +17,7 @@ on:
         description: 'Random seed passed to tests/event tests/test_all_events.sh'
         required: true
         type: string
-        default: '161081677'
+        default: '217676174'
 
       replicas:
         description: 'Number of independent GitHub runners that should test the same seed'
@@ -76,8 +76,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$replicas" -lt 1 ] || [ "$replicas" -gt 100 ]; then
-            echo "replicas must be between 1 and 100." >&2
+          if [ "$replicas" -lt 1 ] || [ "$replicas" -gt 249 ]; then
+            echo "replicas must be between 1 and 249." >&2
             exit 1
           fi
 
