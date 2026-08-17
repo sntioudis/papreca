@@ -17,7 +17,7 @@ on:
         description: 'Random seed passed to tests/event tests/test_all_events.sh'
         required: true
         type: string
-        default: '217676174'
+        default: '161081677'
 
       replicas:
         description: 'Number of independent GitHub runners that should test the same seed'
@@ -304,6 +304,35 @@ jobs:
             echo
             echo "test_exit_code=$status"
           } >> "$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-environment.txt"
+
+          # Preserve the raw mono-desorption files from this exact runner.
+          # These are copied before returning the test's original exit code,
+          # so they survive both passing and failing replicas.
+          mono_dir="$GITHUB_WORKSPACE/tests/event tests/monodesorption events"
+          mono_diag="$GITHUB_WORKSPACE/diagnostics/monodesorption"
+
+          mkdir -p "$mono_diag"
+
+          for file in \
+            lammps_full.dat \
+            papreca_full.log \
+            log.lammps \
+            in_kmc.lmp \
+            in_kmc.ppc \
+            in_kmc_template.ppc; do
+            if [ -f "$mono_dir/$file" ]; then
+              cp -a "$mono_dir/$file" "$mono_diag/"
+            fi
+          done
+
+          {
+            echo "seed=${{ inputs.seed }}"
+            echo "replica=${{ matrix.replica }}"
+            echo "test_exit_code=$status"
+          } > "$mono_diag/run-metadata.txt"
+
+          echo "Preserved mono-desorption files:"
+          find "$mono_diag" -maxdepth 1 -type f -printf '%f\n' | sort
 
           exit "$status"
 
