@@ -17,7 +17,7 @@ on:
         description: 'Random seed passed to tests/event tests/test_all_events.sh'
         required: true
         type: string
-        default: '217676174'
+        default: '161081677'
 
       replicas:
         description: 'Number of independent GitHub runners that should test the same seed'
@@ -305,34 +305,32 @@ jobs:
             echo "test_exit_code=$status"
           } >> "$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-environment.txt"
 
-          # Preserve the raw mono-desorption files from this exact runner.
-          # These are copied before returning the test's original exit code,
-          # so they survive both passing and failing replicas.
-          mono_dir="$GITHUB_WORKSPACE/tests/event tests/monodesorption events"
-          mono_diag="$GITHUB_WORKSPACE/diagnostics/monodesorption"
+          # Preserve the COMPLETE event-test tree from this exact runner.
+          # test_all_events.sh now attempts every event type even if an earlier
+          # one fails, so this captures formation, breaking, deposition,
+          # diffusion, and mono-desorption outputs together.
+          event_root="$GITHUB_WORKSPACE/tests/event tests"
+          event_diag="$GITHUB_WORKSPACE/diagnostics/event-tests"
 
-          mkdir -p "$mono_diag"
-
-          for file in \
-            lammps_full.dat \
-            papreca_full.log \
-            log.lammps \
-            in_kmc.lmp \
-            in_kmc.ppc \
-            in_kmc_template.ppc; do
-            if [ -f "$mono_dir/$file" ]; then
-              cp -a "$mono_dir/$file" "$mono_diag/"
-            fi
-          done
+          rm -rf "$event_diag"
+          mkdir -p "$event_diag"
+          cp -a "$event_root"/. "$event_diag"/
 
           {
             echo "seed=${{ inputs.seed }}"
             echo "replica=${{ matrix.replica }}"
             echo "test_exit_code=$status"
-          } > "$mono_diag/run-metadata.txt"
+            echo "lammps_sha=${{ needs.build-reusable.outputs.lammps_sha }}"
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+          } > "$GITHUB_WORKSPACE/diagnostics/event-tests-run-metadata.txt"
 
-          echo "Preserved mono-desorption files:"
-          find "$mono_diag" -maxdepth 1 -type f -printf '%f\n' | sort
+          find "$event_diag" -type f -print0 \
+            | sort -z \
+            | xargs -0 -r sha256sum \
+            > "$GITHUB_WORKSPACE/diagnostics/event-tests-files-sha256.txt"
+
+          echo "Preserved event-test files:"
+          find "$event_diag" -type f -printf '%P\n' | sort
 
           exit "$status"
 
