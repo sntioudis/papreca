@@ -1,199 +1,270 @@
-import numpy as np
-import re
 import sys
-import os
 import subprocess
 
 
-def readBetweenLines(file_path, start_marker, end_marker):
-    reading = False
-    lines = []
+def canonicalBond(bond_type, atom1, atom2):
+    """Return an order-independent representation of an undirected bond."""
+    atom_low = min(int(atom1), int(atom2))
+    atom_high = max(int(atom1), int(atom2))
+    return (int(bond_type), atom_low, atom_high)
 
-    with open(file_path, 'r') as file:
+
+def validatePaprecaSteps(steps, event_name):
+    if not steps:
+        raise RuntimeError(
+            f"No {event_name} events were found in papreca.log."
+        )
+
+    expected = list(range(steps[0], steps[0] + len(steps)))
+    if steps != expected:
+        raise RuntimeError(
+            f"PAPRECA {event_name} steps are not consecutive/in order: "
+            f"{steps}"
+        )
+
+
+def readPaprecaBreakingEvents(file_path):
+    """
+    Read bond-breaking events from PAPRECA's rank-0 structured log.
+
+    papreca.log rows have the form:
+        step  Bond-break  time  atom1_id  atom2_id  bond_type
+    """
+    events = []
+    steps = []
+
+    with open(file_path, "r") as file:
         for line in file:
-            if line.strip() == start_marker:
-                reading = True
-                continue #To skip the label line
-            if line.strip() == end_marker:
-                reading = False
-            if reading:
-                lines.append(line.strip())
-    return np.array( lines )
+            fields = line.split()
 
-def extractDataFromLines( lines ):
-
-
-    btype_arr = [] #2D arrays holding bonds from all steps
-    atom1_arr = []
-    atom2_arr = []
-    
-    btype_step = [] #1D array holding values of specific step
-    atom1_step = []
-    atom2_step = []
-    
-    append = False
-    
-    for i in range(len(lines)):
-    
-       	data = lines[i].split()
-       	
-        btype_step.append( int(data[1]) )
-        atom1_step.append( int(data[2]) )
-        atom2_step.append( int(data[3]) )
-        
-
-        if( i < len(lines) - 1 ): #If this is not the final line, check the id of the next bond. If it is 1, then it means you have reached the end of the current step (because the next bond id is 1 and corresponds to a new step
-            data_next = lines[i+1].split()
-            bondid_next = int( data_next[0] )
-            if( bondid_next == 1 ):
-                append = True
-       	elif( i == len(lines)-1 ): #If this is the last line that you read, append it
-       	    append = True
-       	    
-       	if( append ):
-       	    btype_arr.append( btype_step )
-       	    atom1_arr.append( atom1_step )
-       	    atom2_arr.append( atom2_step )
-       	    
-       	    #And (re)define the step arrays to clear the relevant data
-       	    btype_step = []
-       	    atom1_step = []
-       	    atom2_step = []
-       	    
-       	    #Finally, reset the append flag
-       	    append = False
-
-    return btype_arr , atom1_arr , atom2_arr
-    
-
-def bondExistsInBondsList( btype_LAMMPS , btype_PAPRECA , atom1_LAMMPS , atom1_PAPRECA , atom2_LAMMPS , atom2_PAPRECA ):
-    
-    if( btype_LAMMPS == btype_PAPRECA and atom1_LAMMPS == atom1_PAPRECA and atom2_LAMMPS == atom2_PAPRECA ):
-        return True
-    
-    return False
-
-def compareArraysAndPrintStats( btype_PAPRECA , btype_LAMMPS , atom1_PAPRECA , atom1_LAMMPS , atom2_PAPRECA , atom2_LAMMPS):
-    
-    print( "STEP SUMMARY" )
-    print( "----------------------------------------------------------------" )
-    print( "btype  atom1_id  atom2_id \n" )
-    for i in range( len(btype_LAMMPS) ):
-        print( "THIS IS STEP " , i )
-        for j in range( len(btype_LAMMPS[i]) ):
-            print( btype_LAMMPS[i][j] , " " , atom1_LAMMPS[i][j] , " " , atom2_LAMMPS[i][j] )
-            
-    print( "END OF STEP SUMMARY" )
-    print( "----------------------------------------------------------------" )
-    print( " " )
-    
-    
-    step_success = 0
-        
-    #Scan LAMMPS lists. Skip the first one as it contains the starting bonds list (with no broken bonds)
-    for i in range( 1 , len(btype_LAMMPS) ):
-    
-        print( "In step " , i-1 , " PAPRECA broke bondtype=" , btype_PAPRECA[i-1] , " between atoms " , atom1_PAPRECA[i-1] , " and " , atom2_PAPRECA[i-1] )
-        print( "Checking if this bond exists in the LAMMPS bondlist of exactly the next step..." )
-        for j in range( len(btype_LAMMPS[i]) ): #Loop if the bond that was recently broken exists in the LAMMPS bondlist
-            
-            if( bondExistsInBondsList( btype_LAMMPS[i][j] , btype_PAPRECA[i-1] , atom1_LAMMPS[i][j] , atom1_PAPRECA[i-1] , atom2_LAMMPS[i][j] , atom1_PAPRECA[i-1] ) ):
+            if len(fields) < 6 or fields[1:2] != ["Bond-break"]:
                 continue
-        step_success += 1
-        print( "Success! The bond is not in the LAMMPS bondlist of the relevant step!" )#This line is reached only if you do not continue
-        print( " " );
-    
-    
-    #len(btype_LAMMPS) has to be larger than the number of breaks (i.e., len(btype_PAPRECA) ). This happens because the bonds_full.log contains
-    #information about timestep 0 (before any event has been executed). Hence, if len(btype_LAMMPS) == len(btype_PAPRECA), then the last timestep has NO bonds
-    #and therefore the last bond breaking event was successful (all bonds were broken). See the bonds_full.log file for more information
-    if( len(btype_LAMMPS) == len(btype_PAPRECA) ):
-        step_success += 1
-        print( "In step " , len(btype_PAPRECA) -1 , " PAPRECA broke bondtype=" , btype_PAPRECA[len(btype_PAPRECA)-1] , " between atoms " , atom1_PAPRECA[len(btype_PAPRECA)-1] , " and " , atom2_PAPRECA[len(btype_PAPRECA)-1] )
-        print( "Success! The final timestep contains no bonds, so this bond: (btype,atom1,atom2)= " , btype_PAPRECA[-1] , " " , atom1_PAPRECA[-1] , " " , atom2_PAPRECA[-1] , " is not present in the final timestep! " )
-        
-    print( " " )
-    print( "PRINTING TEST SUMMARY" )
-    print( "----------------------------------------------------------------" )
-    print( "Stats after testing " , len(btype_PAPRECA) , " sequential bond-breaking events..." )
-    
-    success = 100 * float( step_success ) / len( btype_PAPRECA )
-    print( str( success ) + " success rate!" )
-    print( "----------------------------------------------------------------" )
-    
+
+            try:
+                step = int(fields[0])
+                atom1 = int(fields[3])
+                atom2 = int(fields[4])
+                bond_type = int(fields[5])
+            except ValueError:
+                continue
+
+            steps.append(step)
+            events.append(canonicalBond(bond_type, atom1, atom2))
+
+    validatePaprecaSteps(steps, "Bond-break")
+    return events
+
+
+def readLammpsLocalDumpFrames(file_path):
+    """
+    Parse the bond dump into timestep-local bond sets.
+
+    The ordering of local dump rows is ignored.
+    """
+    frames = []
+
+    with open(file_path, "r") as file:
+        while True:
+            line = file.readline()
+            if not line:
+                break
+
+            if line.strip() != "ITEM: TIMESTEP":
+                continue
+
+            timestep = int(file.readline().strip())
+
+            line = file.readline()
+            if line.strip() != "ITEM: NUMBER OF ENTRIES":
+                raise RuntimeError(
+                    f"Expected NUMBER OF ENTRIES after timestep {timestep}."
+                )
+
+            number_of_entries = int(file.readline().strip())
+
+            line = file.readline()
+            if not line.startswith("ITEM: BOX BOUNDS"):
+                raise RuntimeError(
+                    f"Expected BOX BOUNDS at timestep {timestep}."
+                )
+
+            for _ in range(3):
+                if not file.readline():
+                    raise RuntimeError(
+                        f"Unexpected EOF while reading bounds at "
+                        f"timestep {timestep}."
+                    )
+
+            header = file.readline().strip()
+            if not header.startswith("ITEM: ENTRIES"):
+                raise RuntimeError(
+                    f"Expected ENTRIES header at timestep {timestep}."
+                )
+
+            columns = header.split()[2:]
+            required = (
+                "c_bondsinfo[1]",
+                "c_bondsinfo[2]",
+                "c_bondsinfo[3]",
+            )
+
+            missing = [column for column in required if column not in columns]
+            if missing:
+                raise RuntimeError(
+                    f"Missing bond columns at timestep {timestep}: {missing}"
+                )
+
+            btype_col = columns.index("c_bondsinfo[1]")
+            atom1_col = columns.index("c_bondsinfo[2]")
+            atom2_col = columns.index("c_bondsinfo[3]")
+
+            bonds = set()
+
+            for _ in range(number_of_entries):
+                fields = file.readline().split()
+                if not fields:
+                    raise RuntimeError(
+                        f"Unexpected EOF in entries at timestep {timestep}."
+                    )
+
+                bond_type = int(float(fields[btype_col]))
+                atom1 = int(float(fields[atom1_col]))
+                atom2 = int(float(fields[atom2_col]))
+
+                bonds.add(canonicalBond(bond_type, atom1, atom2))
+
+            frames.append((timestep, bonds))
+
+    if not frames:
+        raise RuntimeError(
+            f"No LAMMPS bond-dump frames were found in {file_path!r}."
+        )
+
+    return frames
+
+
+def getBrokenBondsFromLammps(frames):
+    """Reconstruct one broken bond from each changing frame transition."""
+    broken_bonds = []
+
+    previous_step, previous_bonds = frames[0]
+
+    for current_step, current_bonds in frames[1:]:
+        removed_bonds = previous_bonds - current_bonds
+        added_bonds = current_bonds - previous_bonds
+
+        if added_bonds:
+            raise RuntimeError(
+                "Breaking test detected bond(s) being added between "
+                f"timesteps {previous_step} and {current_step}: "
+                f"{sorted(added_bonds)}"
+            )
+
+        if len(removed_bonds) > 1:
+            raise RuntimeError(
+                "Breaking test expected at most one broken bond between "
+                f"timesteps {previous_step} and {current_step}, but found "
+                f"{sorted(removed_bonds)}"
+            )
+
+        if len(removed_bonds) == 1:
+            broken_bonds.append(next(iter(removed_bonds)))
+
+        previous_step = current_step
+        previous_bonds = current_bonds
+
+    return broken_bonds
+
+
+def compareEvents(papreca_bonds, lammps_bonds):
+    print(" ")
+    print("PARSED EVENT COUNTS")
+    print("----------------------------------------------------------------")
+    print("PAPRECA event count:", len(papreca_bonds))
+    print("LAMMPS event count: ", len(lammps_bonds))
+    print("PAPRECA broken bonds:", papreca_bonds)
+    print("LAMMPS broken bonds: ", lammps_bonds)
+    print("----------------------------------------------------------------")
+    print(" ")
+
+    if len(papreca_bonds) != len(lammps_bonds):
+        print("ERROR: PAPRECA and LAMMPS event counts differ.")
+        return 0.0
+
+    if not papreca_bonds:
+        print("ERROR: No breaking events were detected.")
+        return 0.0
+
+    successes = 0
+
+    for i, (papreca_bond, lammps_bond) in enumerate(
+        zip(papreca_bonds, lammps_bonds)
+    ):
+        print(
+            f"Step {i}: PAPRECA broke {papreca_bond}; "
+            f"LAMMPS lost {lammps_bond}"
+        )
+
+        if papreca_bond == lammps_bond:
+            successes += 1
+
+    success = 100.0 * successes / len(papreca_bonds)
+
+    print(" ")
+    print("PRINTING TEST SUMMARY")
+    print("----------------------------------------------------------------")
+    print(
+        "Bond-breaking tests after comparing "
+        f"{len(papreca_bonds)} chronological events..."
+    )
+    print("The test success rate was:", success)
+    print("----------------------------------------------------------------")
+    print(" ")
+
     return success
-    
-        
+
 
 def main():
-
-    # Check if the correct number of command-line arguments is provided
     if len(sys.argv) != 2:
-        print("Usage: python3(or python) test_depositions.py path/to/papreca/executable")
-        return
-        
-    # Get the path from the command-line argument
-    papreca_path = sys.argv[1]
-    
-    #Run PAPRECA with MPI and send screen output to a file called papreca_full.log
-    print( "Running PAPRECA...")
-    command = "mpiexec " + papreca_path + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
-    mpi_return = subprocess.run(command, shell=True )
-    
-    if mpi_return.returncode != 0:
-        print( "Error: PAPRECA did not finish successfully! Please check your papreca executable path" )
+        print(
+            "Usage: python3(or python) test_breakings.py "
+            "path/to/papreca/executable"
+        )
         sys.exit(1)
-    else:
-        print( "Papreca finished successfully...initiating breakings test!")
-        print( " " )
 
+    papreca_path = sys.argv[1]
 
-    #Open the papreca_full.log file and get the bond formations events in the order they have been executed
-    btype_PAPRECA = []
-    atom1_PAPRECA = []
-    atom2_PAPRECA = []
-    
-    # Open the file for reading
-    with open('papreca_full.log', 'r') as file:
-        # Iterate through each line in the file
-        for line in file:
-            # Check if the line starts with "Executing"
-            if line.startswith(' Executing '):
-                # Extract the numbers using regular expressions
-                bond_type = re.search(r'bond_type=(\d+)', line)
-                atom1_id = re.search(r'atom1_id = (\d+)', line)
-                atom2_id = re.search(r'atom2_id = (\d+)', line)
-                
-                if bond_type and atom1_id and atom2_id:
-                    # Append the numbers to their respective lists
-                    btype_PAPRECA.append(int(bond_type.group(1)))
-                    atom1_PAPRECA.append(int(atom1_id.group(1)))
-                    atom2_PAPRECA.append(int(atom2_id.group(1)))
+    print("Running PAPRECA...")
 
-    btype_PAPRECA = np.array( btype_PAPRECA )
-    atom1_PAPRECA = np.array( atom1_PAPRECA )
-    atom2_PAPRECA = np.array( atom2_PAPRECA )
-    
-    #Now read the bonds_full.log file and see if the correct bonds have been broken on each step
-    file_path = 'bonds_full.log'
-    start_marker = 'ITEM: ENTRIES index c_bondsinfo[1] c_bondsinfo[2] c_bondsinfo[3]'
-    end_marker = 'ITEM: TIMESTEP'
-    
-    #Collect lines and unpack data for btype, atom1, and atom2
-    lines = readBetweenLines(file_path, start_marker, end_marker)
-    
-    #For this test, the btype_LAMMPS, atom1_LAMMPS, and atom2_LAMMPS are 2D, the first dimension represents the step and the second the bonds list
-    btype_LAMMPS , atom1_LAMMPS , atom2_LAMMPS = extractDataFromLines( lines )
-    
-    #Now compare results and print stats
-    success = compareArraysAndPrintStats( btype_PAPRECA , btype_LAMMPS , atom1_PAPRECA , atom1_LAMMPS , atom2_PAPRECA , atom2_LAMMPS )
-    
-    
-    #Exit with the relevant code
-    if( success < 100.0 ):
-        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
-    else:
-        sys.exit(0)
+    # papreca_full.log is diagnostic merged MPI stdout only.
+    # The authoritative event order is read from papreca.log.
+    command = (
+        "mpiexec "
+        + papreca_path
+        + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
+    )
+
+    mpi_return = subprocess.run(command, shell=True)
+
+    if mpi_return.returncode != 0:
+        print("Error: PAPRECA did not finish successfully!")
+        sys.exit(1)
+
+    print("Papreca finished successfully...initiating breakings test!")
+    print(" ")
+
+    try:
+        papreca_bonds = readPaprecaBreakingEvents("papreca.log")
+        frames = readLammpsLocalDumpFrames("bonds_full.log")
+        lammps_bonds = getBrokenBondsFromLammps(frames)
+    except (OSError, RuntimeError, ValueError, IndexError) as exc:
+        print("ERROR while parsing breaking outputs:")
+        print(str(exc))
+        sys.exit(1)
+
+    success = compareEvents(papreca_bonds, lammps_bonds)
+    sys.exit(0 if success == 100.0 else 1)
+
 
 if __name__ == "__main__":
     main()
