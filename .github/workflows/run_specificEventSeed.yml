@@ -1,0 +1,317 @@
+name: Specific event seed diagnostics
+
+# Manual diagnostic workflow.
+#
+# It builds the same PAPRECA/LAMMPS artifacts through build-reusable.yml and
+# then runs one user-supplied random seed on multiple independent
+# GitHub-hosted runners. This is useful for detecting runner-dependent or
+# intermittent behavior while keeping the random seed fixed.
+#
+# The default is five independent test runners. Set replicas to 1 if you only
+# want one test execution.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Random seed passed to tests/event tests/test_all_events.sh'
+        required: true
+        type: string
+        default: '217676174'
+
+      replicas:
+        description: 'Number of independent GitHub runners that should test the same seed'
+        required: true
+        type: number
+        default: 5
+
+      lammps_clone_type:
+        description: 'How build-reusable.yml should resolve the LAMMPS ref'
+        required: true
+        type: choice
+        options:
+          - branch
+          - tag
+        default: branch
+
+      lammps_clone_name:
+        description: 'LAMMPS branch or tag to build'
+        required: true
+        type: string
+        default: 'release'
+
+env:
+  OMPI_MCA_pml: ob1
+  OMPI_MCA_btl: self,vader,tcp
+  OMPI_MCA_btl_base_warn_component_unused: "0"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      replicas: ${{ steps.make-matrix.outputs.replicas }}
+
+    steps:
+      - name: Validate inputs and create replica matrix
+        id: make-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          seed='${{ inputs.seed }}'
+          replicas='${{ inputs.replicas }}'
+
+          if ! [[ "$seed" =~ ^[0-9]+$ ]]; then
+            echo "Seed must contain only decimal digits." >&2
+            exit 1
+          fi
+
+          if [ "$seed" -lt 1 ] || [ "$seed" -gt 2147483647 ]; then
+            echo "Seed must be between 1 and 2147483647." >&2
+            exit 1
+          fi
+
+          if ! [[ "$replicas" =~ ^[0-9]+$ ]]; then
+            echo "replicas must be an integer." >&2
+            exit 1
+          fi
+
+          if [ "$replicas" -lt 1 ] || [ "$replicas" -gt 20 ]; then
+            echo "replicas must be between 1 and 20." >&2
+            exit 1
+          fi
+
+          matrix="$(python3 - "$replicas" <<'PY'
+          import json
+          import sys
+
+          count = int(sys.argv[1])
+          print(json.dumps(list(range(1, count + 1)), separators=(",", ":")))
+          PY
+          )"
+
+          echo "replicas=$matrix" >> "$GITHUB_OUTPUT"
+
+          echo "Seed: $seed"
+          echo "Replicas: $replicas"
+          echo "LAMMPS clone type: ${{ inputs.lammps_clone_type }}"
+          echo "LAMMPS clone name: ${{ inputs.lammps_clone_name }}"
+          echo "Replica matrix: $matrix"
+
+  build-reusable:
+    needs: prepare
+    uses: ./.github/workflows/build-reusable.yml
+    with:
+      clone_type: ${{ inputs.lammps_clone_type }}
+      clone_name: ${{ inputs.lammps_clone_name }}
+
+  eventTests:
+    needs:
+      - prepare
+      - build-reusable
+
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: ${{ fromJSON(needs.prepare.outputs.replicas) }}
+
+    name: Seed ${{ inputs.seed }} / replica ${{ matrix.replica }}
+
+    steps:
+      - name: Checkout PAPRECA
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          architecture: x64
+
+      - name: Install Open MPI runtime and Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m pip install --disable-pip-version-check 'numpy==2.5.1'
+
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            openmpi-bin \
+            libopenmpi-dev
+
+          sudo update-alternatives --set mpi /usr/bin/mpicc.openmpi
+          sudo update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+          mpicc --showme:version
+          mpiexec --version
+
+      - name: Download PAPRECA executables
+        uses: actions/download-artifact@v8
+        with:
+          name: papreca-artifacts_${{ inputs.lammps_clone_name }}
+          path: papreca_artifacts_${{ inputs.lammps_clone_name }}
+
+      - name: Download the exact LAMMPS build
+        uses: actions/download-artifact@v8
+        with:
+          name: lammps-artifacts_${{ inputs.lammps_clone_name }}_${{ needs.build-reusable.outputs.lammps_sha }}
+          path: lammps_artifacts_${{ inputs.lammps_clone_name }}
+
+      - name: Record event-test environment
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/diagnostics"
+
+          lammps_dir="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.lammps_clone_name }}"
+          papreca_dir="$GITHUB_WORKSPACE/papreca_artifacts_${{ inputs.lammps_clone_name }}"
+          out="$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-environment.txt"
+
+          {
+            echo "========================================"
+            echo "SPECIFIC-SEED EVENT TEST ENVIRONMENT"
+            echo "========================================"
+
+            echo
+            echo "=== Test identity ==="
+            echo "seed=${{ inputs.seed }}"
+            echo "replica=${{ matrix.replica }}"
+            echo "lammps_requested_type=${{ inputs.lammps_clone_type }}"
+            echo "lammps_requested_ref=${{ inputs.lammps_clone_name }}"
+            echo "lammps_sha=${{ needs.build-reusable.outputs.lammps_sha }}"
+            echo "papreca_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD 2>/dev/null || echo unknown)"
+
+            echo
+            echo "=== GitHub Actions ==="
+            echo "github_run_id=${GITHUB_RUN_ID}"
+            echo "github_run_number=${GITHUB_RUN_NUMBER}"
+            echo "github_run_attempt=${GITHUB_RUN_ATTEMPT}"
+            echo "github_sha=${GITHUB_SHA}"
+            echo "github_ref=${GITHUB_REF}"
+            echo "runner_name=${RUNNER_NAME}"
+            echo "runner_os=${RUNNER_OS}"
+            echo "runner_arch=${RUNNER_ARCH}"
+            echo "runner_temp=${RUNNER_TEMP}"
+            echo "ImageOS=${ImageOS:-unknown}"
+            echo "ImageVersion=${ImageVersion:-unknown}"
+
+            echo
+            echo "=== Operating system ==="
+            uname -a
+            cat /etc/os-release
+
+            echo
+            echo "=== CPU ==="
+            lscpu
+
+            echo
+            echo "=== MPI ==="
+            which mpicc
+            which mpiexec
+            mpicc --showme:version
+            mpicc --showme
+            mpiexec --version
+            ompi_info --version
+
+            echo
+            echo "=== Open MPI environment ==="
+            echo "OMPI_MCA_pml=${OMPI_MCA_pml:-unset}"
+            echo "OMPI_MCA_btl=${OMPI_MCA_btl:-unset}"
+            echo "OMPI_MCA_btl_base_warn_component_unused=${OMPI_MCA_btl_base_warn_component_unused:-unset}"
+
+            echo
+            echo "=== Python ==="
+            python --version
+            python -c 'import sys; print("python_executable=" + sys.executable)'
+            python -c 'import platform; print("python_platform=" + platform.platform())'
+            python -c 'import numpy; print("numpy=" + numpy.__version__)'
+
+            echo
+            echo "=== Important packages ==="
+            dpkg-query -W -f='${Package}=${Version}\n' \
+              libc6 \
+              libstdc++6 \
+              openmpi-bin \
+              libopenmpi-dev
+
+            echo
+            echo "=== Exact downloaded artifact listing ==="
+            ls -lah "$lammps_dir"
+            ls -lah "$papreca_dir"
+
+            echo
+            echo "=== Exact downloaded binary hashes ==="
+            sha256sum "$lammps_dir/lmp"
+            sha256sum "$lammps_dir"/liblammps.so*
+            sha256sum "$papreca_dir/papreca"
+
+            echo
+            echo "=== PAPRECA linkage on EVENT TEST runner ==="
+            export LD_LIBRARY_PATH="$lammps_dir:${LD_LIBRARY_PATH:-}"
+            ldd "$papreca_dir/papreca"
+
+            echo
+            echo "=== LAMMPS linkage on EVENT TEST runner ==="
+            ldd "$lammps_dir/lmp"
+
+            echo
+            echo "=== Host library hashes resolved for PAPRECA ==="
+            ldd "$papreca_dir/papreca" 2>/dev/null |
+              awk '/=> \// {print $3} /^\// {print $1}' |
+              sort -u |
+              while read -r lib; do
+                [ -f "$lib" ] && sha256sum "$lib"
+              done
+          } 2>&1 | tee "$out"
+
+          dpkg-query -W -f='${Package}\t${Version}\n' 2>/dev/null |
+            sort \
+            > "$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-packages.txt"
+
+      - name: Run event test with fixed seed
+        shell: bash
+        run: |
+          chmod -R +rwx "$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.lammps_clone_name }}/"
+          chmod -R +rwx "$GITHUB_WORKSPACE/papreca_artifacts_${{ inputs.lammps_clone_name }}/"
+
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/lammps_artifacts_${{ inputs.lammps_clone_name }}:${LD_LIBRARY_PATH:-}"
+
+          echo "============================================================"
+          echo "Specific-seed diagnostic run"
+          echo "Seed:    ${{ inputs.seed }}"
+          echo "Replica: ${{ matrix.replica }}"
+          echo "LAMMPS:  ${{ inputs.lammps_clone_type }} ${{ inputs.lammps_clone_name }}"
+          echo "SHA:     ${{ needs.build-reusable.outputs.lammps_sha }}"
+          echo "============================================================"
+
+          cd "$GITHUB_WORKSPACE/tests/event tests/"
+
+          set +e
+
+          bash test_all_events.sh \
+            "${{ inputs.seed }}" \
+            "$GITHUB_WORKSPACE/papreca_artifacts_${{ inputs.lammps_clone_name }}" \
+            python \
+            2>&1 | tee "$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}.log"
+
+          status=${PIPESTATUS[0]}
+
+          {
+            echo
+            echo "test_exit_code=$status"
+          } >> "$GITHUB_WORKSPACE/diagnostics/event-test-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-environment.txt"
+
+          exit "$status"
+
+      - name: Upload event-test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostics-specific-seed-${{ inputs.seed }}-replica-${{ matrix.replica }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
