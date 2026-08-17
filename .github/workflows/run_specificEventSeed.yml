@@ -76,8 +76,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$replicas" -lt 1 ] || [ "$replicas" -gt 20 ]; then
-            echo "replicas must be between 1 and 20." >&2
+          if [ "$replicas" -lt 1 ] || [ "$replicas" -gt 100 ]; then
+            echo "replicas must be between 1 and 100." >&2
             exit 1
           fi
 
