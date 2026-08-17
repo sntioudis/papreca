@@ -1,164 +1,278 @@
-import numpy as np
-import re
 import sys
-import os
 import subprocess
+import numpy as np
 
 
-def readBetweenLines(file_path, start_marker, end_marker):
-    reading = False
-    lines = []
+# papreca.log currently writes event coordinates to four digits after the
+# decimal point.  Use an absolute tolerance consistent with that precision.
+COORD_ATOL = 1.0e-4
+COORD_RTOL = 1.0e-5
 
-    with open(file_path, 'r') as file:
+
+def validatePaprecaSteps(steps, event_name):
+    if not steps:
+        raise RuntimeError(
+            f"No {event_name} events were found in papreca.log."
+        )
+
+    expected = list(range(steps[0], steps[0] + len(steps)))
+    if steps != expected:
+        raise RuntimeError(
+            f"PAPRECA {event_name} steps are not consecutive/in order: "
+            f"{steps}"
+        )
+
+
+def readPaprecaDiffusions(file_path):
+    """
+    Read diffusion vacancy positions from PAPRECA's rank-0 structured log.
+
+    papreca.log rows begin:
+        step  Diffusion  time  vac_x  vac_y  vac_z  ...
+    """
+    positions = []
+    steps = []
+
+    with open(file_path, "r") as file:
         for line in file:
-            if line.strip() == start_marker:
-                reading = True
-                continue #To skip the label line
-            if line.strip() == end_marker:
-                reading = False
-            if reading:
-                lines.append(line.strip())
-    return np.array( lines )
+            fields = line.split()
 
-def extractDataFromLines( lines ):
+            if len(fields) < 6 or fields[1:2] != ["Diffusion"]:
+                continue
 
-    atom_types = []
-    x = []
-    y = []
-    z = []
-    
-    for line in lines:
-        data = line.split()
-        
-        atom_types.append(int(data[0]))
-        x.append(float(data[1]))
-        y.append(float(data[2]))
-        z.append(float(data[3]))
-        
-    x = np.array(x)
-    y = np.array(y)
-    z = np.array(z)
-    
-    return atom_types, x, y, z 
+            try:
+                step = int(fields[0])
+                position = (
+                    float(fields[3]),
+                    float(fields[4]),
+                    float(fields[5]),
+                )
+            except ValueError:
+                continue
+
+            steps.append(step)
+            positions.append(position)
+
+    validatePaprecaSteps(steps, "Diffusion")
+    return positions
 
 
-def compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS ):
-    x_success = 0
-    y_success = 0
-    z_success = 0
-    
-    for i in range(len(X_PAPRECA)):
-        if( np.isclose( X_PAPRECA[i] , X_LAMMPS[i] ) ):
-           x_success += 1
-        if( np.isclose( Y_PAPRECA[i] , Y_LAMMPS[i] ) ):
-            y_success += 1
-        if( np.isclose( Z_PAPRECA[i] , Z_LAMMPS[i] ) ):
-            z_success += 1
-        
-        print( "PAPRECA vacancy coords for test " , i , ": " , X_PAPRECA[i] , " " , Y_PAPRECA[i] , Z_PAPRECA[i] )
-        print( "LAMMPS vacancy coords for test " , i , ": " , X_LAMMPS[i] , " " , Y_LAMMPS[i] , Z_LAMMPS[i] )
+def readLastLammpsAtomFrame(file_path):
+    """Read the final atom-dump frame as dictionaries keyed by column name."""
+    last_frame = None
 
-    x_success = 100 * float( x_success ) / len(X_PAPRECA)
-    y_success = 100 * float( y_success ) / len(X_PAPRECA)
-    z_success = 100 * float( z_success ) / len(X_PAPRECA)
-    
-    print( " " )
-    print( "PRINTING TEST SUMMARY" )
-    print( "----------------------------------------------------------------" )
-    print( "Diffusion test results after comparing the coordinates of " , len(X_PAPRECA) , " diffusion events..." )
-    print( "Successful X: " , x_success )
-    print( "Successful Y: " , y_success )
-    print( "Successful Z: " , z_success )
-    
-    success_avg = ( x_success + y_success + z_success ) / 3
-    print( "The average test success rate was: " + str( success_avg ) )
-    print( "----------------------------------------------------------------  \n \n \n" )
-    
-    return success_avg
-    
+    with open(file_path, "r") as file:
+        while True:
+            line = file.readline()
+            if not line:
+                break
+
+            if line.strip() != "ITEM: TIMESTEP":
+                continue
+
+            timestep = int(file.readline().strip())
+
+            line = file.readline()
+            if line.strip() != "ITEM: NUMBER OF ATOMS":
+                raise RuntimeError(
+                    f"Expected NUMBER OF ATOMS after timestep {timestep}."
+                )
+
+            number_of_atoms = int(file.readline().strip())
+
+            line = file.readline()
+            if not line.startswith("ITEM: BOX BOUNDS"):
+                raise RuntimeError(
+                    f"Expected BOX BOUNDS at timestep {timestep}."
+                )
+
+            for _ in range(3):
+                if not file.readline():
+                    raise RuntimeError(
+                        f"Unexpected EOF while reading bounds at "
+                        f"timestep {timestep}."
+                    )
+
+            header = file.readline().strip()
+            if not header.startswith("ITEM: ATOMS"):
+                raise RuntimeError(
+                    f"Expected ATOMS header at timestep {timestep}."
+                )
+
+            columns = header.split()[2:]
+            rows = []
+
+            for _ in range(number_of_atoms):
+                fields = file.readline().split()
+
+                if len(fields) != len(columns):
+                    raise RuntimeError(
+                        f"Malformed atom row at timestep {timestep}: "
+                        f"{fields}"
+                    )
+
+                rows.append(dict(zip(columns, fields)))
+
+            last_frame = (timestep, rows)
+
+    if last_frame is None:
+        raise RuntimeError(
+            f"No LAMMPS atom-dump frame found in {file_path!r}."
+        )
+
+    return last_frame
+
+
+def getDiffusedPositions(rows):
+    """
+    Collect final positions of type-2 atoms.
+
+    Their row order is deliberately ignored later because LAMMPS atom-row
+    order is not an event chronology.
+    """
+    required = ("type", "xu", "yu", "zu")
+
+    for column in required:
+        if rows and column not in rows[0]:
+            raise RuntimeError(
+                f"LAMMPS dump is missing required column {column!r}."
+            )
+
+    positions = []
+
+    for row in rows:
+        if int(row["type"]) == 2:
+            positions.append(
+                (
+                    float(row["xu"]),
+                    float(row["yu"]),
+                    float(row["zu"]),
+                )
+            )
+
+    return positions
+
+
+def matchPositions(papreca_positions, lammps_positions):
+    """
+    Match PAPRECA diffusion coordinates to unused LAMMPS type-2 coordinates.
+
+    The final LAMMPS atom dump does not encode event chronology, so comparing
+    its row order to PAPRECA event order would be invalid.
+    """
+    if len(papreca_positions) != len(lammps_positions):
+        return [], False
+
+    unused = list(enumerate(lammps_positions))
+    matches = []
+
+    for papreca_index, papreca_pos in enumerate(papreca_positions):
+        found = None
+
+        for list_index, (lammps_index, lammps_pos) in enumerate(unused):
+            if np.allclose(
+                papreca_pos,
+                lammps_pos,
+                atol=COORD_ATOL,
+                rtol=COORD_RTOL,
+            ):
+                found = (list_index, lammps_index, lammps_pos)
+                break
+
+        if found is None:
+            return matches, False
+
+        list_index, lammps_index, lammps_pos = found
+        matches.append(
+            (papreca_index, papreca_pos, lammps_index, lammps_pos)
+        )
+        unused.pop(list_index)
+
+    return matches, len(unused) == 0
+
+
+def comparePositions(papreca_positions, lammps_positions):
+    print(" ")
+    print("PARSED EVENT COUNTS")
+    print("----------------------------------------------------------------")
+    print("PAPRECA diffusion count:", len(papreca_positions))
+    print("LAMMPS type-2 count:    ", len(lammps_positions))
+    print("----------------------------------------------------------------")
+    print(" ")
+
+    matches, success_bool = matchPositions(
+        papreca_positions,
+        lammps_positions,
+    )
+
+    for pap_idx, pap_pos, lmp_idx, lmp_pos in matches:
+        print(
+            f"PAPRECA event {pap_idx} position {pap_pos} matched "
+            f"LAMMPS type-2 row {lmp_idx} position {lmp_pos}"
+        )
+
+    success = 100.0 if success_bool else 0.0
+
+    if not success_bool:
+        print("ERROR: not all diffusion coordinates could be matched.")
+        print("PAPRECA positions:", papreca_positions)
+        print("LAMMPS positions: ", lammps_positions)
+
+    print(" ")
+    print("PRINTING TEST SUMMARY")
+    print("----------------------------------------------------------------")
+    print(
+        f"Diffusion test after comparing {len(papreca_positions)} "
+        "diffusion events..."
+    )
+    print("The test success rate was:", success)
+    print("Coordinate atol:", COORD_ATOL)
+    print("----------------------------------------------------------------")
+    print(" ")
+
+    return success
+
 
 def main():
-
-    # Check if the correct number of command-line arguments is provided
     if len(sys.argv) != 2:
-        print("Usage: python3(or python) test_depositions.py path/to/papreca/executable")
-        return
-        
-    # Get the path from the command-line argument
-    papreca_path = sys.argv[1]
-    
-    #Run PAPRECA with MPI and send screen output to a file called papreca_full.log
-    print( "Running PAPRECA...")
-    command = "mpiexec " + papreca_path + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
-    mpi_return = subprocess.run(command, shell=True )
-    
-    if mpi_return.returncode != 0:
-        print( "Error: PAPRECA did not finish successfully! Please check your papreca executable path" )
+        print(
+            "Usage: python3(or python) test_diffusions.py "
+            "path/to/papreca/executable"
+        )
         sys.exit(1)
-    else:
-        print( "Papreca finished successfully...initiating diffusions test!")
-        print( " " )
 
+    papreca_path = sys.argv[1]
 
-    #Collect output of LAMMPS. It should be two snapshots (the first one and the last one) including the unwrapped coordinates of atoms along with their type ids
-    file_path = 'lammps_full.dat'
-    start_marker = 'ITEM: ATOMS type xu yu zu'
-    end_marker = 'ITEM: TIMESTEP'
+    print("Running PAPRECA...")
 
-    #Collect lines and unpack data for type, and for x, y, and z coordinates
-    lines = readBetweenLines(file_path, start_marker, end_marker)
-    atom_types, x, y, z = extractDataFromLines( lines )
-    
+    # Preserve merged MPI stdout for diagnostics only.  The authoritative
+    # PAPRECA event order is read from papreca.log.
+    command = (
+        "mpiexec "
+        + papreca_path
+        + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
+    )
 
-    X_LAMMPS = []
-    Y_LAMMPS = []
-    Z_LAMMPS = []
-    
-    #For this test we performed 5 diffusion events, so we will be checking the 5 diffused atoms of type 2
-    for line in lines[2:]: #Ignore the 2 first lines that containing information regarding the parent atom of type 1
-        data = line.split( )
-        X_LAMMPS.append( float(data[1]) )
-        Y_LAMMPS.append( float(data[2]) )
-        Z_LAMMPS.append( float(data[3]) )
-    
-    X_LAMMPS = np.array( X_LAMMPS )
-    Y_LAMMPS = np.array( Y_LAMMPS )
-    Z_LAMMPS = np.array( Z_LAMMPS )
-    #Now we need to READ the PAPRECA coordinates and compare with the LAMMPS coordinates
+    mpi_return = subprocess.run(command, shell=True)
 
-    # Initialize empty lists to store the final three numbers
-    X_PAPRECA = []
-    Y_PAPRECA = []
-    Z_PAPRECA = []
+    if mpi_return.returncode != 0:
+        print("Error: PAPRECA did not finish successfully!")
+        sys.exit(1)
 
-    # Open the file for reading
-    with open('papreca_full.log', 'r') as file:
-        # Iterate through each line in the file
-        for line in file:
-            # Check if the line starts with "Executing"
-            if line.startswith(' Executing'):
-                # Extract the final three numbers from the line
-                numbers = re.findall(r"[-+]?\d*\.\d+|\d+", line)
-                if len(numbers) >= 3:
-                    # Append the numbers to their respective lists
-                    X_PAPRECA.append(float(numbers[-3]))
-                    Y_PAPRECA.append(float(numbers[-2]))
-                    Z_PAPRECA.append(float(numbers[-1]))
+    print("Papreca finished successfully...initiating diffusions test!")
+    print(" ")
 
+    try:
+        papreca_positions = readPaprecaDiffusions("papreca.log")
+        _, rows = readLastLammpsAtomFrame("lammps_full.dat")
+        lammps_positions = getDiffusedPositions(rows)
+    except (OSError, RuntimeError, ValueError, IndexError) as exc:
+        print("ERROR while parsing diffusion outputs:")
+        print(str(exc))
+        sys.exit(1)
 
-    X_PAPRECA = np.array( X_PAPRECA ) 
-    Y_PAPRECA = np.array( Y_PAPRECA )
-    Z_PAPRECA = np.array( Z_PAPRECA )
-
-
-    #Compare coordinate results
-    success = compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS )
-    
-    #Exit with the relevant code
-    if( success < 100.0 ):
-        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
-    else:
-        sys.exit(0)
+    success = comparePositions(papreca_positions, lammps_positions)
+    sys.exit(0 if success == 100.0 else 1)
 
 
 if __name__ == "__main__":
