@@ -17,7 +17,7 @@ on:
         description: 'Random seed passed to tests/event tests/test_all_events.sh'
         required: true
         type: string
-        default: '161081677'
+        default: '217676174'
 
       replicas:
         description: 'Number of independent GitHub runners that should test the same seed'
