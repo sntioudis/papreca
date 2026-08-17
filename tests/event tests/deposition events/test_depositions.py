@@ -1,185 +1,261 @@
-import numpy as np
-import re
 import sys
-import os
 import subprocess
+import numpy as np
 
 
-def readBetweenLines(file_path, start_marker, end_marker):
-    reading = False
-    lines = []
+# papreca.log currently writes event coordinates to four digits after the
+# decimal point.  Use an absolute tolerance consistent with that precision.
+COORD_ATOL = 1.0e-4
+COORD_RTOL = 1.0e-5
 
-    with open(file_path, 'r') as file:
+
+def validatePaprecaSteps(steps, event_name):
+    if not steps:
+        raise RuntimeError(
+            f"No {event_name} events were found in papreca.log."
+        )
+
+    expected = list(range(steps[0], steps[0] + len(steps)))
+    if steps != expected:
+        raise RuntimeError(
+            f"PAPRECA {event_name} steps are not consecutive/in order: "
+            f"{steps}"
+        )
+
+
+def readPaprecaDepositions(file_path):
+    """
+    Read deposition site positions from PAPRECA's rank-0 structured log.
+
+    papreca.log rows begin:
+        step  Deposition  time  site_x  site_y  site_z  ...
+    """
+    positions = []
+    steps = []
+
+    with open(file_path, "r") as file:
         for line in file:
-            if line.strip() == start_marker:
-                reading = True
-                continue #To skip the label line
-            if line.strip() == end_marker:
-                reading = False
-            if reading:
-                lines.append(line.strip())
-    return np.array( lines )
+            fields = line.split()
 
-def extractDataFromLines( lines ):
+            if len(fields) < 6 or fields[1:2] != ["Deposition"]:
+                continue
 
-    mol = []
-    x = []
-    y = []
-    z = []
-    
-    for line in lines:
-        data = line.split()
-        
-        mol.append(int(data[0]))
-        x.append(float(data[1]))
-        y.append(float(data[2]))
-        z.append(float(data[3]))
-        
-    x = np.array(x)
-    y = np.array(y)
-    z = np.array(z)
-    
-    return mol, x, y, z 
+            try:
+                step = int(fields[0])
+                position = (
+                    float(fields[3]),
+                    float(fields[4]),
+                    float(fields[5]),
+                )
+            except ValueError:
+                continue
 
-def getMolIndexesList( mol_array , mol_id ):
-    
-    return [i for i, value in enumerate(mol_array) if value == mol_id]
-    
-def getMolCoordsFromMolIndexesList( mol_indexes , x , y , z ):
-    x_mol = [x[i] for i in mol_indexes]
-    y_mol = [y[i] for i in mol_indexes]    
-    z_mol = [z[i] for i in mol_indexes]
-    
-    return np.array( x_mol ), np.array( y_mol ), np.array( z_mol )
+            steps.append(step)
+            positions.append(position)
 
-def getCOGCoordsOfPoints( x , y , z ):
-    
-    return np.mean( x ) , np.mean( y ), np.mean( z )
+    validatePaprecaSteps(steps, "Deposition")
+    return positions
 
-def compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS ):
-    x_success = 0
-    y_success = 0
-    z_success = 0
-    
-    for i in range(len(X_PAPRECA)):
-        if( np.isclose( X_PAPRECA[i] , X_LAMMPS[i] ) ):
-           x_success += 1
-        if( np.isclose( Y_PAPRECA[i] , Y_LAMMPS[i] ) ):
-            y_success += 1
-        if( np.isclose( Z_PAPRECA[i] , Z_LAMMPS[i] ) ):
-            z_success += 1
-        
-        print( "PAPRECA deposit COG for test " , i , ": " , X_PAPRECA[i] , " " , Y_PAPRECA[i] , Z_PAPRECA[i] )
-        print( "LAMMPS deposit COG for test " , i , ": " , X_LAMMPS[i] , " " , Y_LAMMPS[i] , Z_LAMMPS[i] )
 
-    x_success = 100 * float( x_success ) / len(X_PAPRECA)
-    y_success = 100 * float( y_success ) / len(X_PAPRECA)
-    z_success = 100 * float( z_success ) / len(X_PAPRECA)
-    
-    print( " " )
-    print( "PRINTING TEST SUMMARY" )
-    print( "----------------------------------------------------------------" )
-    print( "Deposition test results after comparing the COGs of " , len(X_PAPRECA) , " deposition events..." )
-    print( "Successful X COGs: " , x_success )
-    print( "Successful Y COGs: " , y_success )
-    print( "Successful Z COGs: " , z_success )
-    
-    success_avg = ( x_success + y_success + z_success ) / 3
-    print( "The average test success rate was: " + str( success_avg ) )
-    print( "----------------------------------------------------------------  \n \n \n" )
-    
-    return success_avg
-    
+def readLastLammpsAtomFrame(file_path):
+    """
+    Read the final LAMMPS atom-dump frame.
+
+    Returns rows as dictionaries keyed by the dump column names.
+    """
+    last_frame = None
+
+    with open(file_path, "r") as file:
+        while True:
+            line = file.readline()
+            if not line:
+                break
+
+            if line.strip() != "ITEM: TIMESTEP":
+                continue
+
+            timestep = int(file.readline().strip())
+
+            line = file.readline()
+            if line.strip() != "ITEM: NUMBER OF ATOMS":
+                raise RuntimeError(
+                    f"Expected NUMBER OF ATOMS after timestep {timestep}."
+                )
+
+            number_of_atoms = int(file.readline().strip())
+
+            line = file.readline()
+            if not line.startswith("ITEM: BOX BOUNDS"):
+                raise RuntimeError(
+                    f"Expected BOX BOUNDS at timestep {timestep}."
+                )
+
+            for _ in range(3):
+                if not file.readline():
+                    raise RuntimeError(
+                        f"Unexpected EOF while reading bounds at "
+                        f"timestep {timestep}."
+                    )
+
+            header = file.readline().strip()
+            if not header.startswith("ITEM: ATOMS"):
+                raise RuntimeError(
+                    f"Expected ATOMS header at timestep {timestep}."
+                )
+
+            columns = header.split()[2:]
+            rows = []
+
+            for _ in range(number_of_atoms):
+                fields = file.readline().split()
+
+                if len(fields) != len(columns):
+                    raise RuntimeError(
+                        f"Malformed atom row at timestep {timestep}: "
+                        f"{fields}"
+                    )
+
+                rows.append(dict(zip(columns, fields)))
+
+            last_frame = (timestep, rows)
+
+    if last_frame is None:
+        raise RuntimeError(
+            f"No LAMMPS atom-dump frame found in {file_path!r}."
+        )
+
+    return last_frame
+
+
+def getMoleculeCOGs(rows, number_of_events):
+    """Return COGs for deposited molecule IDs 1..number_of_events."""
+    required = ("mol", "xu", "yu", "zu")
+
+    for column in required:
+        if rows and column not in rows[0]:
+            raise RuntimeError(
+                f"LAMMPS dump is missing required column {column!r}."
+            )
+
+    cogs = []
+
+    for mol_id in range(1, number_of_events + 1):
+        coords = []
+
+        for row in rows:
+            if int(row["mol"]) == mol_id:
+                coords.append(
+                    (
+                        float(row["xu"]),
+                        float(row["yu"]),
+                        float(row["zu"]),
+                    )
+                )
+
+        if not coords:
+            raise RuntimeError(
+                f"No atoms with deposited molecule ID {mol_id} were found."
+            )
+
+        xyz = np.asarray(coords, dtype=float)
+        cogs.append(tuple(np.mean(xyz, axis=0)))
+
+    return cogs
+
+
+def comparePositions(papreca_positions, lammps_positions):
+    print(" ")
+    print("PARSED EVENT COUNTS")
+    print("----------------------------------------------------------------")
+    print("PAPRECA deposition count:", len(papreca_positions))
+    print("LAMMPS molecule count:   ", len(lammps_positions))
+    print("----------------------------------------------------------------")
+    print(" ")
+
+    if len(papreca_positions) != len(lammps_positions):
+        print("ERROR: PAPRECA and LAMMPS event counts differ.")
+        return 0.0
+
+    successes = 0
+
+    for i, (papreca_pos, lammps_pos) in enumerate(
+        zip(papreca_positions, lammps_positions)
+    ):
+        match = np.allclose(
+            papreca_pos,
+            lammps_pos,
+            atol=COORD_ATOL,
+            rtol=COORD_RTOL,
+        )
+
+        print(
+            f"Step {i}: PAPRECA deposition site = {papreca_pos}; "
+            f"LAMMPS molecule COG = {lammps_pos}; match={match}"
+        )
+
+        if match:
+            successes += 1
+
+    success = 100.0 * successes / len(papreca_positions)
+
+    print(" ")
+    print("PRINTING TEST SUMMARY")
+    print("----------------------------------------------------------------")
+    print(
+        f"Deposition test after comparing {len(papreca_positions)} "
+        "deposition events..."
+    )
+    print("The test success rate was:", success)
+    print("Coordinate atol:", COORD_ATOL)
+    print("----------------------------------------------------------------")
+    print(" ")
+
+    return success
+
 
 def main():
-
-    # Check if the correct number of command-line arguments is provided
     if len(sys.argv) != 2:
-        print("Usage: python3(or python) test_depositions.py path/to/papreca/executable")
-        return
-        
-    # Get the path from the command-line argument
-    papreca_path = sys.argv[1]
-    
-    #Run PAPRECA with MPI and send screen output to a file called papreca_full.log
-    print( "Running PAPRECA...")
-    command = "mpiexec " + papreca_path + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
-    mpi_return = subprocess.run(command, shell=True )
-    
-    if mpi_return.returncode != 0:
-        print( "Error: PAPRECA did not finish successfully! Please check your papreca executable path" )
+        print(
+            "Usage: python3(or python) test_depositions.py "
+            "path/to/papreca/executable"
+        )
         sys.exit(1)
-    else:
-        print( "Papreca finished successfully...initiating depositions test!")
-        print( " " )
 
+    papreca_path = sys.argv[1]
 
-    #Collect output of LAMMPS. It should be two snapshots (the first one and the last one) including the unwrapped coordinates of atoms along with their mol ids
-    file_path = 'lammps_full.dat'
-    start_marker = 'ITEM: ATOMS mol xu yu zu'
-    end_marker = 'ITEM: TIMESTEP'
+    print("Running PAPRECA...")
 
-    #Collect lines and unpack data for mol, and for x, y, and z coordinates
-    lines = readBetweenLines(file_path, start_marker, end_marker)
-    mol, x, y, z = extractDataFromLines( lines )
+    # Preserve merged MPI stdout for diagnostics, but do not use it as the
+    # authoritative event chronology.
+    command = (
+        "mpiexec "
+        + papreca_path
+        + "/papreca -in in_kmc.lmp in_kmc.ppc > papreca_full.log"
+    )
 
-    #For all deposition events (i.e., for mol ids going from 1 to Ndeposition events), extract the relevant mol indexes, get the coordinates of molecules, and find their center of gravity.
-    #For this test we performed 5 deposition events, so we will be checking 5 molecules
+    mpi_return = subprocess.run(command, shell=True)
 
-    X_LAMMPS = np.empty(5) #CAPITAL letters are the arrays storing all the coordinates of all tested molecules.
-    Y_LAMMPS = np.empty(5)
-    Z_LAMMPS = np.empty(5)
+    if mpi_return.returncode != 0:
+        print("Error: PAPRECA did not finish successfully!")
+        sys.exit(1)
 
-    for i in range(len(X_LAMMPS)):
-        #Get mol coords of specific mol id
-        mol_indexes = getMolIndexesList( mol , i+1 )
-        x_mol , y_mol , z_mol = getMolCoordsFromMolIndexesList( mol_indexes , x , y , z ) #small letters are single values storing (temporarily) the COG coordinates of the current molecule id
+    print("Papreca finished successfully...initiating depositions test!")
+    print(" ")
 
-        #Get COG of specific mol ID
-        x_cog , y_cog , z_cog = getCOGCoordsOfPoints( x_mol , y_mol , z_mol )
-        
-        #Append to coordinates array
-        X_LAMMPS[i] = x_cog
-        Y_LAMMPS[i] = y_cog
-        Z_LAMMPS[i] = z_cog
+    try:
+        papreca_positions = readPaprecaDepositions("papreca.log")
+        _, rows = readLastLammpsAtomFrame("lammps_full.dat")
+        lammps_positions = getMoleculeCOGs(
+            rows,
+            len(papreca_positions),
+        )
+    except (OSError, RuntimeError, ValueError, IndexError) as exc:
+        print("ERROR while parsing deposition outputs:")
+        print(str(exc))
+        sys.exit(1)
 
-
-    #Now open and read the papreca output file and see if the deposition coordinates as calculated by PAPRECA match the coordinates as reported by LAMMPS.
-    #This means that the inserted molecule is placed exactly where intended, since the deposition center (as calculated by PAPRECA in the kMC stage) matches the center of gravity of the deposited molecule (as in the LAMMPS file)
-
-    # Initialize empty lists to store the final three numbers
-    X_PAPRECA = []
-    Y_PAPRECA = []
-    Z_PAPRECA = []
-
-    # Open the file for reading
-    with open('papreca_full.log', 'r') as file:
-        # Iterate through each line in the file
-        for line in file:
-            # Check if the line starts with "Executing"
-            if line.startswith(' Executing'):
-                # Extract the final three numbers from the line
-                numbers = re.findall(r"[-+]?\d*\.\d+|\d+", line)
-                if len(numbers) >= 3:
-                    # Append the numbers to their respective lists
-                    X_PAPRECA.append(float(numbers[-3]))
-                    Y_PAPRECA.append(float(numbers[-2]))
-                    Z_PAPRECA.append(float(numbers[-1]))
-
-
-    X_PAPRECA = np.array( X_PAPRECA ) 
-    Y_PAPRECA = np.array( Y_PAPRECA )
-    Z_PAPRECA = np.array( Z_PAPRECA )
-
-
-    #Compare COG results
-    success = compareArraysAndPrintStats( X_PAPRECA , X_LAMMPS , Y_PAPRECA , Y_LAMMPS , Z_PAPRECA , Z_LAMMPS )
-    
-    #Exit with the relevant code
-    if( success < 100.0 ):
-        sys.exit(1) #1 means failed test, while 0 means successful test. Those codes are handled by the caller bash script to abort prematurely
-    else:
-        sys.exit(0)
+    success = comparePositions(papreca_positions, lammps_positions)
+    sys.exit(0 if success == 100.0 else 1)
 
 
 if __name__ == "__main__":
