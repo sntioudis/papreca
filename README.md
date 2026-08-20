@@ -23,7 +23,7 @@
 
 <br>
 
-PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
+PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo. This open-source software is developed and maintained by Stavros Ntioudis (Imperial College London).
 
 PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) software built around [LAMMPS](https://github.com/lammps/lammps). PAPRECA uses the [Message Passing Interface (MPI) protocol](https://en.wikipedia.org/wiki/Message_Passing_Interface)
 to enable parallel hybrid off-lattice kMC/MD or pure off-lattice kMC studies related to a variety of systems in materials science and engineering (e.g., thin film growth and heterogeneous catalysis).
@@ -35,7 +35,7 @@ PAPRECA is an open-source software that is distributed under the terms of the [G
  If you plan on contributing, you must review the [contribution guidelines](CONTRIBUTING.md) of the repository.
 
 In the spirit of open source, we encourage contributions from other Authors! Kindly use pull requests to contribute to the code after ensuring your local fork passes ALL tests. Furthermore, you can use GitHub issues for other forms of contribution (e.g., bug fixes, code optimisation, new examples, corrections to documentation). Note that development will solely be performed on the main branch. Merges with the release branch will only happen after ensuring that the code on the main branch is ready for production. Appropriate (semantic) versioning tags will be used to link the released version against the relevant commit.
-Additionally, enquiries can be directed to the original developer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
+Additionally, enquiries can be directed to the original developer and maintainer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
 
 In any case, kindly review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in our community.
 
