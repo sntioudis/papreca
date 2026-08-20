@@ -34,7 +34,7 @@ On the other hand, the efficient parallelization techniques of LAMMPS are utiliz
 
 %PAPRECA is effectively designed for parallel computers but it can also run in serial. %PAPRECA can be built on any LINUX machine that supports an MPI/C++ compiler (e.g., mpicxx or mpiCC) that is at least compatible with the C++-11 standard.
 
-\section authors Authors of PAPRECA and contact details
+\section authors Original authors of PAPRECA and contact details
 
 The following people are the main/original contributors of the %PAPRECA project:
 
