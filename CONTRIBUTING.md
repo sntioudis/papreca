@@ -225,6 +225,12 @@ Use existing PAPRECA wrappers around LAMMPS functionality wherever possible. Avo
 
 Changes that depend on particular LAMMPS packages, commands, or versions must be documented.
 
+### Architectural changes
+
+Changes that affect PAPRECA's core architecture, existing abstractions, class hierarchy, component boundaries, or overall design should be discussed with the maintainers before implementation.
+
+Architectural refactoring should not be bundled into a feature or bug-fix pull request unless it is necessary for the change and has been discussed beforehand. If a proposed feature would benefit from a broader redesign, please open an issue first so that the design and scope can be agreed upon before substantial implementation work begins.
+
 ### Input files and backward compatibility
 
 Changes that add or modify user-facing functionality may require updates to PAPRECA input commands. Input parsing is primarily implemented in:
