@@ -16,6 +16,8 @@
 
 [![Documentation](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml/badge.svg)](https://github.com/sntioudis/papreca/actions/workflows/documentation.yml)
 
+News
+-------------
 <br>
 
 
@@ -23,29 +25,40 @@
 
 <br>
 
-PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo. This open-source software is developed and maintained by Stavros Ntioudis (Imperial College London).
+Description
+-------------
+PAPRECA stands for PArallel PREdefined CAtalog off-lattice kinetic Monte Carlo.
 
 PAPRECA is a hybrid rejection-free kinetic Monte Carlo/molecular dynamics (kMC/MD) software built around [LAMMPS](https://github.com/lammps/lammps). PAPRECA uses the [Message Passing Interface (MPI) protocol](https://en.wikipedia.org/wiki/Message_Passing_Interface)
 to enable parallel hybrid off-lattice kMC/MD or pure off-lattice kMC studies related to a variety of systems in materials science and engineering (e.g., thin film growth and heterogeneous catalysis).
 
-Open-source, contribution, and community guidelines
+Documentation
 -------------
-PAPRECA is an open-source software that is distributed under the terms of the [GNU General Public License, version 2](https://en.wikipedia.org/wiki/GNU_General_Public_License). PAPRECA is designed as an easy-to-modify and easy-to-extend software. For example, new predefined event templates can be added to the original code.
+For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](https://sntioudis.github.io/papreca/).
 
- If you plan on contributing, you must review the [contribution guidelines](CONTRIBUTING.md) of the repository.
+
+Project development and maintainership
+-------------
+This software was originally developed and is currently maintained by [Stavros Ntioudis](https://github.com/sntioudis).
+
+Open-source license
+-------------
+PAPRECA is an open-source software that is distributed under the terms of the [GNU General Public License, version 2](https://en.wikipedia.org/wiki/GNU_General_Public_License). 
+
+Contribution and community guidelines
+-------------
+PAPRECA is designed as an easy-to-modify and easy-to-extend software. For example, new predefined event templates can be added to the original code.
+
+If you plan on contributing, you must review the [contribution guidelines](CONTRIBUTING.md) of the repository.
 
 In the spirit of open source, we encourage contributions from other Authors! Kindly use pull requests to contribute to the code after ensuring your local fork passes ALL tests. Furthermore, you can use GitHub issues for other forms of contribution (e.g., bug fixes, code optimisation, new examples, corrections to documentation). Note that development will solely be performed on the main branch. Merges with the release branch will only happen after ensuring that the code on the main branch is ready for production. Appropriate (semantic) versioning tags will be used to link the released version against the relevant commit.
 Additionally, enquiries can be directed to the original developer and maintainer of this software, Stavros Ntioudis, via e-mail: [stavros.ntioudis20@imperial.ac.uk](mailto:stavros.ntioudis20@imperial.ac.uk).
 
 In any case, kindly review our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in our community.
 
-Documentation
--------------
-For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](https://sntioudis.github.io/papreca/).
 
 Citing PAPRECA
 ---------------
-
 If you use PAPRECA for your research, kindly give credit to the PAPRECA [1], [2] and LAMMPS [3] developers by citing the following papers:
 
 [1] Ntioudis, S., et al. "PAPRECA: A parallel hybrid off-lattice kinetic Monte Carlo/molecular dynamics simulator", Journal of Open Source Software, 9(98), 6714 (2024). https://doi.org/10.21105/joss.06714
