@@ -39,7 +39,9 @@ For additional information (installation, dependencies, theory, algorithms, exam
 
 Project development and maintainership
 -------------
-This software was originally developed and is currently maintained by [Stavros Ntioudis](https://github.com/sntioudis).
+This software is currently maintained and was originally developed by [Stavros Ntioudis](https://github.com/sntioudis).
+
+The following individuals made theoretical contributions to the methodology of the original PAPRECA software: James Ewen, Daniele Dini, C. Heath Turner
 
 Open-source license
 -------------
