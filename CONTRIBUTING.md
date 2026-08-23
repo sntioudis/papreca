@@ -147,7 +147,7 @@ Pull requests must target `main`. Do not open pull requests against `release` un
 
 Keep commits focused and use clear commit messages. Avoid mixing formatting changes, generated files, refactoring, and functional changes in the same commit unless they are inseparable.
 
-### 6.1 Developer Certificate of Origin
+### Developer Certificate of Origin
 
 PAPRECA uses the Developer Certificate of Origin (DCO) 1.1.
 
