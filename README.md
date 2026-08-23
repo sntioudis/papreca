@@ -37,9 +37,9 @@ Documentation
 For additional information (installation, dependencies, theory, algorithms, examples, and more) about PAPRECA please visit our [documentation pages](https://sntioudis.github.io/papreca/).
 
 
-Project development and maintainership
+Project development, ownership, and maintainership
 -------------
-This software is currently maintained and was originally developed by [Stavros Ntioudis](https://github.com/sntioudis) (Imperial College London).
+This software is currently owned, maintained, and was originally developed by [Stavros Ntioudis](https://github.com/sntioudis) (Imperial College London).
 
 The following individuals made theoretical contributions to the methodology of the original PAPRECA software: James Ewen (University of Bath), Daniele Dini (Imperial College London), C. Heath Turner (University of Alabama).
 
