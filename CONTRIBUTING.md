@@ -135,7 +135,7 @@ If the LAMMPS shared library is not installed in a standard library location, ma
 export LD_LIBRARY_PATH="$LAMMPS_LIB_DIR:${LD_LIBRARY_PATH:-}"
 ```
 
-## 6. Branch and commit workflow
+## Branch and commit workflow
 
 The repository uses:
 
