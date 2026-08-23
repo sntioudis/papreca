@@ -135,17 +135,41 @@ If the LAMMPS shared library is not installed in a standard library location, ma
 export LD_LIBRARY_PATH="$LAMMPS_LIB_DIR:${LD_LIBRARY_PATH:-}"
 ```
 
-## Branch and commit workflow
+## 6. Branch and commit workflow
 
 The repository uses:
 
-- `main` for active development and pull requests.
-- `release` for stable releases maintained by the core maintainers.
-- Semantic-version tags, such as `v2.0.0`, for released versions.
+* `main` for active development and pull requests.
+* `release` for stable releases maintained by the core maintainers.
+* Semantic-version tags, such as `v2.0.0`, for released versions.
 
 Pull requests must target `main`. Do not open pull requests against `release` unless a maintainer explicitly requests it.
 
-Keep commits focused and use clear messages. Avoid mixing formatting changes, generated files, refactoring, and functional changes in the same commit unless they are inseparable.
+Keep commits focused and use clear commit messages. Avoid mixing formatting changes, generated files, refactoring, and functional changes in the same commit unless they are inseparable.
+
+### 6.1 Developer Certificate of Origin
+
+PAPRECA uses the Developer Certificate of Origin (DCO) 1.1.
+
+By contributing to PAPRECA, you certify that you have the legal right to submit your contribution under the GNU General Public License, version 2 (GPL-2.0).
+
+Every commit submitted to PAPRECA must include a `Signed-off-by` line:
+
+```text
+Signed-off-by: Your Name <your.email@example.com>
+```
+
+You can add this automatically when committing with:
+
+```bash
+git commit -s
+```
+
+The sign-off certifies your agreement with the Developer Certificate of Origin 1.1:
+
+https://developercertificate.org/
+
+If your contribution is made as part of your employment, you are responsible for ensuring that you have authorization from your employer to submit the contribution under PAPRECA's GPL-2.0 license.
 
 Before opening or updating a pull request, rebase your branch onto the latest upstream `main`:
 
@@ -154,26 +178,15 @@ git fetch upstream
 git rebase upstream/main
 ```
 
-Resolve any conflicts, then continue the rebase:
+Resolve any conflicts locally and ensure that the resulting commit history is clean before pushing your changes.
+
+If you have already pushed the branch before rebasing, update your fork using:
 
 ```bash
-git add <resolved-files>
-git rebase --continue
+git push --force-with-lease
 ```
 
-For the first push of a branch:
-
-```bash
-git push -u origin feature/short-description
-```
-
-If you already pushed the branch before rebasing it, update your fork safely with:
-
-```bash
-git push --force-with-lease origin feature/short-description
-```
-
-Use `--force-with-lease`, not plain `--force`, so that you do not accidentally overwrite remote work you have not seen.
+Use `--force-with-lease` rather than `--force` to reduce the risk of overwriting changes you do not have locally.
 
 ## Coding standards
 
